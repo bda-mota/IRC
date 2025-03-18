@@ -19,8 +19,8 @@ public:
 	Server();
 	~Server();
 
-	void serverInit(); //iniciar o server, criar o socket, fazer o bind, listen e accept
-	void serverSocket(); // criar o socket do server e/ou dos clientes
+	void serverInit(); //iniciar o server, temos que mandar a porta e o password p /ele 
+	void serverSocket(); // criar o socket, fazer o bind, listen
 	void acceptNewClient(); // aceitar um novo cliente
 	void receiveNewData(int fd); // receber novos dados dos clientes
 

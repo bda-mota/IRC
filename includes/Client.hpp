@@ -14,6 +14,7 @@ public:
 	~Client();
 
 	int getFd() const;
+	std::string getIP() const;
 
 	void setFd(int fd);
 	void setIP(std::string IP);

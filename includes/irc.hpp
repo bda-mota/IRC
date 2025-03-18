@@ -16,6 +16,7 @@
 # include <iostream>
 # include <string>
 # include <vector>
+# include <cstring>
 # include <unistd.h>
 # include <sys/socket.h>  // Para funções socket(), bind(), listen(), accept()
 # include <netinet/in.h>  // Para struct sockaddr_in e constantes como INADDR_ANY
@@ -23,6 +24,7 @@
 # include <fcntl.h>
 # include <signal.h>
 # include <stdexcept>
+# include <arpa/inet.h>
 
 // class
 # include "./Client.hpp"

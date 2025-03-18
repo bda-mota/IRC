@@ -78,4 +78,65 @@ void Server::serverInit() {
 	std::cout << "Server started on port " << this->_port << std::endl;
 	std::cout << GREEN << "Server connected." << RESET << std::endl;
 	std::cout << "Waiting for clients..." << std::endl;
+
+	while (Server::_signal == false) {
+		
+		if (poll(fds.data(), fds.size(), 0) == -1 && Server::_signal == false) {
+			throw std::runtime_error("Error: fail to poll.");
+		}
+
+		for (size_t i = 0; i < fds.size(); i++) {
+			if (fds[i].revents & POLLIN) {
+				if (fds[i].fd == _serverFd) {
+					acceptNewClient();
+				} else {
+					receiveNewData(fds[i].fd);
+				}
+			}
+		}
+	}
+	closeFds();
+}
+
+void Server::acceptNewClient() {
+	Client newClient;
+	struct sockaddr_in clientAddr;
+	struct pollfd newPoll;
+	socklen_t clientAddrSize = sizeof(clientAddr);
+
+	int incomingFd = accept(_serverFd, (struct sockaddr *)&clientAddr, &clientAddrSize);
+	if (incomingFd == -1) {
+		throw std::runtime_error("Error: fail to accept new client.");
+	}
+
+	if (fcntl(incomingFd, F_SETFL, O_NONBLOCK) == -1) {
+		throw std::runtime_error("Error: fail to set option O_NONBLOCK on new client.");
+	}
+
+	newPoll.fd = incomingFd;
+	newPoll.events = POLLIN;
+	newPoll.revents = 0;
+
+	newClient.setFd(incomingFd);
+	newClient.setIP(inet_ntoa(clientAddr.sin_addr));
+	clients.push_back(newClient);
+	fds.push_back(newPoll);
+
+	std::cout << GREEN << "Client connected: " << newClient.getIP() << RESET << std::endl;
+}
+
+void Server::receiveNewData(int fd) {
+	char buff[1024];
+	memset(buff, 0, sizeof(buff));
+
+	ssize_t bytes = recv(fd, buff, sizeof(buff) - 1, 0);
+
+	if (bytes <= 0) {
+		std::cout << RED << "Client: " << fd << " disconnected." << RESET << std::endl;
+		clearClients(fd);
+		close(fd);
+	} else {
+		std::cout << "Client: " << fd << " sent: " << buff << std::endl;
+		send(fd, buff, bytes, 0);
+	}
 }
