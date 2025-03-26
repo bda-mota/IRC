@@ -1,6 +1,8 @@
 #include "../includes/irc.hpp"
 
 int main(int argc, char **argv) {
+
+	CommandParse cp;
 	if (argc != 3) {
 		std::cerr << "Usage: " << argv[0] << " <port> <password>." << std::endl;
 		return 1;

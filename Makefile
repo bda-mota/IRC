@@ -14,7 +14,7 @@ RM		=	rm -rf
 
 # Dir and file names
 NAME	=	ircserv
-SRCS	=	./src/main.cpp ./src/Server.cpp ./src/Client.cpp
+SRCS	=	./src/main.cpp ./src/Server.cpp ./src/Client.cpp ./src/CommandParse.cpp
 BIN_DIR =	./bin
 OBJS	=	$(addprefix $(BIN_DIR)/, $(notdir $(SRCS:.cpp=.o)))
 
