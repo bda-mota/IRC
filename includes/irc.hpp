@@ -16,6 +16,7 @@
 # include <iostream>
 # include <string>
 # include <vector>
+#include <sstream> // Para std::istringstream
 # include <cstring>
 # include <unistd.h>
 # include <sys/socket.h>  // Para funções socket(), bind(), listen(), accept()

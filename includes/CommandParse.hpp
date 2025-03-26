@@ -18,6 +18,9 @@ public:
 	~CommandParse();
 
     // métodos, getters e setters
+
+    /* Método responsável pelo processamento do comando enviado pelo cliente*/
+    std::string processCommand(std::string &input);
 };
 
 #endif

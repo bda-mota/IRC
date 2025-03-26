@@ -136,7 +136,11 @@ void Server::receiveNewData(int fd) {
 		clearClients(fd);
 		close(fd);
 	} else {
-		std::cout << "Client: " << fd << " sent: " << buff << std::endl;
+		std::string rawMessage(buff);
+
+		//TODO: recebimento e parsemaneto de comandos deve ser implementado aqui.
+		std::string response = this->commandParser->processCommand(rawMessage);
+		
 		send(fd, buff, bytes, 0);
 	}
 }

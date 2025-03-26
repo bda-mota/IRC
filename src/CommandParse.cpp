@@ -16,3 +16,29 @@ CommandParse &CommandParse::operator=(const CommandParse &other) {
 }
 
 CommandParse::~CommandParse() {}
+
+/* METHODS */
+
+std::string CommandParse::processCommand(std::string &input) {
+
+    std::istringstream iss(input);
+    std::string command;
+    std::vector<std::string> args;
+    std::string param;  // Variável para armazenar cada argumento temporariamente
+
+    iss >> command;
+    while (iss >> param) {
+        args.push_back(param);
+    }
+
+    std::cout << "input: " << input << std::endl;
+
+    std::cout << "command: " << command << std::endl;
+
+    // Exibe os argumentos
+    for (size_t i = 0; i < args.size(); i++) {
+        std::cout << "Arg " << i + 1 << ": " << args[i] << std::endl;
+    }
+
+    return "Command received in process Command.";
+}

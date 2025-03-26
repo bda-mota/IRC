@@ -4,10 +4,15 @@
 # include "./irc.hpp"
 
 class Client;
+class CommandParse;
 
 class Server {
 
 private:
+
+	//TODO:deixar esta estrutura aqui?
+	CommandParse *commandParser;
+
 	std::string _password;
 	int _port;
 	int _serverFd; // fd que será atribuído após criar o socket do server, inicialmente será -1
