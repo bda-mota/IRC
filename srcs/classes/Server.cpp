@@ -1,4 +1,4 @@
-#include "../includes/Server.hpp" 
+#include "../../includes/Server.hpp" 
 
 bool Server::_signal = false; // inicializar a variavel booleana
 
