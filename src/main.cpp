@@ -7,6 +7,7 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 	Server ser;
+
 	std::cout << "---- SERVER ----" << std::endl;
 	try{
 		signal(SIGINT, Server::signalHandler); // ctrl + c
