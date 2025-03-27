@@ -3,6 +3,9 @@
 .DELETE_ON_ERROR: $(NAME)
 .PHONY: all clean fclean re
 
+PORT_NUMBER = 6667
+PASSWORD = "password"
+
 #------------------------------------------------------------------------------#
 #                                VARIABLES                                     #
 #------------------------------------------------------------------------------#
@@ -21,8 +24,8 @@ PATH_OBJS	  =	./objs/
 
 INCLUDES = -I./includes
 FILES_SRC = main.cpp
-FILES_COMMANDS = 
-FILES_CLASSES = Server.cpp Client.cpp
+FILES_COMMANDS = JOIN.cpp
+FILES_CLASSES = Server.cpp User.cpp Channel.cpp
 
 
 # objects files
@@ -48,6 +51,9 @@ MAGENT	=	"\033[95m"
 # Default target to build the project
 all: $(NAME)
 
+run: all
+	@./$(NAME) $(PORT_NUMBER) $(PASSWORD)
+	
 # Creates the executable
 $(NAME): $(OBJS) $(OBJS_CLASSES) $(OBJS_COMMANDS)
 	@$(CC) $(FLAGS) $(OBJS) $(OBJS_CLASSES) $(OBJS_COMMANDS) -o $(NAME)
