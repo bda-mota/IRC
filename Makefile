@@ -3,6 +3,9 @@
 .DELETE_ON_ERROR: $(NAME)
 .PHONY: all clean fclean re
 
+PORT_NUMBER = 6667
+PASSWORD = "password"
+
 #------------------------------------------------------------------------------#
 #                                VARIABLES                                     #
 #------------------------------------------------------------------------------#
@@ -48,6 +51,9 @@ MAGENT	=	"\033[95m"
 # Default target to build the project
 all: $(NAME)
 
+run: all
+	@./$(NAME) $(PORT_NUMBER) $(PASSWORD)
+	
 # Creates the executable
 $(NAME): $(OBJS) $(OBJS_CLASSES) $(OBJS_COMMANDS)
 	@$(CC) $(FLAGS) $(OBJS) $(OBJS_CLASSES) $(OBJS_COMMANDS) -o $(NAME)
