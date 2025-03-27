@@ -2,17 +2,16 @@
 # define CHANNEL_HPP
 
 # include <iostream>
-# include <vector>
-# include "./Client.hpp"
+# include "./irc.hpp"
 
 class Channel {
 	private:
 		std::string _name;
 		std::string _topic;
-		std::vector<Client> _clients;
+		std::vector<User*> _users;
 
 	public:
-		//Channel();
+		Channel();
 		Channel(std::string name);
 		Channel(const Channel &other);
 		Channel &operator=(Channel const &src);
@@ -22,10 +21,10 @@ class Channel {
 		void setTopic(std::string topic);
 		std::string getName() const;
 		std::string getTopic() const;
+		std::vector<User*>& getUsers();
 
-		void addClient(Client client);
-		void removeClient(int fd);
-		std::vector<Client> getClients();
+		void addUser(User user);
+		void removeUser(int fd);
 };
 
 #endif

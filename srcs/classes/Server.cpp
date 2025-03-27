@@ -13,9 +13,9 @@ void Server::signalHandler(int signal) {
 }
 
 void Server::closeFds() {
-	for (size_t i = 0; i < clients.size(); i++) {
-		std::cout << "Client: " << clients[i].getFd() << " disconnected." << std::endl;
-		close(clients[i].getFd());
+	for (size_t i = 0; i < users.size(); i++) {
+		std::cout << "Client: " << users[i].getFd() << " disconnected." << std::endl;
+		close(users[i].getFd());
 	}
 	if (_serverFd != -1) {
 		std::cout << std::endl << "Server disconnected." << std::endl;
@@ -23,17 +23,16 @@ void Server::closeFds() {
 	}
 }
 
-
-void Server::clearClients(int fd) {
+void Server::clearUsers(int fd) {
 	for (size_t i = 0; i < fds.size(); i++) {
 		if (fds[i].fd == fd) {
 			fds.erase(fds.begin() + i);
 			break;
 		}
 	}
-	for (size_t i = 0; i < clients.size(); i++) {
-		if (clients[i].getFd() == fd) {
-			clients.erase(clients.begin() + i);
+	for (size_t i = 0; i < users.size(); i++) {
+		if (users[i].getFd() == fd) {
+			users.erase(users.begin() + i);
 			break;
 		}
 	}
@@ -88,7 +87,7 @@ void Server::serverInit() {
 		for (size_t i = 0; i < fds.size(); i++) {
 			if (fds[i].revents & POLLIN) {
 				if (fds[i].fd == _serverFd) {
-					acceptNewClient();
+					acceptNewUser();
 				} else {
 					receiveNewData(fds[i].fd);
 				}
@@ -98,13 +97,13 @@ void Server::serverInit() {
 	closeFds();
 }
 
-void Server::acceptNewClient() {
-	Client newClient;
-	struct sockaddr_in clientAddr;
+void Server::acceptNewUser() {
+	User newUser;
+	struct sockaddr_in userAddr;
 	struct pollfd newPoll;
-	socklen_t clientAddrSize = sizeof(clientAddr);
+	socklen_t userAddrSize = sizeof(userAddr);
 
-	int incomingFd = accept(_serverFd, (struct sockaddr *)&clientAddr, &clientAddrSize);
+	int incomingFd = accept(_serverFd, (struct sockaddr *)&userAddr, &userAddrSize);
 	if (incomingFd == -1) {
 		throw std::runtime_error("Error: fail to accept new client.");
 	}
@@ -117,12 +116,12 @@ void Server::acceptNewClient() {
 	newPoll.events = POLLIN;
 	newPoll.revents = 0;
 
-	newClient.setFd(incomingFd);
-	newClient.setIP(inet_ntoa(clientAddr.sin_addr));
-	clients.push_back(newClient);
+	newUser.setFd(incomingFd);
+	newUser.setIP(inet_ntoa(userAddr.sin_addr));
+	users.push_back(newUser);
 	fds.push_back(newPoll);
 
-	std::cout << GREEN << "Client connected: " << newClient.getIP() << RESET << std::endl;
+	std::cout << GREEN << "Client connected: " << newUser.getIP() << RESET << std::endl;
 }
 
 void Server::receiveNewData(int fd) {
@@ -133,10 +132,12 @@ void Server::receiveNewData(int fd) {
 
 	if (bytes <= 0) {
 		std::cout << RED << "Client: " << fd << " disconnected." << RESET << std::endl;
-		clearClients(fd);
+		clearUsers(fd);
 		close(fd);
 	} else {
 		std::cout << "Client: " << fd << " sent: " << buff << std::endl;
 		send(fd, buff, bytes, 0);
 	}
 }
+
+std::map<std::string, Channel>& Server::getChannels() { return channels; }

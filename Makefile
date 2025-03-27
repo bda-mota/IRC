@@ -21,8 +21,8 @@ PATH_OBJS	  =	./objs/
 
 INCLUDES = -I./includes
 FILES_SRC = main.cpp
-FILES_COMMANDS = 
-FILES_CLASSES = Server.cpp Client.cpp
+FILES_COMMANDS = JOIN.cpp
+FILES_CLASSES = Server.cpp User.cpp Channel.cpp
 
 
 # objects files
