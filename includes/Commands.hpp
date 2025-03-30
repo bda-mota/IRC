@@ -6,7 +6,11 @@
 class User;
 class Server;
 
-// JOIN
+// COMMANDS
 void	join(Server& server, User* user, const std::string& channelName);
+void	privmsg(Server& server, User* sender, const std::string& target, const std::string& message);
+
+// AUXILIARIES
+bool	isUserInChannel(User& user, Channel& channel);
 
 #endif
