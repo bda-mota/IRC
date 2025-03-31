@@ -32,5 +32,6 @@
 # include "./Client.hpp"
 # include "./Server.hpp"
 # include "./CommandParse.hpp"
+# include "./Commands.hpp"
 
 #endif

@@ -2,7 +2,10 @@
 
 bool Server::_signal = false; // inicializar a variavel booleana
 
-Server::Server() {_serverFd = -1;}
+Server::Server() {
+	_serverFd = -1;
+	_commandParser = new CommandParse();
+}
 
 Server::~Server() {}
 
@@ -139,8 +142,8 @@ void Server::receiveNewData(int fd) {
 		std::string rawMessage(buff);
 
 		//TODO: recebimento e parsemaneto de comandos deve ser implementado aqui.
-		std::string response = this->commandParser->processCommand(rawMessage);
-		
+		std::string response = this->_commandParser->processCommand(rawMessage);
+
 		send(fd, buff, bytes, 0);
 	}
 }

@@ -11,7 +11,7 @@ class Server {
 private:
 
 	//TODO:deixar esta estrutura aqui?
-	CommandParse *commandParser;
+	CommandParse *_commandParser;
 
 	std::string _password;
 	int _port;
