@@ -141,3 +141,5 @@ void Server::receiveNewData(int fd) {
 }
 
 std::map<std::string, Channel>& Server::getChannels() { return channels; }
+
+std::vector<User>& Server::getUsers() { return users; }

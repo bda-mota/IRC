@@ -32,6 +32,7 @@ class Server {
 		void clearUsers(int fd); // limpar todos os clientes que estão no vector do server
 		
 		std::map<std::string, Channel>& getChannels(); // da para modificar os channels do server
+		std::vector<User>& getUsers(); // da para modificar os users do server
 };
 
 #endif
