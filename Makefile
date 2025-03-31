@@ -24,7 +24,7 @@ PATH_OBJS	  =	./objs/
 
 INCLUDES = -I./includes
 FILES_SRC = main.cpp
-FILES_COMMANDS = JOIN.cpp
+FILES_COMMANDS = JOIN.cpp PRIVMSG.cpp TOPIC.cpp auxiliaries.cpp
 FILES_CLASSES = Server.cpp User.cpp Channel.cpp
 
 
@@ -62,7 +62,7 @@ $(NAME): $(OBJS) $(OBJS_CLASSES) $(OBJS_COMMANDS)
 	@echo "\033[1;92m  ____  ____   ___  ___  ____  ____  _  _  ____  ____  \033[0m"
 	@echo "\033[1;92m (_  _)(  _ \ / __)/ __)( ___)(  _ \( \/ )( ___)(  _ \ \033[0m"
 	@echo "\033[1;92m  _)(_  )   /( (__ \__ \ )__)  )   / \  /  )__)  )   /\033[0m"
-	@echo  "\033[1;92m(____)(_)\_) \___)(___/(____)(_)\_)  \/  (____)(_)\_)\033[0m"
+	@echo "\033[1;92m (____)(_)\_) \___)(___/(____)(_)\_)  \/  (____)(_)\_)\033[0m"
 
 
 # Rule to compile object files
