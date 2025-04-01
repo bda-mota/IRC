@@ -3,6 +3,11 @@
 
 # include "./irc.hpp"
 
+/*
+    Classe responsável por processar os comandos enviados pelo cliente.
+    Aqui eu pego a mensagem enviada pelo cliente, separo o comando e os argumentos, armazeno o comando em _command e envio os argumentos para CommandsArgs.
+*/
+
 class Command {
 
     private:

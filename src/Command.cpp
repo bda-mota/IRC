@@ -26,11 +26,11 @@ std::string Command::processCommand(std::string &input) {
     std::string param;
 
     iss >> _command;
+    std::transform(_command.begin(), _command.end(), _command.begin(), ::toupper); // transformando em maiúsculo
 
-    // TODO: extrair os argumentos para o CommandArgs posteriormente
     while (iss >> param) {
         args.push_back(param);
     }
-    std::cout << "Command: " << _command << std::endl;
-    return "Unknown command.\r\n";
+
+    return CommandsArgs::executeCommand(_command, args);
 }
