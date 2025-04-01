@@ -31,7 +31,7 @@
 // class
 # include "./Client.hpp"
 # include "./Server.hpp"
-# include "./CommandParse.hpp"
+# include "./Command.hpp"
 # include "./CommandsArgs.hpp"
 
 #endif

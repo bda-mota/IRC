@@ -1,25 +1,25 @@
-#include "../includes/CommandParse.hpp"
+#include "../includes/Command.hpp"
 
 /* CONSTRUCTORS and DESTRUCTOR */
 
-CommandParse::CommandParse() : _command("") {}
+Command::Command() : _command("") {}
 
-CommandParse::CommandParse(const CommandParse &other) {
+Command::Command(const Command &other) {
     *this = other;
 }
 
-CommandParse &CommandParse::operator=(const CommandParse &other) {
+Command &Command::operator=(const Command &other) {
     if (this != &other) {
         this->_command = other._command;
     }
     return *this;
 }
 
-CommandParse::~CommandParse() {}
+Command::~Command() {}
 
 /* METHODS */
 
-std::string CommandParse::processCommand(std::string &input) {
+std::string Command::processCommand(std::string &input) {
 
     std::istringstream iss(input);
     std::vector<std::string> args;
@@ -31,5 +31,6 @@ std::string CommandParse::processCommand(std::string &input) {
     while (iss >> param) {
         args.push_back(param);
     }
+    std::cout << "Command: " << _command << std::endl;
     return "Unknown command.\r\n";
 }

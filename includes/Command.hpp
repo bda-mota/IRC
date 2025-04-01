@@ -1,9 +1,9 @@
-#ifndef COMMANDPARSE_HPP
-# define COMMANDPARSE_HPP
+#ifndef COMMAND_HPP
+# define COMMAND_HPP
 
 # include "./irc.hpp"
 
-class CommandParse {
+class Command {
 
     private:
 
@@ -12,10 +12,10 @@ class CommandParse {
     public:
 
     /* Constructors and Destructor */
-	CommandParse();
-    CommandParse(const CommandParse &other);
-    CommandParse &operator=(const CommandParse &other);
-	~CommandParse();
+	Command();
+    Command(const Command &other);
+    Command &operator=(const Command &other);
+	~Command();
 
     // métodos, getters e setters
 

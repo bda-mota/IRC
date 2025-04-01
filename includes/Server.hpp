@@ -4,14 +4,14 @@
 # include "./irc.hpp"
 
 class Client;
-class CommandParse;
+class Command;
 
 class Server {
 
 private:
 
 	//TODO:deixar esta estrutura aqui?
-	CommandParse *_commandParser;
+	Command *_commandParser;
 
 	std::string _password;
 	int _port;

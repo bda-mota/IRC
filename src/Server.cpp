@@ -4,7 +4,7 @@ bool Server::_signal = false; // inicializar a variavel booleana
 
 Server::Server() {
 	_serverFd = -1;
-	_commandParser = new CommandParse();
+	_commandParser = new Command();
 }
 
 Server::~Server() {}
