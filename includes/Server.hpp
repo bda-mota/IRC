@@ -33,6 +33,10 @@ class Server {
 		
 		std::map<std::string, Channel>& getChannels(); // da para modificar os channels do server
 		std::vector<User>& getUsers(); // da para modificar os users do server
+
+		int getServerFd() const;
+
+		void broadcast(const std::string& message, User* sender); // enviar mensagem para todos os clientes
 };
 
 #endif

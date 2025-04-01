@@ -43,6 +43,8 @@ void	privmsg(Server& server, User* sender, const std::string& target, const std:
 			return;
 		}
 	}
+	//server.broadcast(response, user);
+
 	
 	std::string error = ":ircserver 401 " + sender->getNickName() + " " + target + " :No such nick/channel" + END;
 	send(sender->getFd(), error.c_str(), error.length(), 0);

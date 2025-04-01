@@ -24,4 +24,6 @@ void	topic(Server& server, User* user, const std::string& channelName, const std
 		std::string notify = ":" + user->getNickName() + " TOPIC " + channelName + " :" + newTopic + END;
 		send(currentUser->getFd(), notify.c_str(), notify.length(), 0);
 	}
+	//channels[channelName].broadcast(response, user);
+
 }

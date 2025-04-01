@@ -20,4 +20,5 @@ void	join(Server& server, User* user, const std::string& channelName) {
 			send(currentUser->getFd(), notify.c_str(), notify.length(), 0);
 		}
 	}
+	//channels[channelName].broadcast(response, user);
 }
