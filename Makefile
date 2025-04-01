@@ -15,11 +15,6 @@ CC		=	c++
 FLAGS	=	-Wall -Werror -Wextra -std=c++98
 RM		=	rm -rf
 NAME	=	ircserv
-<<<<<<< HEAD
-SRCS	=	./src/main.cpp ./src/Server.cpp ./src/Client.cpp ./src/Command.cpp ./src/CommandsArgs.cpp
-BIN_DIR =	./bin
-OBJS	=	$(addprefix $(BIN_DIR)/, $(notdir $(SRCS:.cpp=.o)))
-=======
 
 # Dir and files
 PATH_SRCS	  =	./srcs/
@@ -30,14 +25,13 @@ PATH_OBJS	  =	./objs/
 INCLUDES = -I./includes
 FILES_SRC = main.cpp
 FILES_COMMANDS = JOIN.cpp PRIVMSG.cpp TOPIC.cpp auxiliaries.cpp
-FILES_CLASSES = Server.cpp User.cpp Channel.cpp
+FILES_CLASSES = Server.cpp User.cpp Channel.cpp Command.cpp CommandsArgs.cpp
 
 
 # objects files
 OBJS = $(addprefix $(PATH_OBJS), $(FILES_SRC:.cpp=.o))
 OBJS_COMMANDS = $(addprefix $(PATH_OBJS), $(FILES_COMMANDS:.cpp=.o))
 OBJS_CLASSES = $(addprefix $(PATH_OBJS), $(FILES_CLASSES:.cpp=.o))
->>>>>>> 16b594c92be1a07eb3cd45df5c45e4a6fae5c02e
 
 # Colors
 WHITE_U	=	"\033[37;1;4m"

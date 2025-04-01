@@ -26,6 +26,7 @@ std::string Command::processCommand(std::string &input) {
     std::string param;
 
     iss >> _command;
+    //TODO: verificar se comando minúsculo é válido
     std::transform(_command.begin(), _command.end(), _command.begin(), ::toupper); // transformando em maiúsculo
 
     while (iss >> param) {
