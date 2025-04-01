@@ -31,8 +31,5 @@ std::string CommandParse::processCommand(std::string &input) {
     while (iss >> param) {
         args.push_back(param);
     }
-
-    std::cout << "command: " << _command << std::endl;
-
-    return "Command received in process Command.";
+    return "Unknown command.\r\n";
 }

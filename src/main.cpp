@@ -11,7 +11,7 @@ int main(int argc, char **argv) {
 	std::cout << "---- SERVER ----" << std::endl;
 	try{
 
-		Commands::populateMap(); //-> populate the map with the commands
+		CommandsArgs::populateMap(); //-> populate the map with the commands
 		signal(SIGINT, Server::signalHandler); // ctrl + c
 		signal(SIGQUIT, Server::signalHandler); // (ctrl + \)
 		ser.serverInit(); //-> initialize the server
