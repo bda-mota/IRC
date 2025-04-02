@@ -46,6 +46,8 @@ std::string CommandsArgs::privmsg(const std::vector<std::string>& args, Server& 
 			return "PRIVMSG command executed!\r\n";
 		}
 	}
+	//server.broadcast(response, user);
+
 	
 	std::string error = ":ircserver 401 " + sender->getNickName() + " " + target + " :No such nick/channel" + END;
 	send(sender->getFd(), error.c_str(), error.length(), 0);

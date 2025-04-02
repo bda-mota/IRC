@@ -40,3 +40,13 @@ void Channel::removeUser(int fd) {
 		}
 	}
 }
+
+void Channel::broadcast(const std::string& message, User* sender) {
+	std::vector<User*> users = this->getUsers();
+
+	for (std::vector<User*>::iterator it = users.begin(); it != users.end(); ++it) {
+		if ((*it)->getFd() != sender->getFd()) {
+			send((*it)->getFd(), message.c_str(), message.length(), 0);
+		}
+	}
+}

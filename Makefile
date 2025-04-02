@@ -29,7 +29,6 @@ FILES_COMMANDS = USER.cpp NICK.cpp PASS.cpp CAP.cpp QUIT.cpp JOIN.cpp \
 
 FILES_CLASSES = Server.cpp User.cpp Channel.cpp Command.cpp CommandsArgs.cpp
 
-
 # objects files
 OBJS = $(addprefix $(PATH_OBJS), $(FILES_SRC:.cpp=.o))
 OBJS_COMMANDS = $(addprefix $(PATH_OBJS), $(FILES_COMMANDS:.cpp=.o))

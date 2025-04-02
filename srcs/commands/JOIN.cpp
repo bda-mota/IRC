@@ -28,4 +28,5 @@ std::string CommandsArgs::join(const std::vector<std::string>& args, Server& ser
 		}
 	}
 	return "JOIN command executed!\r\n";
+	//channels[channelName].broadcast(response, user);
 }

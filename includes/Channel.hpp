@@ -25,6 +25,7 @@ class Channel {
 
 		void addUser(User user);
 		void removeUser(int fd);
+		void broadcast(const std::string& message, User* sender);
 };
 
 #endif

@@ -34,4 +34,5 @@ std::string CommandsArgs::topic(const std::vector<std::string>& args, Server& se
 		send(currentUser->getFd(), notify.c_str(), notify.length(), 0);
 	}
 	return "TOPIC command executed!\r\n";
+	//channels[channelName].broadcast(response, user);
 }
