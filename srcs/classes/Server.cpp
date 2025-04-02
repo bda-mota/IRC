@@ -140,8 +140,7 @@ void Server::receiveNewData(int fd) {
 	} else {
 		std::string rawMessage(buff);
 
-		//TODO: recebimento e parsemaneto de comandos deve ser implementado aqui.
-		std::string response = this->_commandParser->processCommand(rawMessage);
+		std::string response = this->_commandParser->processCommand(rawMessage, *this, &users[fd]);
 
 		send(fd, buff, bytes, 0);
 	}

@@ -2,18 +2,16 @@
 #define COMMANDSARGS_HPP
 
 #include "irc.hpp"
+#include "Server.hpp"
 
-/*
-    CommandsArgs é uma classe que possui um map de comandos e funções que executam esses comandos.
-    Eu verifico se o comando recebido está no mapa e executo a função correspondente.
-
-*/
+class Server;
+class User;
 
 class CommandsArgs {
 
     public:
 
-    typedef std::string (*funcPtr)(const std::vector<std::string> &);
+    typedef std::string (*funcPtr)(const std::vector<std::string>&, Server&, User*);
 
     /* Constructors and Destructor */
     CommandsArgs();
@@ -25,27 +23,28 @@ class CommandsArgs {
     static void populateMap();
 
     /* Método para executar o comando */
-    static std::string executeCommand(const std::string &command, const std::vector<std::string> &args);
+    static std::string executeCommand(const std::string& command, const std::vector<std::string>& args, Server& server, User* user);
 
     // Métodos para execução de comandos
-    static std::string user(const std::vector<std::string>& args);
-    static std::string nick(const std::vector<std::string>& args);
-    static std::string pass(const std::vector<std::string>& args);
-    static std::string cap(const std::vector<std::string>& args);
-    static std::string quit(const std::vector<std::string>& args);
-    //static std::string join(const std::vector<std::string>& args);
-    static std::string listc(const std::vector<std::string>& args);
+    // static std::string user(const std::vector<std::string>& args);
+    // static std::string nick(const std::vector<std::string>& args);
+    // static std::string pass(const std::vector<std::string>& args);
+    // static std::string cap(const std::vector<std::string>& args);
+    // static std::string quit(const std::vector<std::string>& args);
+    static std::string join(const std::vector<std::string>& args, Server& server, User* user);
+    // static std::string listc(const std::vector<std::string>& args);
     //static std::string privmsg(const std::vector<std::string>& args);
-    static std::string kick(const std::vector<std::string>& args);
-    static std::string part(const std::vector<std::string>& args);
-    static std::string who(const std::vector<std::string>& args);
-    static std::string mode(const std::vector<std::string>& args);
+    // static std::string kick(const std::vector<std::string>& args);
+    // static std::string part(const std::vector<std::string>& args);
+    // static std::string who(const std::vector<std::string>& args);
+    // static std::string mode(const std::vector<std::string>& args);
     //static std::string topic(const std::vector<std::string>& args);
-    static std::string invite(const std::vector<std::string>& args);
+    // static std::string invite(const std::vector<std::string>& args);
 
     private:
 
     static std::map<std::string, funcPtr> _messageFunctions;
+
 };
 
 #endif // COMMANDSARGS_HPP

@@ -3,16 +3,14 @@
 
 # include "./irc.hpp"
 
+class Server;
+
 /*
     Classe responsável por processar os comandos enviados pelo cliente.
     Aqui eu pego a mensagem enviada pelo cliente, separo o comando e os argumentos, armazeno o comando em _command e envio os argumentos para CommandsArgs.
 */
 
 class Command {
-
-    private:
-
-    std::string _command; // comando
 
     public:
 
@@ -25,7 +23,7 @@ class Command {
     // métodos, getters e setters
 
     /* Método responsável pelo processamento do comando enviado pelo cliente */
-    std::string processCommand(std::string &input);
+    static std::string processCommand(std::string &input, Server& server, User* user);
 };
 
 #endif
