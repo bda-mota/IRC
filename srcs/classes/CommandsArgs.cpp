@@ -19,20 +19,20 @@ CommandsArgs::~CommandsArgs() {}
 
 /* Método para popular estrutura de comandos */
 void CommandsArgs::populateMap() {
-    // _messageFunctions["USER"] = user;
-    // _messageFunctions["NICK"] = nick;
-    // _messageFunctions["PASS"] = pass;
-    // _messageFunctions["CAP"] = cap;
-    // _messageFunctions["QUIT"] = quit;
+    _messageFunctions["USER"] = user;
+    _messageFunctions["NICK"] = nick;
+    _messageFunctions["PASS"] = pass;
+    _messageFunctions["CAP"] = cap;
+    _messageFunctions["QUIT"] = quit;
     _messageFunctions["JOIN"] = join;
-    // _messageFunctions["LISTC"] = listc;
-    //_messageFunctions["PRIVMSG"] = privmsg;
-    // _messageFunctions["KICK"] = kick;
-    // _messageFunctions["PART"] = part;
-    // _messageFunctions["WHO"] = who;
-    // _messageFunctions["MODE"] = mode;
+    _messageFunctions["LISTC"] = listc;
+    _messageFunctions["PRIVMSG"] = privmsg;
+    _messageFunctions["KICK"] = kick;
+    _messageFunctions["PART"] = part;
+    _messageFunctions["WHO"] = who;
+    _messageFunctions["MODE"] = mode;
     _messageFunctions["TOPIC"] = topic;
-    // _messageFunctions["INVITE"] = invite;
+    _messageFunctions["INVITE"] = invite;
 }
 
 std::string CommandsArgs::executeCommand(const std::string& command, const std::vector<std::string>& args, Server& server, User* user) {
