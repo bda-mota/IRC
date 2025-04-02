@@ -24,7 +24,7 @@ PATH_OBJS	  =	./objs/
 
 INCLUDES = -I./includes
 FILES_SRC = main.cpp
-FILES_COMMANDS = JOIN.cpp PRIVMSG.cpp TOPIC.cpp auxiliaries.cpp
+FILES_COMMANDS = JOIN.cpp PRIVMSG.cpp TOPIC.cpp auxiliaries.cpp WHO.cpp NICK.cpp
 FILES_CLASSES = Server.cpp User.cpp Channel.cpp
 
 

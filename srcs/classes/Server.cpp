@@ -143,3 +143,15 @@ void Server::receiveNewData(int fd) {
 std::map<std::string, Channel>& Server::getChannels() { return channels; }
 
 std::vector<User>& Server::getUsers() { return users; }
+
+int Server::getServerFd() const { return _serverFd; }
+
+void	Server::broadcast(const std::string& message, User* sender) {
+	std::vector<User>& users = this->getUsers();
+
+	for (std::vector<User>::iterator it = users.begin(); it != users.end(); ++it) {
+		if (it->getFd() != sender->getFd()) {
+			send(it->getFd(), message.c_str(), message.length(), 0);
+		}
+	}
+}
