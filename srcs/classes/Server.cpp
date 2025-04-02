@@ -2,7 +2,10 @@
 
 bool Server::_signal = false; // inicializar a variavel booleana
 
-Server::Server() {_serverFd = -1;}
+Server::Server() {
+	_serverFd = -1;
+	_commandParser = new Command();
+}
 
 Server::~Server() {}
 
@@ -135,7 +138,10 @@ void Server::receiveNewData(int fd) {
 		clearUsers(fd);
 		close(fd);
 	} else {
-		std::cout << "Client: " << fd << " sent: " << buff << std::endl;
+		std::string rawMessage(buff);
+
+		std::string response = this->_commandParser->processCommand(rawMessage, *this, &users[fd]);
+
 		send(fd, buff, bytes, 0);
 	}
 }

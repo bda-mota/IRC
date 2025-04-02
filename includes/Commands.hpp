@@ -13,7 +13,6 @@ void	topic(Server& server, User* user, const std::string& channelName, const std
 void	who(Server& server, User* user, const std::string& target);
 void	nick(Server& server, User* user, const std::string& newNick);
 
-
 // AUXILIARIES
 bool	isUserInChannel(User& user, Channel& channel);
 bool	isNickInUse(const std::string& nick, const std::vector<User>& users);

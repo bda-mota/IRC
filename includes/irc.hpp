@@ -6,6 +6,8 @@
 # include <string>
 # include <vector>
 # include <map>
+#include <sstream> // Para std::istringstream
+#include <algorithm> // Para std::transform
 # include <algorithm>
 # include <cstring>
 # include <unistd.h>
@@ -20,6 +22,8 @@
 // files includes 
 # include "./User.hpp"
 # include "./Server.hpp"
+# include "./Command.hpp"
+# include "./CommandsArgs.hpp"
 # include "./Channel.hpp"
 # include "./Commands.hpp"
 # include "./Macros.hpp"

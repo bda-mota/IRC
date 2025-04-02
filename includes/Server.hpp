@@ -3,12 +3,14 @@
 
 # include "./irc.hpp"
 
-class User;
+class Command;
 class Channel;
+class User;
 
 class Server {
 
 	private:
+		Command *_commandParser;
 		int _port;
 		int _serverFd; // fd que será atribuído após criar o socket do server, inicialmente será -1
 		static bool _signal; // variável que será usada para verificar se o server foi encerrado
