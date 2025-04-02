@@ -33,12 +33,12 @@ class CommandsArgs {
     // static std::string quit(const std::vector<std::string>& args);
     static std::string join(const std::vector<std::string>& args, Server& server, User* user);
     // static std::string listc(const std::vector<std::string>& args);
-    //static std::string privmsg(const std::vector<std::string>& args);
+    static std::string privmsg(const std::vector<std::string>& args, Server& server, User* sender);
     // static std::string kick(const std::vector<std::string>& args);
     // static std::string part(const std::vector<std::string>& args);
     // static std::string who(const std::vector<std::string>& args);
     // static std::string mode(const std::vector<std::string>& args);
-    //static std::string topic(const std::vector<std::string>& args);
+    static std::string topic(const std::vector<std::string>& args, Server& server, User* user);
     // static std::string invite(const std::vector<std::string>& args);
 
     private:

@@ -31,7 +31,7 @@ void CommandsArgs::populateMap() {
     // _messageFunctions["PART"] = part;
     // _messageFunctions["WHO"] = who;
     // _messageFunctions["MODE"] = mode;
-    //_messageFunctions["TOPIC"] = topic;
+    _messageFunctions["TOPIC"] = topic;
     // _messageFunctions["INVITE"] = invite;
 }
 
