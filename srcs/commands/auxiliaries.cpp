@@ -10,9 +10,9 @@ bool	isUserInChannel(User& user, Channel& channel) {
 	return false;
 }
 
-bool	isNickInUse(const std::string& nick, const std::vector<User>& users) {
-	for (std::vector<User>::const_iterator it = users.begin(); it != users.end(); ++it) {
-		if (it->getNickName() == nick) {
+bool	isNickInUse(const std::string& nick, const std::vector<User*>& users) {
+	for (std::vector<User*>::const_iterator it = users.begin(); it != users.end(); ++it) {
+		if ((*it)->getNickName() == nick) {
 			return true;
 		}
 	}

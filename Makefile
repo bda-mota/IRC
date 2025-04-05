@@ -4,7 +4,7 @@
 .PHONY: all clean fclean re
 
 PORT_NUMBER = 6667
-PASSWORD = "password"
+PASSWORD = 123
 
 #------------------------------------------------------------------------------#
 #                                VARIABLES                                     #

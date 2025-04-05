@@ -8,24 +8,24 @@ class Channel {
 	private:
 		std::string _name;
 		std::string _topic;
-		std::vector<User*> _users;
+		std::vector<User*> _channelUsers;
 
 	public:
 		Channel();
 		Channel(std::string name);
-		Channel(const Channel &other);
-		Channel &operator=(Channel const &src);
+		Channel(Channel const& other);
+		Channel &operator=(Channel const& other);
 		~Channel();
 
 		void setName(std::string name);
 		void setTopic(std::string topic);
-		std::string getName() const;
-		std::string getTopic() const;
+		const std::string& getName() const;
+		const std::string& getTopic() const;
 		std::vector<User*>& getUsers();
 
-		void addUser(User user);
-		void removeUser(int fd);
-		void broadcast(const std::string& message, User* sender);
+		void	addUser(User* user);
+		void	removeUser(int fd);
+		void	broadcast(const std::string& message, User* sender);
 };
 
 #endif
