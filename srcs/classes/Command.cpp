@@ -21,16 +21,16 @@ std::string Command::processCommand(std::string &input, Server& server, User* us
 
     std::istringstream iss(input);
     std::vector<std::string> args;
-    std::string param;
-    std::string command;
+    std::string param; // argumento do comando 
+    std::string command; //primeiro argumento do comando
 
     iss >> command;
-    //TODO: verificar se comando minúsculo é válido
+    //TODO: pode ser minusculo ou maiusculo
     std::transform(command.begin(), command.end(), command.begin(), ::toupper); // transformando em maiúsculo
 
-    while (iss >> param) {
-        args.push_back(param);
-    }
+	while (iss >> param) {
+		args.push_back(param);
+	}
 
     return CommandsArgs::executeCommand(command, args, server, user);
 }
