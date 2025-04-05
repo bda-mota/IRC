@@ -54,7 +54,10 @@ all: $(NAME)
 
 run: all
 	@./$(NAME) $(PORT_NUMBER) $(PASSWORD)
-	
+
+valgrind:
+	valgrind --leak-check=full --track-origins=yes --show-leak-kinds=all ./ircserv $(PORT_NUMBER) $(PASSWORD)
+
 # Creates the executable
 $(NAME): $(OBJS) $(OBJS_CLASSES) $(OBJS_COMMANDS)
 	@$(CC) $(FLAGS) $(OBJS) $(OBJS_CLASSES) $(OBJS_COMMANDS) -o $(NAME)

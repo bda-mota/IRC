@@ -3,6 +3,8 @@
 
 # include "./irc.hpp"
 
+class Channel;
+
 class User {
 
 	private:
@@ -11,6 +13,7 @@ class User {
 		std::string _userName;
 		std::string _nickName;
 		std::string _realName; //verificar se é necessário
+		std::vector<Channel*> _joinedChannels; 
 
 	public:
 		User();
@@ -22,12 +25,17 @@ class User {
 		const std::string& getUserName() const;
 		const std::string& getNickName() const;
 		const std::string& getRealName() const;
+		const std::vector<Channel*>& getJoinedChannels() const;
+		std::vector<Channel*>& getJoinedChannels();
 		
 		void setFd(int fd);
 		void setIP(std::string const& IP);
 		void setUserName(std::string const& userName);
 		void setNickName(std::string const& nickName);
 		void setRealName(std::string const& realName);
+
+		void joinChannel(Channel* channel);
+		bool isInChannel(Channel* channel) const;
 };
 
 #endif

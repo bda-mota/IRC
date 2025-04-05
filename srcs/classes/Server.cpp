@@ -8,6 +8,7 @@ Server::Server() {
 }
 
 Server::~Server() {
+	std::cout << "Server destructor called." << std::endl;
 	if (_commandParser) {
 		delete _commandParser;
 	}
@@ -20,6 +21,7 @@ void Server::signalHandler(int signal) {
 }
 
 void Server::closeFds() {
+	std::cout << "Closing all file descriptors..." << std::endl;
 	for (size_t i = 0; i < _serverUsers.size(); i++) {
 		std::cout << "Client: " << _serverUsers[i]->getFd() << " disconnected." << std::endl;
 		close(_serverUsers[i]->getFd());
@@ -184,8 +186,9 @@ void	Server::broadcast(const std::string& message, User* sender) {
 	std::vector<User*>& users = this->getUsers();
 
 	for (std::vector<User*>::iterator it = users.begin(); it != users.end(); ++it) {
-		if ((*it)->getFd() != sender->getFd()) {
-			send((*it)->getFd(), message.c_str(), message.length(), 0);
+		User* target = *it;
+		if (target && target->getFd() > 0 && target->getFd() != sender->getFd()) {
+			send(target->getFd(), message.c_str(), message.length(), 0);
 		}
 	}
 }
