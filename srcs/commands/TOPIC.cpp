@@ -10,24 +10,24 @@ std::string CommandsArgs::topic(const std::vector<std::string>& args, Server& se
 	const std::string& channelName = args[0];
 	std::string newTopic = (args.size() > 1) ? args[1] : "";
 
-	std::map<std::string, Channel>& channels = server.getChannels();
+	std::map<std::string, Channel*>& channels = server.getChannels();
 	
 	if (channels.find(channelName) == channels.end()) {
 		send(user->getFd(), "Error: channel not found.\r\n", 27, 0);
 		return "ERROR: Channel not found!\r\n";
 	}
 
-	Channel& channel = channels[channelName];
+	Channel* channel = channels[channelName];
 
 	if (newTopic.empty()) {
-		std::string response = ":" + user->getNickName() + " TOPIC " + channelName + " :" + channel.getTopic() + END;
+		std::string response = ":" + user->getNickName() + " TOPIC " + channelName + " :" + channel->getTopic() + END;
 		send(user->getFd(), response.c_str(), response.length(), 0);
 		return "TOPIC command executed!\r\n";
 	}
 
-	channel.setTopic(newTopic);
+	channel->setTopic(newTopic);
 
-	std::vector<User*>& users = channel.getUsers();
+	std::vector<User*>& users = channel->getUsers();
 	for (std::vector<User*>::iterator it = users.begin(); it != users.end(); ++it) {
 		User* currentUser = *it;
 		std::string notify = ":" + user->getNickName() + " TOPIC " + channelName + " :" + newTopic + END;

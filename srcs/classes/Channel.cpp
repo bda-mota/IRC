@@ -1,18 +1,28 @@
 #include "../../includes/Channel.hpp"
 
-Channel::Channel() : _name(""), _topic(""), _users(std::vector<User*>()) {}
+Channel::Channel() : _name(""), _topic(""), _channelUsers(std::vector<User*>()) {}
 
-Channel::Channel(std::string _name) : _name(_name), _users(std::vector<User*>()) {}
+Channel::Channel(std::string _name) : _name(_name), _channelUsers(std::vector<User*>()) {}
 
-Channel::~Channel() {}
+Channel::~Channel() {
+	_channelUsers.clear();
+}
 
-Channel::Channel(const Channel &other) { *this = other; }
+Channel::Channel(Channel const& other) { *this = other; }
 
-Channel &Channel::operator=(Channel const &src) {
-	if (this != &src) {
-		this->_name = src._name;
-		this->_topic = src._topic;
-		this->_users = src._users;
+Channel &Channel::operator=(Channel const &other) {
+	if (this != &other) {
+		this->_name = other._name;
+		this->_topic = other._topic;
+
+		for (size_t i = 0; i < _channelUsers.size(); i++) {
+			delete _channelUsers[i];
+		}
+		_channelUsers.clear();
+		
+		for (size_t i = 0; i < other._channelUsers.size(); i++) {
+			this->_channelUsers.push_back(new User(*other._channelUsers[i]));  
+		}
 	}
 	return *this;
 }
@@ -21,22 +31,22 @@ void Channel::setName(std::string name) { _name = name; }
 
 void Channel::setTopic(std::string topic) { _topic = topic; }
 
-std::string Channel::getName() const { return _name; }
+const std::string& Channel::getName() const { return _name; }
 
-std::string Channel::getTopic() const { return _topic; }
+const std::string& Channel::getTopic() const { return _topic; }
 
-std::vector<User*>& Channel::getUsers() { return _users; }
+std::vector<User*>& Channel::getUsers() { return _channelUsers; }
 
-void Channel::addUser(User user) {
-	User* newUser = new User(user);
-	_users.push_back(newUser);
-}
+void Channel::addUser(User* user) { _channelUsers.push_back(user); }
 
 void Channel::removeUser(int fd) {
-	for (std::vector<User*>::iterator it = _users.begin(); it != _users.end(); ++it) {
+	for (std::vector<User*>::iterator it = _channelUsers.begin(); it != _channelUsers.end(); ) {
 		if ((*it)->getFd() == fd) {
-			_users.erase(it);
+			delete *it;
+			it = _channelUsers.erase(it);
 			break;
+		} else {
+			++it;
 		}
 	}
 }

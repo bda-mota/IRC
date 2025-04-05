@@ -7,38 +7,57 @@ Server::Server() {
 	_commandParser = new Command();
 }
 
-Server::~Server() {}
+Server::~Server() {
+	std::cout << "Server destructor called." << std::endl;
+	if (_commandParser) {
+		delete _commandParser;
+	}
+}
 
 void Server::signalHandler(int signal) {
 	(void)signal;
 	std::cout << std::endl << "Signal received, closing server." << std::endl;
-	Server::_signal = true; // é mais seguro e rápido do que usar o setSignal
+	Server::_signal = true;
 }
 
 void Server::closeFds() {
-	for (size_t i = 0; i < users.size(); i++) {
-		std::cout << "Client: " << users[i].getFd() << " disconnected." << std::endl;
-		close(users[i].getFd());
+	std::cout << "Closing all file descriptors..." << std::endl;
+	for (size_t i = 0; i < _serverUsers.size(); i++) {
+		std::cout << "Client: " << _serverUsers[i]->getFd() << " disconnected." << std::endl;
+		close(_serverUsers[i]->getFd());
+		delete _serverUsers[i];
 	}
+	_serverUsers.clear();
+
 	if (_serverFd != -1) {
 		std::cout << std::endl << "Server disconnected." << std::endl;
 		close(_serverFd);
 	}
+	clearChannels();
+	_fds.clear();
 }
 
 void Server::clearUsers(int fd) {
-	for (size_t i = 0; i < fds.size(); i++) {
-		if (fds[i].fd == fd) {
-			fds.erase(fds.begin() + i);
+	for (size_t i = 0; i < _serverUsers.size(); i++) {
+		if (_serverUsers[i]->getFd() == fd) {
+			delete _serverUsers[i];
+			_serverUsers.erase(_serverUsers.begin() + i);
 			break;
 		}
 	}
-	for (size_t i = 0; i < users.size(); i++) {
-		if (users[i].getFd() == fd) {
-			users.erase(users.begin() + i);
+	for (size_t i = 0; i < _fds.size(); i++) {
+		if (_fds[i].fd == fd) {
+			_fds.erase(_fds.begin() + i);
 			break;
 		}
 	}
+}
+
+void Server::clearChannels() {
+	for (std::map<std::string, Channel*>::iterator it = _channels.begin(); it != _channels.end(); ++it) {
+		delete it->second;
+	}
+	_channels.clear();
 }
 
 void Server::serverSocket() {
@@ -70,7 +89,7 @@ void Server::serverSocket() {
 	newPoll.fd = _serverFd;
 	newPoll.events = POLLIN;
 	newPoll.revents = 0;
-	fds.push_back(newPoll);
+	_fds.push_back(newPoll);
 }
 
 void Server::serverInit() {
@@ -83,16 +102,16 @@ void Server::serverInit() {
 
 	while (Server::_signal == false) {
 		
-		if (poll(fds.data(), fds.size(), 0) == -1 && Server::_signal == false) {
+		if (poll(_fds.data(), _fds.size(), 0) == -1 && Server::_signal == false) {
 			throw std::runtime_error("Error: fail to poll.");
 		}
 
-		for (size_t i = 0; i < fds.size(); i++) {
-			if (fds[i].revents & POLLIN) {
-				if (fds[i].fd == _serverFd) {
+		for (size_t i = 0; i < _fds.size(); i++) {
+			if (_fds[i].revents & POLLIN) {
+				if (_fds[i].fd == _serverFd) {
 					acceptNewUser();
 				} else {
-					receiveNewData(fds[i].fd);
+					receiveNewData(_fds[i].fd);
 				}
 			}
 		}
@@ -101,30 +120,35 @@ void Server::serverInit() {
 }
 
 void Server::acceptNewUser() {
-	User newUser;
 	struct sockaddr_in userAddr;
 	struct pollfd newPoll;
 	socklen_t userAddrSize = sizeof(userAddr);
 
 	int incomingFd = accept(_serverFd, (struct sockaddr *)&userAddr, &userAddrSize);
 	if (incomingFd == -1) {
-		throw std::runtime_error("Error: fail to accept new client.");
+		std::cerr << "Error: fail to accept new client." << std::endl;
+		return;
 	}
 
 	if (fcntl(incomingFd, F_SETFL, O_NONBLOCK) == -1) {
 		throw std::runtime_error("Error: fail to set option O_NONBLOCK on new client.");
 	}
 
+	User *newUser = new User();
+	newUser->setFd(incomingFd);
+	newUser->setIP(inet_ntoa(userAddr.sin_addr));
+	newUser->setUserName("default");
+	newUser->setNickName("default");
+	newUser->setRealName("default");
+	_serverUsers.push_back(newUser);
+
 	newPoll.fd = incomingFd;
 	newPoll.events = POLLIN;
 	newPoll.revents = 0;
 
-	newUser.setFd(incomingFd);
-	newUser.setIP(inet_ntoa(userAddr.sin_addr));
-	users.push_back(newUser);
-	fds.push_back(newPoll);
+	_fds.push_back(newPoll);
 
-	std::cout << GREEN << "Client connected: " << newUser.getIP() << RESET << std::endl;
+	std::cout << GREEN << "Client connected: " << newUser->getIP() << RESET << std::endl;
 }
 
 void Server::receiveNewData(int fd) {
@@ -138,26 +162,44 @@ void Server::receiveNewData(int fd) {
 		clearUsers(fd);
 		close(fd);
 	} else {
-		std::string rawMessage(buff);
-
-		std::string response = this->_commandParser->processCommand(rawMessage, *this, &users[fd]);
-
-		send(fd, buff, bytes, 0);
-	}
-}
-
-std::map<std::string, Channel>& Server::getChannels() { return channels; }
-
-std::vector<User>& Server::getUsers() { return users; }
-
-int Server::getServerFd() const { return _serverFd; }
-
-void	Server::broadcast(const std::string& message, User* sender) {
-	std::vector<User>& users = this->getUsers();
-
-	for (std::vector<User>::iterator it = users.begin(); it != users.end(); ++it) {
-		if (it->getFd() != sender->getFd()) {
-			send(it->getFd(), message.c_str(), message.length(), 0);
+		User* user = NULL;
+		for (size_t i = 0; i < _serverUsers.size(); i++) {
+			if (_serverUsers[i]->getFd() == fd) {
+				user = _serverUsers[i];
+				break;
+			}
+		}
+		if (user) {
+			std::string rawMessage(buff);
+			std::cout << "Buff: " << buff << std::endl;
+			std::string response = this->_commandParser->processCommand(rawMessage, *this, user);
+			send(fd, buff, bytes, 0);
 		}
 	}
 }
+
+void	Server::broadcast(const std::string& message, User* sender) {
+	if (!sender) {
+		return;
+	}
+
+	std::vector<User*>& users = this->getUsers();
+
+	for (std::vector<User*>::iterator it = users.begin(); it != users.end(); ++it) {
+		User* target = *it;
+		if (target && target->getFd() > 0 && target->getFd() != sender->getFd()) {
+			send(target->getFd(), message.c_str(), message.length(), 0);
+		}
+	}
+}
+
+// GETTERS
+const std::map<std::string, Channel*>& Server::getChannels() const { return _channels; }
+
+const std::vector<User*>& Server::getUsers() const { return _serverUsers; }
+
+std::vector<User*>& Server::getUsers() { return _serverUsers; }
+
+std::map<std::string, Channel*>& Server::getChannels() { return _channels; }
+
+int Server::getServerFd() const { return _serverFd; }
