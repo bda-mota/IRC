@@ -20,7 +20,7 @@ class User {
 		User(int fd, std::string ip, std::string userName, std::string nickName);
 		virtual ~User();
 
-		int getFd() const;
+		int	getFd() const;
 		const std::string& getIP() const;
 		const std::string& getUserName() const;
 		const std::string& getNickName() const;
@@ -28,14 +28,14 @@ class User {
 		const std::vector<Channel*>& getJoinedChannels() const;
 		std::vector<Channel*>& getJoinedChannels();
 		
-		void setFd(int fd);
-		void setIP(std::string const& IP);
-		void setUserName(std::string const& userName);
-		void setNickName(std::string const& nickName);
-		void setRealName(std::string const& realName);
+		void	setFd(int fd);
+		void	setIP(std::string const& IP);
+		void	setUserName(std::string const& userName);
+		void	setNickName(std::string const& nickName);
+		void	setRealName(std::string const& realName);
 
-		void joinChannel(Channel* channel);
-		bool isInChannel(Channel* channel) const;
+		void	joinChannel(Channel* channel);
+		bool	isInChannel(Channel* channel) const;
 };
 
 #endif

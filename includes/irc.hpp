@@ -6,8 +6,9 @@
 # include <string>
 # include <vector>
 # include <map>
-#include <sstream> // Para std::istringstream
-#include <algorithm> // Para std::transform
+# include <set>
+# include <sstream> // Para std::istringstream
+# include <algorithm> // Para std::transform
 # include <algorithm>
 # include <cstring>
 # include <unistd.h>
