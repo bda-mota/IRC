@@ -9,7 +9,15 @@ std::string CommandsArgs::privmsg(const std::vector<std::string>& args, Server& 
 	}
 
 	const std::string& target = args[0];
-	const std::string& message = args[1];
+	
+	std::string message;
+	for (size_t i = 1; i < args.size(); ++i) {
+		message += args[i];
+		if (i != args.size() - 1) {
+			message += " ";
+		}
+	}
+	std::cout << "Message: " << message << std::endl;
 
 	// if is a channel 
 	if (target[0] == '#') {
@@ -35,6 +43,7 @@ std::string CommandsArgs::privmsg(const std::vector<std::string>& args, Server& 
 				send(currentUser->getFd(), response.c_str(), response.length(), 0);
 			}
 		}
+		return "PRIVMSG on channel command executed!\r\n";
 	}
 
 	// if is a user 
@@ -43,7 +52,7 @@ std::string CommandsArgs::privmsg(const std::vector<std::string>& args, Server& 
 		if ((*it)->getNickName() == target) {
 			std::string response = ":" + sender->getNickName() + " PRIVMSG " + target + " :" + message + END;
 			send((*it)->getFd(), response.c_str(), response.length(), 0);
-			return "PRIVMSG command executed!\r\n";
+			return "PRIVMSG to user command executed!\r\n";
 		}
 	}
 	//server.broadcast(response, user);
