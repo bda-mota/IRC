@@ -17,6 +17,7 @@ std::string CommandsArgs::join(const std::vector<std::string>& args, Server& ser
 
 	if (channels.find(channelName) == channels.end()) {
 		channels.insert(std::make_pair(channelName, new Channel(channelName)));
+		channels[channelName]->addAdmin(user);
 	}
 
 	channels[channelName]->addUser(user);
