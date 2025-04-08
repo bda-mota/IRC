@@ -3,14 +3,20 @@
 static void auxBuildRealname(std::string& realname, const std::vector<std::string>& args, size_t start);
 
 std::string CommandsArgs::user(const std::vector<std::string>& args, Server& server, User* user) {
-	(void)server;
-	(void)user;
+	(void)server; // TODO: manter server aqui? está sem uso
 
 	if (args.size() < 4) {
         std::string error = ":ircserver 461 " + user->getNickName() + " USER :Not enough parameters\r\n";
         send(user->getFd(), error.c_str(), error.length(), 0);
 		return "";
 	}
+
+    if (user->getRegistered() == true)
+    {
+        std::string error = ":ircserver 462 " + user->getNickName() + " :You may not reregister\r\n";
+		send(user->getFd(), error.c_str(), error.length(), 0);
+		return "";
+    }
 
 	std::string username = args[0];
 	std::string realname;
@@ -22,6 +28,17 @@ std::string CommandsArgs::user(const std::vector<std::string>& args, Server& ser
         std::string error = ":ircserver 461 " + user->getNickName() + " USER :Missing realname\r\n";
         send(user->getFd(), error.c_str(), error.length(), 0);
         return "";
+    }
+
+    user->setUserName(username);
+    user->setRealName(realname);
+    user->setHasUserCommand(true);
+
+    if (user->getHasUserCommand() == true && user->getHasNickCommand() == true)
+    {
+        std::string welcomeMessage = ":ircserver 001 " + user->getNickName() + " :Welcome to the IRC server!\r\n";
+        send(user->getFd(), welcomeMessage.c_str(), welcomeMessage.length(), 0);
+        user->setRegistered(true);
     }
 
 	return "USER command executed successfully.\r\n";

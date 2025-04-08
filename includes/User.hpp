@@ -12,8 +12,12 @@ class User {
 		std::string _IP;
 		std::string _userName;
 		std::string _nickName;
-		std::string _realName; //verificar se é necessário
-		std::vector<Channel*> _joinedChannels; 
+		std::string _realName;
+		std::vector<Channel*> _joinedChannels;
+
+		bool _hasUserCommand;
+		bool _hasNickCommand;
+		bool _hasRegistered;
 
 	public:
 		User();
@@ -27,12 +31,20 @@ class User {
 		const std::string& getRealName() const;
 		const std::vector<Channel*>& getJoinedChannels() const;
 		std::vector<Channel*>& getJoinedChannels();
+
+		bool getHasUserCommand() const;
+		bool getHasNickCommand() const;
+		bool getRegistered() const;
 		
 		void	setFd(int fd);
 		void	setIP(std::string const& IP);
 		void	setUserName(std::string const& userName);
 		void	setNickName(std::string const& nickName);
 		void	setRealName(std::string const& realName);
+
+		void setHasUserCommand(bool hasUserCommand);
+		void setHasNickCommand(bool hasNickCommand);
+		void setRegistered(bool registered);
 
 		void	joinChannel(Channel* channel);
 		bool	isInChannel(Channel* channel) const;

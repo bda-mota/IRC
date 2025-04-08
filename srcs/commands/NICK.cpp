@@ -15,6 +15,7 @@ std::string CommandsArgs::nick(const std::vector<std::string>& args, Server& ser
 
 	std::string oldNick = user->getNickName();
 	user->setNickName(args[0]);
+	user->setHasNickCommand(true);
 
 	std::string notify = ":" + (oldNick.empty() ? args[0] : oldNick) + " NICK :" + args[0] + END;
 	server.broadcast(notify, user);
