@@ -8,7 +8,20 @@ std::string CommandsArgs::topic(const std::vector<std::string>& args, Server& se
 	}
 
 	const std::string& channelName = args[0];
-	std::string newTopic = (args.size() > 1) ? args[1] : "";
+
+	if (channelName.empty() || channelName[0] != '#') {
+		send(user->getFd(), "Error: Invalid channel name.\r\n", 31, 0);
+		return "ERROR: Invalid channel name!\r\n";
+	}
+
+	std::string newTopic;
+
+	for (size_t i = 1; i < args.size(); ++i) {
+		newTopic += args[i];
+		if (i != args.size() - 1) {
+			newTopic += " ";
+		}
+	}
 
 	std::map<std::string, Channel*>& channels = server.getChannels();
 	
@@ -20,9 +33,25 @@ std::string CommandsArgs::topic(const std::vector<std::string>& args, Server& se
 	Channel* channel = channels[channelName];
 
 	if (newTopic.empty()) {
-		std::string response = ":" + user->getNickName() + " TOPIC " + channelName + " :" + channel->getTopic() + END;
-		send(user->getFd(), response.c_str(), response.length(), 0);
+		if (channel->getTopic().empty()) {
+			std::string response = ":ircserver 331 " + user->getNickName() + " " + channelName + " :No topic is set" + END;
+			send(user->getFd(), response.c_str(), response.length(), 0);
+		} else {
+			std::string response = ":ircserver 332 " + user->getNickName() + " " + channelName + " :" + channel->getTopic() + END;
+			send(user->getFd(), response.c_str(), response.length(), 0);
+		}
 		return "TOPIC command executed!\r\n";
+	}
+
+	if (!channel->isUserInChannel(user)) {
+		send(user->getFd(), "Error: You are not in the channel.\r\n", 36, 0);
+		return "ERROR: You are not in the channel!\r\n";
+	}
+
+	if (!channel->isOperator(user)) {
+		std::string error = ":ircserver 482 " + user->getNickName() + " " + channelName + " :You're not channel operator" + END;
+		send(user->getFd(), error.c_str(), error.length(), 0);
+		return "ERROR: You are not a channel operator!\r\n";
 	}
 
 	channel->setTopic(newTopic);

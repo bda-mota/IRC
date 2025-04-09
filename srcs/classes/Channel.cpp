@@ -2,7 +2,7 @@
 
 Channel::Channel() : _name(""), _topic(""), _channelUsers(std::vector<User*>()) {}
 
-Channel::Channel(std::string _name) : _name(_name), _channelUsers(std::vector<User*>()) {}
+Channel::Channel(std::string _name) : _name(_name), _topic(""), _channelUsers(std::vector<User*>()) {}
 
 Channel::~Channel() {
 	_channelUsers.clear();
