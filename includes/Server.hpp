@@ -23,7 +23,7 @@ class Server {
 		Server();
 		~Server();
 
-		void	serverInit(); //iniciar o server, temos que mandar a porta e o password p /ele 
+		void	serverInit(int port, std::string password); //iniciar o server, temos que mandar a porta e o password p /ele
 		void	serverSocket(); // criar o socket, fazer o bind, listen
 		void	acceptNewUser(); // aceitar um novo cliente
 		void	receiveNewData(int fd); // receber novos dados dos clientes
@@ -34,12 +34,12 @@ class Server {
 		void	closeFds(); // fechar todos os file descriptors
 		void	clearUsers(int fd); // limpar todos os clientes que estão no vector do server
 		void	clearChannels();
-		
+
 		// Getters
-		std::map<std::string, Channel*>& getChannels(); 
-		std::vector<User*>& getUsers(); 
-		const std::map<std::string, Channel*>& getChannels() const; 
-		const std::vector<User*>& getUsers() const; 
+		std::map<std::string, Channel*>& getChannels();
+		std::vector<User*>& getUsers();
+		const std::map<std::string, Channel*>& getChannels() const;
+		const std::vector<User*>& getUsers() const;
 
 		int getServerFd() const;
 };
