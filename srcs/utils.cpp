@@ -24,8 +24,8 @@ namespace Utils {
       ss >> port;
       if (ss.fail() || !ss.eof())
         errorMsg += "Invalid port number format. ";
-      else if (port < 1024 || port > 65535)
-        errorMsg += "Port must be between 1024 and 65535. ";
+      else if (port < 1024 || port > 49151)
+        errorMsg += "Port must be between 1024 and 49151. ";
     }
 
     // Validate password received
