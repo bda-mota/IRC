@@ -1,10 +1,19 @@
-#include "../includes/Server.hpp" 
+#include "../includes/Server.hpp"
 
 bool Server::_signal = false; // inicializar a variavel booleana
 
-Server::Server() {_serverFd = -1;}
+Server::Server(std::string portStr, std::string password) {
+    if (!checkPort(portStr)) {
+        throw std::invalid_argument("Invalid port: " + portStr + ". Please use a numeric port between 1024 and 49151.");
+    }
+    _port = std::stoi(portStr);
+    _password = password;
+    _serverFd = -1;
+}
 
-Server::~Server() {}
+Server::~Server() {
+  closeFds();
+}
 
 void Server::signalHandler(int signal) {
 	(void)signal;
@@ -72,7 +81,6 @@ void Server::serverSocket() {
 }
 
 void Server::serverInit() {
-	this->_port = 4444;
 	serverSocket();
 
 	std::cout << "Server started on port " << this->_port << std::endl;
@@ -80,7 +88,7 @@ void Server::serverInit() {
 	std::cout << "Waiting for clients..." << std::endl;
 
 	while (Server::_signal == false) {
-		
+
 		if (poll(fds.data(), fds.size(), 0) == -1 && Server::_signal == false) {
 			throw std::runtime_error("Error: fail to poll.");
 		}
@@ -88,7 +96,14 @@ void Server::serverInit() {
 		for (size_t i = 0; i < fds.size(); i++) {
 			if (fds[i].revents & POLLIN) {
 				if (fds[i].fd == _serverFd) {
-					acceptNewClient();
+          try
+          {
+            acceptNewClient();
+          }
+          catch(const std::exception& e)
+          {
+            std::cerr << e.what() << '\n';
+          }
 				} else {
 					receiveNewData(fds[i].fd);
 				}
@@ -112,6 +127,34 @@ void Server::acceptNewClient() {
 	if (fcntl(incomingFd, F_SETFL, O_NONBLOCK) == -1) {
 		throw std::runtime_error("Error: fail to set option O_NONBLOCK on new client.");
 	}
+
+  // Read password
+  char buff[1024];
+  memset(buff, 0, sizeof(buff));
+  ssize_t bytes = recv(incomingFd, buff, sizeof(buff) - 1, 0);
+
+  if (bytes == -1) {
+      std::cerr << "recv() failed! errno: " << errno << " (" << strerror(errno) << ")" << std::endl;
+      std::string errorMsg = "Connection closed due to error or empty password.\n";
+      send(incomingFd, errorMsg.c_str(), errorMsg.length(), 0);
+      close(incomingFd);
+      throw std::runtime_error("Error: fail to authenticate new client.");
+  }
+
+
+  // Convert to string and remove trailing newline (if present)
+  std::string receivedPassword(buff);
+  receivedPassword.erase(std::remove(receivedPassword.begin(), receivedPassword.end(), '\n'), receivedPassword.end());
+  receivedPassword.erase(std::remove(receivedPassword.begin(), receivedPassword.end(), '\r'), receivedPassword.end());
+
+  // Compare password
+  if (receivedPassword != _password) {
+      std::string errorMsg = "Incorrect password. Connection closed.\n";
+      send(incomingFd, errorMsg.c_str(), errorMsg.length(), 0);
+      close(incomingFd);
+      std::cout << RED << "Client failed authentication: " << inet_ntoa(clientAddr.sin_addr) << RESET << std::endl;
+      throw std::runtime_error("Error: fail to authenticate new client.");
+  }
 
 	newPoll.fd = incomingFd;
 	newPoll.events = POLLIN;
@@ -139,4 +182,18 @@ void Server::receiveNewData(int fd) {
 		std::cout << "Client: " << fd << " sent: " << buff << std::endl;
 		send(fd, buff, bytes, 0);
 	}
+}
+
+bool Server::checkPort(std::string portStr) {
+  //corigir loop
+  if (!std::all_of(portStr.begin(), portStr.end(), ::isdigit)) return false;
+  int port = std::stoi(portStr);
+  // checar se a porta é válida
+  // 0 - 1023 são portas reservadas para o sistema, deve ser evitado a não ser que seja um superuser
+  // 1024 - 49151 são portas registradas, podem ser usadas por aplicações
+  // 49152 - 65535 são portas dinâmicas, podem ser usadas por aplicações mas são temporárias usada por clientes. Não dever ser usada por servidores.
+  if (port < 1024 || port > 49151) {
+    return false;
+  }
+  return true;
 }
