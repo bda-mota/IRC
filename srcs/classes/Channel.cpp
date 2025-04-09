@@ -2,7 +2,7 @@
 
 Channel::Channel() : _name(""), _topic(""), _channelUsers(std::vector<User*>()) {}
 
-Channel::Channel(std::string _name) : _name(_name), _channelUsers(std::vector<User*>()) {}
+Channel::Channel(std::string _name) : _name(_name), _topic(""), _channelUsers(std::vector<User*>()) {}
 
 Channel::~Channel() {
 	_channelUsers.clear();
@@ -43,7 +43,8 @@ bool Channel::isUserInChannel(User* user) const {
 
 void Channel::addUser(User* user) { 
 	if (!isUserInChannel(user)) {
-		_channelUsers.push_back(user); 
+		_channelUsers.push_back(user);
+		std::cout << "User " << user->getNickName() << " added to channel " << _name << std::endl;
 	}
 }
 
@@ -69,16 +70,16 @@ void Channel::broadcast(const std::string& message, User* sender) {
 	}
 }
 
-bool Channel::isAdmin(User* user) const {
-	return _admins.find(user) != _admins.end();
+bool Channel::isOperator(User* user) const {
+	return _operators.find(user) != _operators.end();
 }
 
-void Channel::addAdmin(User* user) {
+void Channel::addOperator(User* user) {
 	if (user) {
-		_admins.insert(user); // como o set nao permite duplicatas só isso já é o suficinete
+		_operators.insert(user); // como o set nao permite duplicatas só isso já é o suficinete
 	}
 }
 
-void Channel::removeAdmin(User* user) {
-	_admins.erase(user);
+void Channel::removeOperator(User* user) {
+	_operators.erase(user);
 }

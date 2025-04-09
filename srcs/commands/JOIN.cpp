@@ -17,10 +17,12 @@ std::string CommandsArgs::join(const std::vector<std::string>& args, Server& ser
 
 	if (channels.find(channelName) == channels.end()) {
 		channels.insert(std::make_pair(channelName, new Channel(channelName)));
-		channels[channelName]->addAdmin(user);
+		channels[channelName]->addOperator(user);
+		std::cout << "Canal " << channelName << " criado!" << std::endl;
 	}
 
 	channels[channelName]->addUser(user);
+	std::cout << "User " << user->getNickName() << " adicionado ao canal " << channelName << std::endl;
 	user->joinChannel(channels[channelName]);
 	
 	std::string response = ":" + user->getNickName() + "JOIN " + channelName + "\r\n";

@@ -9,7 +9,7 @@ class Channel {
 		std::string _name;
 		std::string _topic;
 		std::vector<User*> _channelUsers;
-		std::set<User*> _admins;
+		std::set<User*> _operators;
 
 	public:
 		Channel();
@@ -30,10 +30,10 @@ class Channel {
 		void	removeUser(int fd);
 		void	broadcast(const std::string& message, User* sender);
 
-		// Admins
-		void	addAdmin(User* user);
-		void	removeAdmin(User* user);
-		bool	isAdmin(User* user) const;
+		// Operators
+		void	addOperator(User* user);
+		void	removeOperator(User* user);
+		bool	isOperator(User* user) const;
 };
 
 #endif
