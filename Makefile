@@ -23,7 +23,7 @@ PATH_CLASSES  = ./srcs/classes/
 PATH_OBJS	  =	./objs/
 
 INCLUDES = -I./includes
-FILES_SRC = main.cpp
+FILES_SRC = main.cpp utils.cpp
 FILES_COMMANDS = USER.cpp NICK.cpp PASS.cpp CAP.cpp QUIT.cpp JOIN.cpp \
 				LISTC.cpp PRIVMSG.cpp KICK.cpp PART.cpp WHO.cpp MODE.cpp TOPIC.cpp INVITE.cpp auxiliaries.cpp
 
@@ -83,7 +83,7 @@ $(PATH_OBJS)%.o: $(PATH_COMMANDS)%.cpp | $(PATH_OBJS)
 	@$(CC) $(FLAGS) $(INCLUDES) -c $< -o $@
 
 # Create the objs directory if it doesn't exist
-$(PATH_OBJS): 
+$(PATH_OBJS):
 	@mkdir -p $(PATH_OBJS)
 
 # Removes object files

@@ -1,4 +1,4 @@
-#include "../../includes/Server.hpp" 
+#include "../../includes/Server.hpp"
 
 bool Server::_signal = false; // inicializar a variavel booleana
 
@@ -92,8 +92,9 @@ void Server::serverSocket() {
 	_fds.push_back(newPoll);
 }
 
-void Server::serverInit() {
-	this->_port = 4444;
+void Server::serverInit(int port, std::string password) {
+	this->_port = port;
+  this->_password = password;
 	serverSocket();
 
 	std::cout << "Server started on port " << this->_port << std::endl;
@@ -101,7 +102,7 @@ void Server::serverInit() {
 	std::cout << "Waiting for clients..." << std::endl;
 
 	while (Server::_signal == false) {
-		
+
 		if (poll(_fds.data(), _fds.size(), 0) == -1 && Server::_signal == false) {
 			throw std::runtime_error("Error: fail to poll.");
 		}
