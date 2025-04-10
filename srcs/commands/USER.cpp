@@ -5,6 +5,16 @@ static void auxBuildRealname(std::string& realname, const std::vector<std::strin
 std::string CommandsArgs::user(const std::vector<std::string>& args, Server& server, User* user) {
 	(void)server; // TODO: manter server aqui? está sem uso
 
+    struct sockaddr_in addr;
+    socklen_t addr_len = sizeof(addr);
+
+    if (getpeername(user->getFd(), (struct sockaddr*)&addr, &addr_len) == 0) {
+	    std::string hostname = inet_ntoa(addr.sin_addr);
+	    user->setHostName(hostname);
+    }
+    else
+	    user->setHostName("unknown");
+
 	if (args.size() < 4) {
         std::string error = ":ircserver 461 " + user->getNickName() + " USER :Not enough parameters\r\n";
         send(user->getFd(), error.c_str(), error.length(), 0);
@@ -18,7 +28,9 @@ std::string CommandsArgs::user(const std::vector<std::string>& args, Server& ser
 		return "";
     }
 
-	std::string username = args[0];
+	user->setUserName(args[0]);
+    std::string hostname = args[1]; // hostname or IP address não é usado para nada no protocolo, mas capturei caso a gnt precise usar depois
+    user->setServerName(args[2]); // server name idem hostname
 	std::string realname;
 
 	if (args.size() >= 4 && args[3][0] == ':')
@@ -30,7 +42,6 @@ std::string CommandsArgs::user(const std::vector<std::string>& args, Server& ser
         return "";
     }
 
-    user->setUserName(username);
     user->setRealName(realname);
     user->setHasUserCommand(true);
 
