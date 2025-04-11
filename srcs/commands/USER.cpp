@@ -52,7 +52,7 @@ std::string CommandsArgs::user(const std::vector<std::string>& args, Server& ser
         user->setRegistered(true);
     }
 
-	return "USER command executed successfully.\r\n";
+	return "";
 }
 
 static void auxBuildRealname(std::string& realname, const std::vector<std::string>& args, size_t start) {

@@ -35,6 +35,7 @@ class User {
 		const std::string& getRealName() const;
 		const std::vector<Channel*>& getJoinedChannels() const;
 		std::vector<Channel*>& getJoinedChannels();
+		void			removeChannel(Channel* channel);
 
 		bool getHasUserCommand() const;
 		bool getHasNickCommand() const;

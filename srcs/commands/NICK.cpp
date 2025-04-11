@@ -20,5 +20,5 @@ std::string CommandsArgs::nick(const std::vector<std::string>& args, Server& ser
 	std::string notify = ":" + (oldNick.empty() ? args[0] : oldNick) + " NICK :" + args[0] + END;
 	server.broadcast(notify, user);
 	send(user->getFd(), notify.c_str(), notify.length(), 0);
-	return "NICK command executed!\r\n";
+	return "";
 }

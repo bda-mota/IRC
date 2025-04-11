@@ -7,5 +7,5 @@ std::string CommandsArgs::quit(const std::vector<std::string>& args, Server& ser
     for (size_t i = 0; i < args.size(); i++) {
         std::cout << "Arg " << i << ": " << args[i] << std::endl;
     }
-    return "QUIT command executed!\r\n";
+    return "";
 }

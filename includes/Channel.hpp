@@ -29,6 +29,7 @@ class Channel {
 		void	addUser(User* user);
 		void	removeUser(int fd);
 		void	broadcast(const std::string& message, User* sender);
+		void	sendToAll(const std::string& message);
 
 		// Admins
 		void	addAdmin(User* user);

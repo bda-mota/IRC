@@ -50,7 +50,6 @@ void Channel::addUser(User* user) {
 void Channel::removeUser(int fd) {
 	for (std::vector<User*>::iterator it = _channelUsers.begin(); it != _channelUsers.end(); ) {
 		if ((*it)->getFd() == fd) {
-			delete *it;
 			it = _channelUsers.erase(it);
 			break;
 		} else {
@@ -81,4 +80,10 @@ void Channel::addAdmin(User* user) {
 
 void Channel::removeAdmin(User* user) {
 	_admins.erase(user);
+}
+
+void Channel::sendToAll(const std::string& message) {
+	for (std::vector<User*>::iterator it = _channelUsers.begin(); it != _channelUsers.end(); ++it) {
+		send((*it)->getFd(), message.c_str(), message.length(), 0);
+	}
 }

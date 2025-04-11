@@ -17,7 +17,7 @@ std::string CommandsArgs::privmsg(const std::vector<std::string>& args, Server& 
 		if (channels.find(target) == channels.end()) {
 			std::string error = ":ircserver 403 " + sender->getNickName() + " " + target + " :No such channel" + END;
 			send(sender->getFd(), error.c_str(), error.length(), 0);
-			return "PRIVMSG command executed!\r\n";
+			return "";
 		}
 
 		Channel* channel = channels[target];

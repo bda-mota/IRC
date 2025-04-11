@@ -60,3 +60,9 @@ bool User::isInChannel(Channel* channel) const {
 	}
 	return false;
 }
+
+void User::removeChannel(Channel* channel) {
+	std::vector<Channel*>::iterator it = std::find(_joinedChannels.begin(), _joinedChannels.end(), channel);
+	if (it != _joinedChannels.end())
+		_joinedChannels.erase(it);
+}

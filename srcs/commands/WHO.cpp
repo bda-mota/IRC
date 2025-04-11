@@ -7,7 +7,7 @@ std::string CommandsArgs::who(const std::vector<std::string>& args, Server& serv
     for (size_t i = 0; i < args.size(); i++) {
         std::cout << "Arg " << i << ": " << args[i] << std::endl;
     }
-    return "WHO command executed!\r\n";
+    return "";
 }
 
 void	who(Server& server, User* user, const std::string& target) {
