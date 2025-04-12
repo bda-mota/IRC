@@ -20,6 +20,8 @@ const std::vector<Channel*>& User::getJoinedChannels() const { return _joinedCha
 
 std::vector<Channel*>& User::getJoinedChannels() { return _joinedChannels; }
 
+bool User::isAuth() { return _auth; }
+
 void User::setFd(int fd) { _fd = fd; }
 
 void User::setIP(std::string const& IP) { _IP = IP; }
@@ -29,6 +31,8 @@ void User::setUserName(std::string const& userName) { _userName = userName; }
 void User::setNickName(std::string const& nickName) { _nickName = nickName; }
 
 void User::setRealName(std::string const& realName) { _realName = realName; }
+
+void User::setAuth(bool auth) { _auth = auth; }
 
 void User::joinChannel(Channel* channel) {
 	if (!isInChannel(channel)) {

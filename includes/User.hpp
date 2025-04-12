@@ -13,7 +13,8 @@ class User {
 		std::string _userName;
 		std::string _nickName;
 		std::string _realName; //verificar se é necessário
-		std::vector<Channel*> _joinedChannels; 
+		std::vector<Channel*> _joinedChannels;
+		bool _auth;
 
 	public:
 		User();
@@ -27,12 +28,14 @@ class User {
 		const std::string& getRealName() const;
 		const std::vector<Channel*>& getJoinedChannels() const;
 		std::vector<Channel*>& getJoinedChannels();
-		
+		bool isAuth();
+
 		void	setFd(int fd);
 		void	setIP(std::string const& IP);
 		void	setUserName(std::string const& userName);
 		void	setNickName(std::string const& nickName);
 		void	setRealName(std::string const& realName);
+		void	setAuth(bool auth);
 
 		void	joinChannel(Channel* channel);
 		bool	isInChannel(Channel* channel) const;
