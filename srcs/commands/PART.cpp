@@ -5,6 +5,8 @@
     PART #programadoras :tô vazando
 */
 
+static void auxBuildReason(std::string& reason, const std::vector<std::string>& args, size_t start);
+
 std::string CommandsArgs::part(const std::vector<std::string>& args, Server& server, User* user) {
 
 	if (args.empty()) {
@@ -16,9 +18,8 @@ std::string CommandsArgs::part(const std::vector<std::string>& args, Server& ser
 	std::string channelName = args[0];
 	std::string reason;
 
-    // TODO: juntar todos os argumentos restantes em uma string se houver mais de dois argumentos
     if (args.size() > 1)
-	    reason = args[1];
+	    auxBuildReason(reason, args, 1);
     else
 	    reason = "Leaving";
 
@@ -54,4 +55,13 @@ std::string CommandsArgs::part(const std::vector<std::string>& args, Server& ser
     }
 
 	return "";
+}
+
+static void auxBuildReason(std::string& reason, const std::vector<std::string>& args, size_t start) {
+	for (size_t i = start; i < args.size(); i++) {
+		if (i == start)
+			reason = args[i].substr(0);
+		else
+			reason += " " + args[i];
+	}
 }

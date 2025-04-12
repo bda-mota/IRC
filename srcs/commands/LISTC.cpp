@@ -5,7 +5,7 @@ std::string CommandsArgs::listc(const std::vector<std::string>& args, Server& se
 
 	std::ostringstream response;
 
-	response << ":ircserver 321 " << user->getNickName() << " Channel :Users Name\r\n";
+	response << ":ircserver 321 " << user->getNickName() << " Channel    |   Users   |   Topics\r\n";
 
 	const std::map<std::string, Channel*>& channels = server.getChannels();
 
