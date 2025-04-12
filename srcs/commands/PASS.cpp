@@ -1,11 +1,20 @@
 #include "../../includes/irc.hpp"
 
 std::string CommandsArgs::pass(const std::vector<std::string>& args, Server& server, User* user) {
-    (void)server;
-    (void)user;
-    std::cout << "PASS command executed!" << std::endl;
-    for (size_t i = 0; i < args.size(); i++) {
-        std::cout << "Arg " << i << ": " << args[i] << std::endl;
-    }
-    return "PASS command executed!\r\n";
+
+	std::cout << "Received PASS command from fd " << user->getFd() << std::endl;
+
+	if (user->isAuth()) {
+		std::cout << "Client " << user->getFd() << " attempted to resend PASS after registration." << std::endl;
+		return user->getNickName() + " :You may not reregister\r\n";
+	}
+
+	if (args.size() < 1) {
+		std::cout << "Client " << user->getFd() << " sent PASS with missing parameter." << std::endl;
+		return "PASS :Not enough parameters\r\n";
+	}
+	server.setPassword(args[0]);
+	user->setAuth(true);
+	std::cout << "Client " << user->getFd() << " authenticated successfully with PASS." << std::endl;
+	return "";
 }

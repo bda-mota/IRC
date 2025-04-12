@@ -26,6 +26,7 @@ class Server {
 		void	serverInit(int port, std::string password); //iniciar o server, temos que mandar a porta e o password p /ele
 		void	serverSocket(); // criar o socket, fazer o bind, listen
 		void	acceptNewUser(); // aceitar um novo cliente
+		void	parseReceiveNewData(std::string rawMessage, int fd, User *user); // receber novos dados dos clientes
 		void	receiveNewData(int fd); // receber novos dados dos clientes
 		void	broadcast(const std::string& message, User* sender); // enviar mensagem para todos os clientes
 		static void signalHandler(int signal); // função que será chamada quando o server for encerrado
@@ -40,6 +41,9 @@ class Server {
 		std::vector<User*>& getUsers();
 		const std::map<std::string, Channel*>& getChannels() const;
 		const std::vector<User*>& getUsers() const;
+
+		// Setters
+		void	setPassword(std::string pass);
 
 		int getServerFd() const;
 };

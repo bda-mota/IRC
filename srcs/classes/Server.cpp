@@ -155,6 +155,31 @@ void Server::acceptNewUser() {
 	std::cout << GREEN << "Client connected: " << newUser->getIP() << RESET << std::endl;
 }
 
+void Server::parseReceiveNewData(std::string rawMessage, int fd, User *user) {
+	std::istringstream stream(rawMessage);
+	std::string line;
+
+	while (std::getline(stream, line)) {
+		// Remove trailing \r if present
+		if (!line.empty() && line[line.length() - 1] == '\r') {
+			line = line.substr(0, line.length() - 1);
+		}
+
+		if (line.empty())
+			continue;
+
+		std::cout << "Processing line: [" << line << "]" << std::endl;
+
+		// Step 2: Call processCommand
+		std::string response = this->_commandParser->processCommand(line, *this, user);
+
+		// Step 3: Send response to client (if needed)
+		if (!response.empty()) {
+			send(fd, response.c_str(), response.length(), 0);
+		}
+	}
+}
+
 void Server::receiveNewData(int fd) {
 	char buff[1024];
 	memset(buff, 0, sizeof(buff));
@@ -176,8 +201,7 @@ void Server::receiveNewData(int fd) {
 		if (user && user->isAuth()) {
 			std::string rawMessage(buff);
 			std::cout << "Buff: " << buff << std::endl;
-			std::string response = this->_commandParser->processCommand(rawMessage, *this, user);
-			send(fd, buff, bytes, 0);
+			parseReceiveNewData(rawMessage, fd, user);
 		} else if (user) {
 			std::string pass(buff);
 			if (pass == (_password + "\n").c_str()) {
@@ -221,3 +245,8 @@ std::vector<User*>& Server::getUsers() { return _serverUsers; }
 std::map<std::string, Channel*>& Server::getChannels() { return _channels; }
 
 int Server::getServerFd() const { return _serverFd; }
+
+// SETTERS
+void Server::setPassword(std::string pass) {
+	_password = pass;
+}
