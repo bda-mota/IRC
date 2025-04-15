@@ -83,8 +83,16 @@ void Channel::removeAdmin(User* user) {
 }
 
 void Channel::sendToAllExcept(const std::string& message, User *excludedUser) {
+
 	for (std::vector<User*>::iterator it = _channelUsers.begin(); it != _channelUsers.end(); ++it) {
 		if (*it != excludedUser) {
+
+			std::cout << "sendToAllExcept: chegou aqui, mas ta enviando para " << (*it)->getNickName() << std::endl;
+			std::cout << "Mensagem enviada (em bytes): ";
+			for (size_t i = 0; i < message.size(); ++i)
+			std::cout << "[" << std::hex << static_cast<int>(static_cast<unsigned char>(message[i])) << "]";
+			std::cout << std::dec << std::endl;  // volta pro decimal
+
 			send((*it)->getFd(), message.c_str(), message.length(), 0);
 		}
 	}
