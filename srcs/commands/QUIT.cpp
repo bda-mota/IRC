@@ -14,15 +14,16 @@ std::string CommandsArgs::quit(const std::vector<std::string>& args, Server& ser
 		reason = "Client Quit";
 	}
 
+	std::vector<Channel*> joinedChannels = user->getJoinedChannels();
+
 	std::ostringstream quitMsg;
 	quitMsg << ":" << user->getNickName() << "!" << user->getUserName()
 	        << "@" << user->getHostName() << " QUIT :" << reason << "\r\n";
 
-	std::vector<Channel*> joinedChannels = user->getJoinedChannels();
-
 	for (size_t i = 0; i < joinedChannels.size(); ++i) {
 		Channel* channel = joinedChannels[i];
-		channel->sendToAll(quitMsg.str());
+
+		channel->sendToAllExcept(quitMsg.str(), user);
 		channel->removeUser(user->getFd());
 
 		if (channel->getUsers().empty()) {

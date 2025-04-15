@@ -82,8 +82,10 @@ void Channel::removeAdmin(User* user) {
 	_admins.erase(user);
 }
 
-void Channel::sendToAll(const std::string& message) {
+void Channel::sendToAllExcept(const std::string& message, User *excludedUser) {
 	for (std::vector<User*>::iterator it = _channelUsers.begin(); it != _channelUsers.end(); ++it) {
-		send((*it)->getFd(), message.c_str(), message.length(), 0);
+		if (*it != excludedUser) {
+			send((*it)->getFd(), message.c_str(), message.length(), 0);
+		}
 	}
 }

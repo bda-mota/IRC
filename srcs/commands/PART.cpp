@@ -47,7 +47,7 @@ std::string CommandsArgs::part(const std::vector<std::string>& args, Server& ser
         << "@" << user->getHostName() << " PART " << channelName
         << " :" << reason << "\r\n";
 
-    channel->sendToAll(partMsg.str());
+    channel->sendToAllExcept(partMsg.str(), user);
 
     if (channel->getUsers().empty()) { 
 	    delete channel;
