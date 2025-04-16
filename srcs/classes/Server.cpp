@@ -164,21 +164,28 @@ void Server::receiveNewData(int fd) {
 		std::cout << RED << "Client: " << fd << " disconnected." << RESET << std::endl;
 		clearUsers(fd);
 		close(fd);
-	} else {
-		User* user = NULL;
-		for (size_t i = 0; i < _serverUsers.size(); i++) {
-			if (_serverUsers[i]->getFd() == fd) {
-				user = _serverUsers[i];
-				break;
-			}
-		}
-		if (user) {
-			std::string rawMessage(buff);
-			std::cout << "Buff: " << buff << std::endl;
-			std::string response = this->_commandParser->processCommand(rawMessage, *this, user);
-			send(fd, buff, bytes, 0);
+		return;
+	}
+
+	User* user = NULL;
+	for (size_t i = 0; i < _serverUsers.size(); i++) {
+		if (_serverUsers[i]->getFd() == fd) {
+			user = _serverUsers[i];
+			break;
 		}
 	}
+
+	if (!user)
+		return;
+
+	std::string rawMessage(buff);
+	std::cout << "Buff: " << buff << std::endl;
+
+	std::string response = this->_commandParser->processCommand(rawMessage, *this, user);
+
+	// Só responde se realmente tiver algo pra responder (tipo um erro)
+	if (!response.empty())
+		send(fd, response.c_str(), response.length(), 0);
 }
 
 void	Server::broadcast(const std::string& message, User* sender) {

@@ -1,7 +1,7 @@
 #include "../../includes/irc.hpp"
 
 std::string CommandsArgs::nick(const std::vector<std::string>& args, Server& server, User* user) {
-	user->setHasNick(true);
+	user->setHasNickCommand(true);
 	
 	if (args.empty()) {
 		std::string error = ERR_NONICKNAMEGIVEN();
@@ -17,15 +17,16 @@ std::string CommandsArgs::nick(const std::vector<std::string>& args, Server& ser
 
 	std::string oldNick = user->getNickName();
 	user->setNickName(args[0]);
+	user->setHasNickCommand(true);
 
 	std::string notify = ":" + (oldNick.empty() ? args[0] : oldNick) + " NICK : " + args[0] + CRLF;
 	server.broadcast(notify, user);
 	send(user->getFd(), notify.c_str(), notify.length(), 0);
 
-	if (!user->getRegister() && user->getHasUser() && user->getHasNick()) {
+	if (!user->getRegistered() && user->getHasUserCommand() && user->getHasNickCommand()) {
 		std::string welcome = RPL_WELCOME(user->getNickName(), user->getUserName());
 		send(user->getFd(), welcome.c_str(), welcome.length(), 0);
-		user->setRegister(true);
+		user->setRegistered(true);
 	}
 
 	return "NICK command executed!" + CRLF;

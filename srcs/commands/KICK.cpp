@@ -7,5 +7,5 @@ std::string CommandsArgs::kick(const std::vector<std::string>& args, Server& ser
     for (size_t i = 0; i < args.size(); i++) {
         std::cout << "Arg " << i << ": " << args[i] << std::endl;
     }
-    return "KICK command executed!\r\n";
+    return "";
 }

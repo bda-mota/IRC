@@ -17,6 +17,14 @@ class User {
 		bool _hasNick;
 		bool _hasUser;
 		std::vector<Channel*> _joinedChannels; 
+		std::string _realName;
+		std::string _hostName;
+		std::string _serverName;
+		std::vector<Channel*> _joinedChannels;
+
+		bool _hasUserCommand;
+		bool _hasNickCommand;
+		bool _hasRegistered;
 
 	public:
 		User();
@@ -28,20 +36,30 @@ class User {
 		bool getHasNick() const;
 		bool getHasUser() const;
 		const std::string& getIP() const;
+		const std::string& getHostName() const;
+		const std::string& getServerName() const;
 		const std::string& getUserName() const;
 		const std::string& getNickName() const;
 		const std::string& getRealName() const;
 		const std::vector<Channel*>& getJoinedChannels() const;
 		std::vector<Channel*>& getJoinedChannels();
+		void			removeChannel(Channel* channel);
+
+		bool getHasUserCommand() const;
+		bool getHasNickCommand() const;
+		bool getRegistered() const;
 		
 		void	setFd(int fd);
 		void	setIP(std::string const& IP);
 		void	setUserName(std::string const& userName);
 		void	setNickName(std::string const& nickName);
 		void	setRealName(std::string const& realName);
-		void	setRegister(bool value);
-		void	setHasNick(bool value);
-		void	setHasUser(bool value);
+		void	setHostName(std::string const& hostname);
+		void	setServerName(std::string const& servername);
+
+		void setHasUserCommand(bool hasUserCommand);
+		void setHasNickCommand(bool hasNickCommand);
+		void setRegistered(bool registered);
 
 		void	joinChannel(Channel* channel);
 		bool	isInChannel(Channel* channel) const;

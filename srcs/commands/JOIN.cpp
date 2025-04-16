@@ -36,6 +36,6 @@ std::string CommandsArgs::join(const std::vector<std::string>& args, Server& ser
 			send(currentUser->getFd(), notify.c_str(), notify.length(), 0);
 		}
 	}
-	return "JOIN command executed!\r\n";
+	return "";
 	//channels[channelName].broadcast(response, user);
 }

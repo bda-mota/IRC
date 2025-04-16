@@ -51,7 +51,6 @@ void Channel::addUser(User* user) {
 void Channel::removeUser(int fd) {
 	for (std::vector<User*>::iterator it = _channelUsers.begin(); it != _channelUsers.end(); ) {
 		if ((*it)->getFd() == fd) {
-			delete *it;
 			it = _channelUsers.erase(it);
 			break;
 		} else {
@@ -83,3 +82,21 @@ void Channel::addOperator(User* user) {
 void Channel::removeOperator(User* user) {
 	_operators.erase(user);
 }
+
+void Channel::sendToAllExcept(const std::string& message, User *excludedUser) {
+	for (std::vector<User*>::iterator it = _channelUsers.begin(); it != _channelUsers.end(); ++it) {
+		if (*it != excludedUser) {
+			std::cout << message << std::endl;
+			
+			// Envia a mensagem real (QUIT)
+			send((*it)->getFd(), message.c_str(), message.length(), 0);
+
+			// Envia uma mensagem PRIVMSG fake só pra debug
+			std::string debugMsg = ":" + excludedUser->getNickName() + "!" + excludedUser->getUserName()
+				+ "@localhost PRIVMSG #" + this->getName() + " :[DEBUG] usuário saiu do canal\r\n";
+
+			send((*it)->getFd(), debugMsg.c_str(), debugMsg.length(), 0);
+		}
+	}
+}
+
