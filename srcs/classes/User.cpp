@@ -8,6 +8,8 @@ User::~User() {}
 
 int User::getFd() const { return _fd; }
 
+bool User::getRegister() const { return _isRegistered; }
+
 const std::string& User::getIP() const { return _IP; }
 
 const std::string& User::getUserName() const { return _userName; }
@@ -21,6 +23,8 @@ const std::vector<Channel*>& User::getJoinedChannels() const { return _joinedCha
 std::vector<Channel*>& User::getJoinedChannels() { return _joinedChannels; }
 
 void User::setFd(int fd) { _fd = fd; }
+
+void User::setRegister(bool value) { _isRegistered = value; }
 
 void User::setIP(std::string const& IP) { _IP = IP; }
 

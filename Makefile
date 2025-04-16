@@ -3,7 +3,7 @@
 .DELETE_ON_ERROR: $(NAME)
 .PHONY: all clean fclean re
 
-PORT_NUMBER = 6667
+PORT_NUMBER = 4444
 PASSWORD = 123
 
 #------------------------------------------------------------------------------#
