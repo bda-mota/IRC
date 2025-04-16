@@ -15,7 +15,7 @@ class User {
 		std::string _realName;
 		std::string _hostName;
 		std::string _serverName;
-		std::vector<Channel*> _joinedChannels;
+		std::vector<Channel*> _joinedChannels; 
 
 		bool _hasUserCommand;
 		bool _hasNickCommand;
