@@ -140,9 +140,9 @@ void Server::acceptNewUser() {
 	newUser->setUserName("default");
 	newUser->setNickName("default");
 	newUser->setRealName("default");
-	newUser->setRegister(false);
-	newUser->setHasNick(false);
-	newUser->setHasUser(false);
+	newUser->setRegistered(false);
+	newUser->setHasNickCommand(false);
+	newUser->setHasUserCommand(false);
 	_serverUsers.push_back(newUser);
 
 	newPoll.fd = incomingFd;

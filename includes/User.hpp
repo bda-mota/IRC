@@ -12,15 +12,10 @@ class User {
 		std::string _IP;
 		std::string _userName;
 		std::string _nickName;
-		std::string _realName; //verificar se é necessário
-		bool _isRegistered;
-		bool _hasNick;
-		bool _hasUser;
-		std::vector<Channel*> _joinedChannels; 
 		std::string _realName;
 		std::string _hostName;
 		std::string _serverName;
-		std::vector<Channel*> _joinedChannels;
+		std::vector<Channel*> _joinedChannels; 
 
 		bool _hasUserCommand;
 		bool _hasNickCommand;
@@ -32,9 +27,6 @@ class User {
 		virtual ~User();
 
 		int	getFd() const;
-		bool getRegister() const;
-		bool getHasNick() const;
-		bool getHasUser() const;
 		const std::string& getIP() const;
 		const std::string& getHostName() const;
 		const std::string& getServerName() const;
