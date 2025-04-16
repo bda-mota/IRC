@@ -175,17 +175,14 @@ void Server::receiveNewData(int fd) {
 		}
 	}
 
-	if (!user)
-		return;
+	if (user) {
+		std::string rawMessage(buff);
+		std::cout << "Buff: " << buff << std::endl;
 
-	std::string rawMessage(buff);
-	std::cout << "Buff: " << buff << std::endl;
-
-	std::string response = this->_commandParser->processCommand(rawMessage, *this, user);
-
-	// Só responde se realmente tiver algo pra responder (tipo um erro)
-	if (!response.empty())
-		send(fd, response.c_str(), response.length(), 0);
+		//std::string response = this->_commandParser->processCommand(rawMessage, *this, user);
+		//send(fd, response.c_str(), response.length(), 0);
+		send(fd, buff, bytes, 0);
+	}
 }
 
 void	Server::broadcast(const std::string& message, User* sender) {
