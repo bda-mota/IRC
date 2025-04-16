@@ -19,10 +19,19 @@ std::string CommandsArgs::quit(const std::vector<std::string>& args, Server& ser
 	std::ostringstream quitMsg;
 	
 	//:Joao!joao@localhost QUIT :Tô vazando\r\n ----> padrão de mensagem QUIT IRC
-	quitMsg << ":" << user->getNickName() << "!" << user->getUserName()
-	        << "@" << user->getHostName() << " QUIT " << reason << "\r\n";
+	// quitMsg << ":" << user->getNickName() << "!" << user->getUserName()
+	//         << "@" << user->getHostName() << " QUIT " << reason << "\r\n";
 
-	std::cout << "QUIT: " << quitMsg.str() << std::endl;
+	std::string host = user->getHostName().empty() ? "localhost" : user->getHostName();
+
+	quitMsg << ":" << user->getNickName() << "!" << user->getUserName()
+        << "@" << host << " QUIT " << reason << "\r\n";
+
+	std::cout << "Usuário está em " << joinedChannels.size() << " canais:" << std::endl;
+	for (size_t i = 0; i < joinedChannels.size(); ++i) {
+		std::cout << "- " << joinedChannels[i]->getName() << std::endl;
+
+	}
 
 	for (size_t i = 0; i < joinedChannels.size(); ++i) {
 		Channel* channel = joinedChannels[i];

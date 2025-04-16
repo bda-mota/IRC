@@ -5,6 +5,8 @@ static void auxBuildRealname(std::string& realname, const std::vector<std::strin
 std::string CommandsArgs::user(const std::vector<std::string>& args, Server& server, User* user) {
 	(void)server; // TODO: manter server aqui? está sem uso
 
+    //user->setHasUser(true);
+
     struct sockaddr_in addr;
     socklen_t addr_len = sizeof(addr);
 

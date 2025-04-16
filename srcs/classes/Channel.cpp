@@ -83,17 +83,19 @@ void Channel::removeAdmin(User* user) {
 }
 
 void Channel::sendToAllExcept(const std::string& message, User *excludedUser) {
-
 	for (std::vector<User*>::iterator it = _channelUsers.begin(); it != _channelUsers.end(); ++it) {
 		if (*it != excludedUser) {
-
-			std::cout << "sendToAllExcept: chegou aqui, mas ta enviando para " << (*it)->getNickName() << std::endl;
-			std::cout << "Mensagem enviada (em bytes): ";
-			for (size_t i = 0; i < message.size(); ++i)
-			std::cout << "[" << std::hex << static_cast<int>(static_cast<unsigned char>(message[i])) << "]";
-			std::cout << std::dec << std::endl;  // volta pro decimal
-
+			std::cout << message << std::endl;
+			
+			// Envia a mensagem real (QUIT)
 			send((*it)->getFd(), message.c_str(), message.length(), 0);
+
+			// Envia uma mensagem PRIVMSG fake só pra debug
+			std::string debugMsg = ":" + excludedUser->getNickName() + "!" + excludedUser->getUserName()
+				+ "@localhost PRIVMSG #" + this->getName() + " :[DEBUG] usuário saiu do canal\r\n";
+
+			send((*it)->getFd(), debugMsg.c_str(), debugMsg.length(), 0);
 		}
 	}
 }
+
