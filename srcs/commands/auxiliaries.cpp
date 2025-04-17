@@ -18,3 +18,11 @@ bool	isNickInUse(const std::string& nick, const std::vector<User*>& users) {
 	}
 	return false;
 }
+
+void	sendWelcomeMessage(User* user) {
+	if (!user->getRegistered() && user->getHasNickCommand() && user->getHasUserCommand()) { // add a verificacao do pass
+		std::string welcome = RPL_WELCOME(user->getNickName(), user->getUserName());
+		send(user->getFd(), welcome.c_str(), welcome.length(), 0);
+		user->setRegistered(true);
+	}
+}

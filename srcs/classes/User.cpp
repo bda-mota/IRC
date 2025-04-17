@@ -21,7 +21,9 @@ const std::string& User::getHostName() const { return _hostName; }
 const std::string& User::getServerName() const { return _serverName; }
 
 bool User::getHasUserCommand() const { return _hasUserCommand; }
+
 bool User::getHasNickCommand() const { return _hasNickCommand; }
+
 bool User::getRegistered() const { return _hasRegistered; }
 
 const std::vector<Channel*>& User::getJoinedChannels() const { return _joinedChannels; }

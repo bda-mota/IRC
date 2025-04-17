@@ -4,7 +4,6 @@ static void auxBuildRealname(std::string& realname, const std::vector<std::strin
 
 std::string CommandsArgs::user(const std::vector<std::string>& args, Server& server, User* user) {
 	(void)server; // TODO: manter server aqui? está sem uso
-    std::cout << "USER command received" << std::endl;
     user->setHasUserCommand(true);
 
     struct sockaddr_in addr;
@@ -41,17 +40,14 @@ std::string CommandsArgs::user(const std::vector<std::string>& args, Server& ser
         send(user->getFd(), error.c_str(), error.length(), 0);
         return "";
     }
-    user->setHasUserCommand(true);
 
-	if (!user->getRegistered() && user->getHasNickCommand() && user->getHasUserCommand()) {
-		std::string welcome = RPL_WELCOME(user->getNickName(), user->getUserName());
-		send(user->getFd(), welcome.c_str(), welcome.length(), 0);
-		user->setRegistered(true);
+	if (!user->getRegistered()) {
+		sendWelcomeMessage(user);
 	}
 
     user->setRealName(realname);
 
-	return "user executed\r\n";
+	return ""; // os retornos saem no hexchat
 }
 
 static void auxBuildRealname(std::string& realname, const std::vector<std::string>& args, size_t start) {
