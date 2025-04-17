@@ -182,34 +182,37 @@ void Server::receiveNewData(int fd) {
 	if (!user)
 		return;
 
-  if (user && user->isAuth()) {
-    std::string rawMessage(buff, bytes);
-    std::stringstream ss(rawMessage);
+	if (user && user->isAuth()) {
+    	std::string rawMessage(buff, bytes);
+    	std::stringstream ss(rawMessage);
 		std::string line;
 	
 		while (std::getline(ss, line)) {
 			if (!line.empty() && line[line.size() - 1] == '\r')
 				line.erase(line.size() - 1);
-	
+		
 			std::string response = this->_commandParser->processCommand(line, *this, user);
-    // Só responde se realmente tiver algo pra responder (tipo um erro)
-    if (!response.empty())
-      send(fd, response.c_str(), response.length(), 0);
-   } else if (user) {
-    std::string pass(buff);
-    if (pass == (_password + "\n").c_str()) {
-      user->setAuth(true);
-      std::string msg = GREEN + std::string("You've been authenticated!\n") + RESET;
-      send(fd, msg.c_str(), msg.length(), 0);
-      std::cout << GREEN << "Client " << fd << " authenticated!"<< RESET << std::endl;
-    } else {
-      std::string msg = RED + std::string("Wrong password! Could not authenticate client.\n") + RESET;
-      send(fd, msg.c_str(), msg.length(), 0);
-      std::cout << RED << "Client: " << fd << " failed to authenticate. Client disconnected." << RESET << std::endl;
-      clearUsers(fd);
-      close(fd);
-    }
-  }
+			// Só responde se realmente tiver algo pra responder (tipo um erro)
+			if (!response.empty()) {
+				send(fd, response.c_str(), response.length(), 0);
+			}
+			else if (user) {
+				std::string pass(buff);
+				if (pass == (_password + "\n").c_str()) {
+					user->setAuth(true);
+					std::string msg = GREEN + std::string("You've been authenticated!\n") + RESET;
+					send(fd, msg.c_str(), msg.length(), 0);
+					std::cout << GREEN << "Client " << fd << " authenticated!"<< RESET << std::endl;
+				} else {
+					std::string msg = RED + std::string("Wrong password! Could not authenticate client.\n") + RESET;
+					send(fd, msg.c_str(), msg.length(), 0);
+					std::cout << RED << "Client: " << fd << " failed to authenticate. Client disconnected." << RESET << std::endl;
+					clearUsers(fd);
+					close(fd);
+				}
+			}
+		}
+	}
 }
 
 void	Server::broadcast(const std::string& message, User* sender) {
