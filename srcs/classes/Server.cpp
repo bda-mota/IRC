@@ -251,3 +251,7 @@ std::vector<User*>& Server::getUsers() { return _serverUsers; }
 std::map<std::string, Channel*>& Server::getChannels() { return _channels; }
 
 int Server::getServerFd() const { return _serverFd; }
+
+void Server::setPassword(std::string pass) {
+	_password = pass;
+}
