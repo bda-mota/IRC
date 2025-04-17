@@ -43,7 +43,7 @@ class Server {
 
     void authenticateUser(char *buff, User *user, int fd);
     void	parseReceiveNewData(std::string rawMessage, int fd, User *user);
-    void	setPassword(std::string pass);
+    std::string	getPassword();
 		int getServerFd() const;
 };
 

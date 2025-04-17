@@ -252,6 +252,4 @@ std::map<std::string, Channel*>& Server::getChannels() { return _channels; }
 
 int Server::getServerFd() const { return _serverFd; }
 
-void Server::setPassword(std::string pass) {
-	_password = pass;
-}
+std::string Server::getPassword() { return _password; }
