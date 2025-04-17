@@ -15,7 +15,8 @@ class User {
 		std::string _realName;
 		std::string _hostName;
 		std::string _serverName;
-		std::vector<Channel*> _joinedChannels; 
+		std::vector<Channel*> _joinedChannels;
+    bool _auth;
 
 		bool _hasUserCommand;
 		bool _hasNickCommand;
@@ -40,7 +41,8 @@ class User {
 		bool getHasUserCommand() const;
 		bool getHasNickCommand() const;
 		bool getRegistered() const;
-		
+    bool isAuth() const;
+
 		void	setFd(int fd);
 		void	setIP(std::string const& IP);
 		void	setUserName(std::string const& userName);
@@ -52,6 +54,7 @@ class User {
 		void setHasUserCommand(bool hasUserCommand);
 		void setHasNickCommand(bool hasNickCommand);
 		void setRegistered(bool registered);
+    void setAuth(bool auth);
 
 		void	joinChannel(Channel* channel);
 		bool	isInChannel(Channel* channel) const;

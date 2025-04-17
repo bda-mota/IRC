@@ -1,4 +1,4 @@
-#include "../../includes/Server.hpp" 
+#include "../../includes/Server.hpp"
 
 bool Server::_signal = false; // inicializar a variavel booleana
 
@@ -92,8 +92,9 @@ void Server::serverSocket() {
 	_fds.push_back(newPoll);
 }
 
-void Server::serverInit() {
-	this->_port = 4444;
+void Server::serverInit(int port, std::string password) {
+	this->_port = port;
+  this->_password = password;
 	serverSocket();
 
 	std::cout << "Server started on port " << this->_port << std::endl;
@@ -101,7 +102,7 @@ void Server::serverInit() {
 	std::cout << "Waiting for clients..." << std::endl;
 
 	while (Server::_signal == false) {
-		
+
 		if (poll(_fds.data(), _fds.size(), 0) == -1 && Server::_signal == false) {
 			throw std::runtime_error("Error: fail to poll.");
 		}
@@ -143,6 +144,7 @@ void Server::acceptNewUser() {
 	newUser->setRegistered(false);
 	newUser->setHasNickCommand(false);
 	newUser->setHasUserCommand(false);
+  newUser-> setAuth(false);
 	_serverUsers.push_back(newUser);
 
 	newPoll.fd = incomingFd;
@@ -151,6 +153,8 @@ void Server::acceptNewUser() {
 
 	_fds.push_back(newPoll);
 
+  const char *welcomeMsg = "Welcome! Please, type the password to authenticate:\n";
+	send(incomingFd, welcomeMsg, strlen(welcomeMsg), 0);
 	std::cout << GREEN << "Client connected: " << newUser->getIP() << RESET << std::endl;
 }
 
@@ -175,9 +179,12 @@ void Server::receiveNewData(int fd) {
 		}
 	}
 
-	if (user) {
-		std::string rawMessage(buff, bytes);
-		std::stringstream ss(rawMessage);
+	if (!user)
+		return;
+
+  if (user && user->isAuth()) {
+    std::string rawMessage(buff, bytes);
+    std::stringstream ss(rawMessage);
 		std::string line;
 	
 		while (std::getline(ss, line)) {
@@ -185,11 +192,24 @@ void Server::receiveNewData(int fd) {
 				line.erase(line.size() - 1);
 	
 			std::string response = this->_commandParser->processCommand(line, *this, user);
-	
-			if (!response.empty())
-				send(fd, response.c_str(), response.length(), 0);
-		}
-	}
+    // Só responde se realmente tiver algo pra responder (tipo um erro)
+    if (!response.empty())
+      send(fd, response.c_str(), response.length(), 0);
+   } else if (user) {
+    std::string pass(buff);
+    if (pass == (_password + "\n").c_str()) {
+      user->setAuth(true);
+      std::string msg = GREEN + std::string("You've been authenticated!\n") + RESET;
+      send(fd, msg.c_str(), msg.length(), 0);
+      std::cout << GREEN << "Client " << fd << " authenticated!"<< RESET << std::endl;
+    } else {
+      std::string msg = RED + std::string("Wrong password! Could not authenticate client.\n") + RESET;
+      send(fd, msg.c_str(), msg.length(), 0);
+      std::cout << RED << "Client: " << fd << " failed to authenticate. Client disconnected." << RESET << std::endl;
+      clearUsers(fd);
+      close(fd);
+    }
+  }
 }
 
 void	Server::broadcast(const std::string& message, User* sender) {
