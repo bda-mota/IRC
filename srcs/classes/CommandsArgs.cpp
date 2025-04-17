@@ -36,10 +36,12 @@ void CommandsArgs::populateMap() {
 }
 
 std::string CommandsArgs::executeCommand(const std::string& command, const std::vector<std::string>& args, Server& server, User* user) {
-    std::map<std::string, funcPtr>::iterator it = _messageFunctions.find(command);
+  if (command != "PASS" && command != "CAP" && user->isAuth() == false) {
+    return "ERROR_NOTREGISTERED";
+  }
+  std::map<std::string, funcPtr>::iterator it = _messageFunctions.find(command);
     if (it != _messageFunctions.end()) {
         return (it->second)(args, server, user);
     }
     return "Comando inválido!\r\n";
 }
-
