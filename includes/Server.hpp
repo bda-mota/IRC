@@ -41,6 +41,8 @@ class Server {
 		const std::map<std::string, Channel*>& getChannels() const;
 		const std::vector<User*>& getUsers() const;
 
+    void authenticateUser(char *buff, User *user, int fd);
+    void	parseReceiveNewData(std::string rawMessage, int fd, User *user);
 		int getServerFd() const;
 };
 

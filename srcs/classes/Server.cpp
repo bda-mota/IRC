@@ -158,6 +158,47 @@ void Server::acceptNewUser() {
 	std::cout << GREEN << "Client connected: " << newUser->getIP() << RESET << std::endl;
 }
 
+void Server::authenticateUser(char *buff, User *user, int fd) {
+  std::string pass(buff);
+  if (pass == (_password + "\n").c_str()) {
+    user->setAuth(true);
+    std::string msg = GREEN + std::string("You've been authenticated!\n") + RESET;
+    send(fd, msg.c_str(), msg.length(), 0);
+    std::cout << GREEN << "Client " << fd << " authenticated!"<< RESET << std::endl;
+  } else {
+    std::string msg = RED + std::string("Wrong password! Could not authenticate client.\n") + RESET;
+    send(fd, msg.c_str(), msg.length(), 0);
+    std::cout << RED << "Client: " << fd << " failed to authenticate. Client disconnected." << RESET << std::endl;
+    clearUsers(fd);
+    close(fd);
+  }
+}
+
+void Server::parseReceiveNewData(std::string rawMessage, int fd, User *user) {
+	std::istringstream stream(rawMessage);
+	std::string line;
+
+	while (std::getline(stream, line)) {
+		// Remove trailing \r if present
+		if (!line.empty() && line[line.length() - 1] == '\r') {
+			line = line.substr(0, line.length() - 1);
+		}
+
+		if (line.empty())
+			continue;
+
+		std::cout << "Processing line: [" << line << "]" << std::endl;
+
+		// Step 2: Call processCommand
+		std::string response = this->_commandParser->processCommand(line, *this, user);
+
+		// Step 3: Send response to client (if needed)
+		if (!response.empty()) {
+			send(fd, response.c_str(), response.length(), 0);
+		}
+	}
+}
+
 void Server::receiveNewData(int fd) {
 	char buff[1024];
 	memset(buff, 0, sizeof(buff));
@@ -183,36 +224,11 @@ void Server::receiveNewData(int fd) {
 		return;
 
 	if (user && user->isAuth()) {
-    	std::string rawMessage(buff, bytes);
-    	std::stringstream ss(rawMessage);
-		std::string line;
-	
-		while (std::getline(ss, line)) {
-			if (!line.empty() && line[line.size() - 1] == '\r')
-				line.erase(line.size() - 1);
-		
-			std::string response = this->_commandParser->processCommand(line, *this, user);
-			// Só responde se realmente tiver algo pra responder (tipo um erro)
-			if (!response.empty()) {
-				send(fd, response.c_str(), response.length(), 0);
-			}
-			else if (user) {
-				std::string pass(buff);
-				if (pass == (_password + "\n").c_str()) {
-					user->setAuth(true);
-					std::string msg = GREEN + std::string("You've been authenticated!\n") + RESET;
-					send(fd, msg.c_str(), msg.length(), 0);
-					std::cout << GREEN << "Client " << fd << " authenticated!"<< RESET << std::endl;
-				} else {
-					std::string msg = RED + std::string("Wrong password! Could not authenticate client.\n") + RESET;
-					send(fd, msg.c_str(), msg.length(), 0);
-					std::cout << RED << "Client: " << fd << " failed to authenticate. Client disconnected." << RESET << std::endl;
-					clearUsers(fd);
-					close(fd);
-				}
-			}
-		}
-	}
+    std::string rawMessage(buff, bytes);
+    parseReceiveNewData(rawMessage, fd, user);
+  } else if (user) {
+    authenticateUser(buff, user, fd);
+  }
 }
 
 void	Server::broadcast(const std::string& message, User* sender) {
