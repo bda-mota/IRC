@@ -27,7 +27,7 @@ std::string CommandsArgs::topic(const std::vector<std::string>& args, Server& se
 	
 	if (channels.find(channelName) == channels.end()) {
 		send(user->getFd(), "Error: channel not found.\r\n", 27, 0);
-		return "ERROR: Channel not found!\r\n";
+		return "";
 	}
 
 	Channel* channel = channels[channelName];

@@ -12,6 +12,56 @@
 # define MAGENT	"\033[35;1m"
 # define RESET	"\033[0m"
 
-# define END "\r\n";
+# define END "\r\n"; // mudar para  crlf
+# define FTIRC std::string(":ft.irc")
+# define CRLF std::string("\r\n")
+# define COMMA std::string(",")
+# define COLON std::string(":")
+# define SPACE std::string(" ")
+
+// 0s
+#define RPL_WELCOME(nick, user) (FTIRC + " 001 " + user + " :Welcome to the Internet Relay Chat " + nick + "!" + user + "@*" + CRLF)
+
+// 300s
+# define RPL_ENDOFWHO(channel)                               (FTIRC + " 315 " + channel + " :End of /WHO list." + CRLF)
+# define RPL_CHANNELMODEIS(channel, mode, modeParams)        (FTIRC + " 324 * " + channel + " " + mode + " " + modeParams + CRLF)
+# define RPL_NOTOPIC(nick, channel)                          (FTIRC + " 331 " + nick + " " + channel + " :No topic is set" + CRLF)
+# define RPL_TOPIC(nick, channel, topic)                     (FTIRC + " 332 " + nick + " " + channel + " :" + topic + CRLF)
+# define RPL_INVITING(nick, recipient, channel)                         (FTIRC + " 341 " + nick + " " + recipient + " :" + channel + CRLF)
+# define RPL_WHOREPLY(channel, user, nick, flags, realname)  (FTIRC + " 352 " + channel + " " + user + " 42sp.org.br ft.irc " + nick + " " + flags + ":0 " + realname + CRLF)
+# define RPL_NAMREPLY(nick, channel, names)                  (FTIRC + " 353 " + nick + " = " + channel + " : " + names + CRLF)
+# define RPL_ENDOFNAMES(nick, channel)                       (FTIRC + " 366 " + nick + " " + channel + " : End of names list" + CRLF)
+
+// 400s
+# define ERR_NOSUCHCHANNEL(channel)                      (FTIRC + " 403 * " + channel + " :Invalid channel name!" + CRLF)
+# define ERR_NOSUCHNICK(recipient)                       (FTIRC + " 406 " + recipient + " :No such nick" + CRLF)
+# define ERR_NORECIPIENT(user)                           (FTIRC + " 411 " + user + " :No recipient to message" + CRLF)
+# define ERR_NOTEXTTOSEND(user)                          (FTIRC + " 412 " + user + " :No message to send" + CRLF)
+# define ERR_NONICKNAMEGIVEN()                           (FTIRC + " 431 :No nickname given" + CRLF)
+# define ERR_ERRONEUSNICKNAME(nick)                      (FTIRC + " 432 * " + nick + " :Nickname is invalid" + CRLF)
+# define ERR_NICKNAMEINUSE(nick)                         (FTIRC + " 433 * " + nick + " :Nickname is already in use" + CRLF)
+# define ERR_USERNOTINCHANNEL(operator, client, channel) (FTIRC + " 441 " + operator + SPACE + client + SPACE + channel + " :They aren't on that channel" + CRLF)
+# define ERR_NOTONCHANNEL(channel)                       (FTIRC + " 442 * " + channel + " :Client not on channel!" + CRLF)
+# define ERR_USERONCHANNEL(nick, channel)                (FTIRC + " 443 * " + nick + " " + channel + " :Client on channel!" + CRLF)
+# define ERR_NEEDMOREPARAMS(command, reason)             (FTIRC + " 461 * " + command + " :" + reason + CRLF)
+# define ERR_ALREADYREGISTERED(user)                     (FTIRC + " 462 " + user + " :User already registered" + CRLF)
+# define ERR_PASSWDMISMATCH()                            (FTIRC + " 464 * :Password was either not given or was incorrect" + CRLF)
+# define ERR_CHANNELISFULL(channel)                      (FTIRC + " 471 * " + channel + " :Channel is full!" + CRLF)
+# define ERR_INVITEONLYCHAN(channel)                      (FTIRC + " 473 * " + channel + " :Channel is invite-only!" + CRLF)
+# define ERR_BADCHANNELKEY(user, channel)                (FTIRC + " 475 " + user + " " + channel + " :Password for channel was either not given or incorrect" + CRLF)
+# define ERR_CHANOPRIVSNEEDED(user, channel)             (FTIRC + " 482 " + user + " " + channel + " :You're not a channel operator!" + CRLF)
+
+// Miscellaneous
+# define JOIN(user, channel)                                         (COLON + user + " JOIN " + channel + CRLF)
+# define PRIVMSG_BROADCAST(nick, user, channel, topic)               (COLON + nick + "!~" + user + "@ft.irc TOPIC " + channel + SPACE + topic + CRLF)
+# define RPL_PRIVMSG(user, dest, message)                            (COLON + user + " PRIVMSG " + dest + " :" + message + CRLF)
+# define RPL_PARTMSG(nick, user, dest, message)                      (COLON + nick + "!~" + user + "@* PART " + dest + " :" + message + CRLF)
+# define RPL_PARTNOMSG(nick, user, dest)                             (COLON + nick + "!" + user + "@* PART " + dest + CRLF)
+# define RPL_KICKREASON(op_nick, op_user, channel, client, reason)   (COLON + op_nick + "!" + op_user + "@ft.irc KICK " + channel + SPACE + client + SPACE + COLON + reason + CRLF)
+# define RPL_KICKNOREASON(op_nick, op_user, channel, client)         (COLON + op_nick + "!" + op_user + "@ft.irc KICK " + channel + SPACE + client + CRLF)
+# define RPL_KICKFEEDBACK(op_nick, op_user, channel, client)         (COLON + op_nick + "!" + op_user + "@ft.irc KICK " + channel + SPACE + client + CRLF)
+# define RPL_MODEBASE(nick, user, channel)                           (COLON + nick + "!" + user + "@ft.irc MODE " + channel + " ")
+# define RPL_INVITEMSG(nick, user, recipient, channel)               (COLON + nick + "!~" + user + "@ft.irc INVITE " + recipient + " :" + channel + CRLF)
+
 
 #endif
