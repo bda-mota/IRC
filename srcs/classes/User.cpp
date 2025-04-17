@@ -24,6 +24,8 @@ bool User::getHasUserCommand() const { return _hasUserCommand; }
 bool User::getHasNickCommand() const { return _hasNickCommand; }
 bool User::getRegistered() const { return _hasRegistered; }
 
+bool User::isAuth() const { return _auth; }
+
 const std::vector<Channel*>& User::getJoinedChannels() const { return _joinedChannels; }
 
 std::vector<Channel*>& User::getJoinedChannels() { return _joinedChannels; }
@@ -45,6 +47,8 @@ void User::setServerName(std::string const& servername) { _serverName = serverna
 void User::setHasUserCommand(bool hasUserCommand) { _hasUserCommand = hasUserCommand; }
 void User::setHasNickCommand(bool hasNickCommand) { _hasNickCommand = hasNickCommand; }
 void User::setRegistered(bool registered) { _hasRegistered = registered; }
+
+void User::setAuth(bool auth) { _auth = auth; }
 
 void User::joinChannel(Channel* channel) {
 	if (!isInChannel(channel)) {
