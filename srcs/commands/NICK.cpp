@@ -8,7 +8,7 @@ std::string CommandsArgs::nick(const std::vector<std::string>& args, Server& ser
 
 	if (args.empty()) {
 		std::string error = ERR_NONICKNAMEGIVEN();
-		send(user->getFd(), error.c_str(), error.length(), 0);
+		sendError(user, error);
 		return "ERROR NICK" + CRLF;
 	}
 
@@ -32,7 +32,7 @@ std::string CommandsArgs::nick(const std::vector<std::string>& args, Server& ser
 static bool isInvalidNick(const std::string& newNick, Server& server, User* user) {
 	if (isNickInUse(newNick, server.getUsers())) {
 		std::string error = ERR_NICKNAMEINUSE(user->getNickName());
-		send(user->getFd(), error.c_str(), error.length(), 0);
+		sendError(user, error);
 		return true;
 	}
 	return false;
@@ -46,5 +46,5 @@ static void notifyNickChange(const std::string& oldNick, const std::string& newN
 		if (*it)
 			(*it)->broadcast(notify, user);
 	}
-	send(user->getFd(), notify.c_str(), notify.length(), 0);
+	sendResponse(user, notify);
 }

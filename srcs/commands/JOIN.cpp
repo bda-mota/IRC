@@ -1,6 +1,5 @@
 #include "../../includes/irc.hpp"
 
-static bool	isValidChannelName(const std::string& channelName, User* user);
 static void	createChannelIfNotExists(const std::string& channelName, Server& server, User* user);
 static void	addUserToChannel(Channel* channel, User* user);
 static void	sendListOfUsers(Channel *channel, User* user);
@@ -27,16 +26,6 @@ std::string CommandsArgs::join(const std::vector<std::string>& args, Server& ser
 	return "";
 }
 
-static bool	isValidChannelName(const std::string& channelName, User* user) {
-	if (channelName.empty() || channelName[0] != '#') {
-		std::string error = ERR_NOSUCHCHANNEL(channelName);
-		send(user->getFd(), error.c_str(), error.length(), 0);
-		return false;
-	}
-	return true;
-
-}
-
 static void	createChannelIfNotExists(const std::string& channelName, Server& server, User* user) {
 	std::map<std::string, Channel*>& channels = server.getChannels();
 
@@ -55,7 +44,7 @@ static void	addUserToChannel(Channel* channel, User* user) {
 	std::cout << "User: " << user->getNickName() << " adicionado ao canal: " << channel->getName() << std::endl;
 
 	std::string response = JOIN(user->getNickName(), channel->getName());
-	send(user->getFd(), response.c_str(), response.length(), 0);
+	sendResponse(user, response);
 }
 
 static void	sendListOfUsers(Channel *channel, User* user) {
@@ -68,8 +57,8 @@ static void	sendListOfUsers(Channel *channel, User* user) {
 		names.erase(names.length() - 1);
 
 	std::string nameReply = RPL_NAMREPLY(user->getNickName(), channel->getName(), names);
-	send(user->getFd(), nameReply.c_str(), nameReply.length(), 0);
+	sendResponse(user, nameReply);
 
 	std::string endOfNames = RPL_ENDOFNAMES(user->getNickName(), channel->getName());
-	send(user->getFd(), endOfNames.c_str(), endOfNames.length(), 0);
+	sendResponse(user, endOfNames);
 }
