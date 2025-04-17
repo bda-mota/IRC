@@ -37,7 +37,8 @@ void CommandsArgs::populateMap() {
 
 std::string CommandsArgs::executeCommand(const std::string& command, const std::vector<std::string>& args, Server& server, User* user) {
   if (command != "PASS" && command != "CAP" && user->isAuth() == false) {
-    return "ERROR_NOTREGISTERED";
+    return "Please, enter a password first.\r\n"; // TODO:melhorar mensagem de erro
+
   }
   std::map<std::string, funcPtr>::iterator it = _messageFunctions.find(command);
     if (it != _messageFunctions.end()) {
