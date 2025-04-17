@@ -179,7 +179,7 @@ void Server::parseReceiveNewData(std::string rawMessage, int fd, User *user) {
 	std::string line;
 
 	while (std::getline(stream, line)) {
-		// Remove trailing \r if present
+		// remove extra return
 		if (!line.empty() && line[line.length() - 1] == '\r') {
 			line = line.substr(0, line.length() - 1);
 		}
@@ -187,12 +187,10 @@ void Server::parseReceiveNewData(std::string rawMessage, int fd, User *user) {
 		if (line.empty())
 			continue;
 
-		std::cout << "Processing line: [" << line << "]" << std::endl;
-
-		// Step 2: Call processCommand
+		// process command
 		std::string response = this->_commandParser->processCommand(line, *this, user);
 
-		// Step 3: Send response to client (if needed)
+		// send response to user
 		if (!response.empty()) {
 			send(fd, response.c_str(), response.length(), 0);
 		}
