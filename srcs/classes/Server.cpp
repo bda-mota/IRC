@@ -182,15 +182,20 @@ void Server::receiveNewData(int fd) {
 	if (!user)
 		return;
 
-
   if (user && user->isAuth()) {
-    std::string rawMessage(buff);
-    std::cout << "Buff: " << buff << std::endl;
-    std::string response = this->_commandParser->processCommand(rawMessage, *this, user);
+    std::string rawMessage(buff, bytes);
+    std::stringstream ss(rawMessage);
+		std::string line;
+	
+		while (std::getline(ss, line)) {
+			if (!line.empty() && line[line.size() - 1] == '\r')
+				line.erase(line.size() - 1);
+	
+			std::string response = this->_commandParser->processCommand(line, *this, user);
     // Só responde se realmente tiver algo pra responder (tipo um erro)
     if (!response.empty())
       send(fd, response.c_str(), response.length(), 0);
-  } else if (user) {
+   } else if (user) {
     std::string pass(buff);
     if (pass == (_password + "\n").c_str()) {
       user->setAuth(true);
@@ -208,21 +213,18 @@ void Server::receiveNewData(int fd) {
 }
 
 void	Server::broadcast(const std::string& message, User* sender) {
-	if (!sender) {
-		return;
-	}
+	if (!sender) return;
 
 	std::vector<User*>& users = this->getUsers();
 
 	for (std::vector<User*>::iterator it = users.begin(); it != users.end(); ++it) {
 		User* target = *it;
-		if (target && target->getFd() > 0 && target->getFd() != sender->getFd()) {
+		if (target && target->getFd() > 0) {
 			send(target->getFd(), message.c_str(), message.length(), 0);
 		}
 	}
 }
 
-// GETTERS
 const std::map<std::string, Channel*>& Server::getChannels() const { return _channels; }
 
 const std::vector<User*>& Server::getUsers() const { return _serverUsers; }

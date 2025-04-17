@@ -4,8 +4,7 @@ static void auxBuildRealname(std::string& realname, const std::vector<std::strin
 
 std::string CommandsArgs::user(const std::vector<std::string>& args, Server& server, User* user) {
 	(void)server; // TODO: manter server aqui? está sem uso
-
-    //user->setHasUser(true);
+    user->setHasUserCommand(true);
 
     struct sockaddr_in addr;
     socklen_t addr_len = sizeof(addr);
@@ -14,8 +13,6 @@ std::string CommandsArgs::user(const std::vector<std::string>& args, Server& ser
 	    std::string hostname = inet_ntoa(addr.sin_addr);
 	    user->setHostName(hostname);
     }
-    else
-	    user->setHostName("unknown");
 
 	if (args.size() < 4) {
         std::string error = ":ircserver 461 " + user->getNickName() + " USER :Not enough parameters\r\n";
@@ -23,7 +20,7 @@ std::string CommandsArgs::user(const std::vector<std::string>& args, Server& ser
 		return "";
 	}
 
-    if (user->getRegistered() == true)
+    if (user->getRegistered())
     {
         std::string error = ":ircserver 462 " + user->getNickName() + " :You may not reregister\r\n";
 		send(user->getFd(), error.c_str(), error.length(), 0);
@@ -43,31 +40,14 @@ std::string CommandsArgs::user(const std::vector<std::string>& args, Server& ser
         send(user->getFd(), error.c_str(), error.length(), 0);
         return "";
     }
-    user->setHasUserCommand(true);
-	(void)server;
-    (void)user;
-    std::cout << "User command executed!" << std::endl;
-    for (size_t i = 0; i < args.size(); i++) {
-        std::cout << "Arg " << i << ": " << args[i] << std::endl;
-    }
 
-	if (!user->getRegistered() && user->getHasNickCommand() && user->getHasUserCommand()) {
-		std::string welcome = RPL_WELCOME(user->getNickName(), user->getUserName());
-		send(user->getFd(), welcome.c_str(), welcome.length(), 0);
-		user->setRegistered(true);
+	if (!user->getRegistered()) {
+		sendWelcomeMessage(user);
 	}
 
     user->setRealName(realname);
-    user->setHasUserCommand(true);
 
-    if (user->getHasUserCommand() == true && user->getHasNickCommand() == true)
-    {
-        std::string welcomeMessage = ":ircserver 001 " + user->getNickName() + " :Welcome to the IRC server!\r\n";
-        send(user->getFd(), welcomeMessage.c_str(), welcomeMessage.length(), 0);
-        user->setRegistered(true);
-    }
-
-	return "";
+	return ""; // os retornos saem no hexchat
 }
 
 static void auxBuildRealname(std::string& realname, const std::vector<std::string>& args, size_t start) {

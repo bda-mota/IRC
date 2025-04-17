@@ -17,16 +17,17 @@ std::string CommandsArgs::nick(const std::vector<std::string>& args, Server& ser
 
 	std::string oldNick = user->getNickName();
 	user->setNickName(args[0]);
-	user->setHasNickCommand(true);
 
 	std::string notify = ":" + (oldNick.empty() ? args[0] : oldNick) + " NICK : " + args[0] + CRLF;
-	server.broadcast(notify, user);
+	std::vector<Channel*>& channels = user->getJoinedChannels();
+	for (std::vector<Channel*>::iterator it = channels.begin(); it != channels.end(); ++it) {
+    	if (*it)
+			(*it)->broadcast(notify, user);
+	}
 	send(user->getFd(), notify.c_str(), notify.length(), 0);
 
-	if (!user->getRegistered() && user->getHasUserCommand() && user->getHasNickCommand()) {
-		std::string welcome = RPL_WELCOME(user->getNickName(), user->getUserName());
-		send(user->getFd(), welcome.c_str(), welcome.length(), 0);
-		user->setRegistered(true);
+	if (!user->getRegistered()) {
+		sendWelcomeMessage(user);
 	}
 
 	return "NICK command executed!" + CRLF;

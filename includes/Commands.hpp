@@ -16,5 +16,6 @@ void	nick(Server& server, User* user, const std::string& newNick);
 // AUXILIARIES
 bool	isUserInChannel(User& user, Channel& channel);
 bool	isNickInUse(const std::string& nick, const std::vector<User*>& users);
+void	sendWelcomeMessage(User* user);
 
 #endif

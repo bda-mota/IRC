@@ -21,7 +21,9 @@ const std::string& User::getHostName() const { return _hostName; }
 const std::string& User::getServerName() const { return _serverName; }
 
 bool User::getHasUserCommand() const { return _hasUserCommand; }
+
 bool User::getHasNickCommand() const { return _hasNickCommand; }
+
 bool User::getRegistered() const { return _hasRegistered; }
 
 bool User::isAuth() const { return _auth; }

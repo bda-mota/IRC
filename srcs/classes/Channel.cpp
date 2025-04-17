@@ -60,11 +60,12 @@ void Channel::removeUser(int fd) {
 }
 
 void Channel::broadcast(const std::string& message, User* sender) {
-	std::vector<User*> users = this->getUsers();
+	if (!sender) return;
 
-	for (std::vector<User*>::iterator it = users.begin(); it != users.end(); ++it) {
-		if ((*it)->getFd() != sender->getFd()) {
-			send((*it)->getFd(), message.c_str(), message.length(), 0);
+	for (std::vector<User*>::iterator it = _channelUsers.begin(); it != _channelUsers.end(); ++it) {
+		User* target = *it;
+		if (target && target->getFd() > 0 && target != sender) {
+			send(target->getFd(), message.c_str(), message.length(), 0);
 		}
 	}
 }

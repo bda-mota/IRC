@@ -37,9 +37,7 @@ void CommandsArgs::populateMap() {
 
 std::string CommandsArgs::executeCommand(const std::string& command, const std::vector<std::string>& args, Server& server, User* user) {
     std::map<std::string, funcPtr>::iterator it = _messageFunctions.find(command);
-	std::cout << "Command: " << command << std::endl;
     if (it != _messageFunctions.end()) {
-        // Passa args, server e user para a função
         return (it->second)(args, server, user);
     }
     return "Comando inválido!\r\n";
