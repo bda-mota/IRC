@@ -7,8 +7,8 @@ int main(int argc, char **argv) {
 		std::cerr << "Usage: " << argv[0] << " <port> <password>." << std::endl;
 		return 1;
 	}
-  int port;
-  std::string portStr = argv[1];
+	int port;
+	std::string portStr = argv[1];
 	std::string password = argv[2];
 
 	try {
