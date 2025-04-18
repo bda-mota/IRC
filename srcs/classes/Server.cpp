@@ -1,6 +1,6 @@
 #include "../../includes/Server.hpp"
 
-bool Server::_signal = false; // inicializar a variavel booleana
+bool Server::_signal = false;
 
 Server::Server() {
 	_serverFd = -1;
@@ -94,7 +94,7 @@ void Server::serverSocket() {
 
 void Server::serverInit(int port, std::string password) {
 	this->_port = port;
-  this->_password = password;
+	this->_password = password;
 	serverSocket();
 
 	std::cout << "Server started on port " << this->_port << std::endl;
@@ -144,7 +144,8 @@ void Server::acceptNewUser() {
 	newUser->setRegistered(false);
 	newUser->setHasNickCommand(false);
 	newUser->setHasUserCommand(false);
-  newUser-> setAuth(false);
+	newUser->setHasPassCommand(false);
+	newUser-> setAuth(false);
 	_serverUsers.push_back(newUser);
 
 	newPoll.fd = incomingFd;
