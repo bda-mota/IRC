@@ -1,5 +1,8 @@
 #include "../../includes/irc.hpp"
 
+static std::string createQuitMessage(User* user, const std::string& reason);
+static void handleQuitFromChannels(User* user, Server& server, const std::string& quitMessage);
+
 std::string CommandsArgs::quit(const std::vector<std::string>& args, Server& server, User* user) {
 	std::string reason;
 
@@ -16,27 +19,32 @@ std::string CommandsArgs::quit(const std::vector<std::string>& args, Server& ser
 
 	std::vector<Channel*> joinedChannels = user->getJoinedChannels();
 
-	std::ostringstream quitMsg;
-	
-	//:Joao!joao@localhost QUIT :Tô vazando\r\n ----> padrão de mensagem QUIT IRC
-	// quitMsg << ":" << user->getNickName() << "!" << user->getUserName()
-	//         << "@" << user->getHostName() << " QUIT " << reason << "\r\n";
+	std::string quitMsg = createQuitMessage(user, reason);
+	handleQuitFromChannels(user, server, quitMsg);
 
+	server.clearUsers(user->getFd());
+	close(user->getFd());
+
+	return "";
+}
+
+static std::string createQuitMessage(User* user, const std::string& reason) {
+	std::ostringstream quitMsg;
 	std::string host = user->getHostName().empty() ? "localhost" : user->getHostName();
 
 	quitMsg << ":" << user->getNickName() << "!" << user->getUserName()
-        << "@" << host << " QUIT " << reason << "\r\n";
+	        << "@" << host << " QUIT :" << reason << CRLF;
 
-	std::cout << "Usuário está em " << joinedChannels.size() << " canais:" << std::endl;
-	for (size_t i = 0; i < joinedChannels.size(); ++i) {
-		std::cout << "- " << joinedChannels[i]->getName() << std::endl;
+	return quitMsg.str();
+}
 
-	}
+static void handleQuitFromChannels(User* user, Server& server, const std::string& quitMessage) {
+	std::vector<Channel*> joinedChannels = user->getJoinedChannels();
 
 	for (size_t i = 0; i < joinedChannels.size(); ++i) {
 		Channel* channel = joinedChannels[i];
 
-		//channel->sendToAllExcept(quitMsg.str(), user);
+		channel->broadcast(quitMessage, user);
 		channel->removeUser(user->getFd());
 
 		if (channel->getUsers().empty()) {
@@ -44,9 +52,4 @@ std::string CommandsArgs::quit(const std::vector<std::string>& args, Server& ser
 			delete channel;
 		}
 	}
-
-	server.clearUsers(user->getFd());
-	close(user->getFd());
-
-	return "bye \r\n";
 }
