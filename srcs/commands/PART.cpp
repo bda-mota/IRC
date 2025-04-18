@@ -1,6 +1,7 @@
 #include "../../includes/irc.hpp"
 
 static void auxBuildReason(std::string& reason, const std::vector<std::string>& args, size_t start);
+static void removeUserFromChannel(User* user, Channel* channel);
 
 std::string CommandsArgs::part(const std::vector<std::string>& args, Server& server, User* user) {
 
@@ -31,8 +32,7 @@ std::string CommandsArgs::part(const std::vector<std::string>& args, Server& ser
 		return "";
 	}
 
-    channel->removeUser(user->getFd());
-    user->removeChannel(channel);
+	removeUserFromChannel(user, channel);
 
 	std::string partMsg = RPL_PARTMSG(user->getNickName(), user->getUserName(), channelName, reason);
 	channel->broadcast(partMsg, user);
@@ -53,4 +53,9 @@ static void auxBuildReason(std::string& reason, const std::vector<std::string>& 
 		else
 			reason += " " + args[i];
 	}
+}
+
+static void removeUserFromChannel(User* user, Channel* channel) {
+    channel->removeUser(user->getFd());
+    user->removeChannel(channel);
 }
