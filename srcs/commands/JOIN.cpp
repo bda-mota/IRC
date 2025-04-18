@@ -19,6 +19,14 @@ std::string CommandsArgs::join(const std::vector<std::string>& args, Server& ser
 
 	Channel* channel = server.getChannels()[channelName];
 
+	createChannelIfNotExists(channelName, server, user);
+
+	/* TODO: ---- APENAS TESTE SEM MODO MODE EXLCUIR APÓS TESTE ------- */
+	// Aqui setamos como invite-only manualmente APENAS no primeiro JOIN para usuário dar join sem convite em channel invite-only
+	if (channel->getUsers().size() == 1) {
+		channel->setInviteOnly(true);
+	}
+
 	// verifica a permissão do canal como olny invite e se o user tem um convite
 	if (!canUserJoinChannel(channel, user, channelName)) {
 		return "ERROR JOIN\r\n";
