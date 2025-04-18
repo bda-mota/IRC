@@ -30,7 +30,6 @@ class Channel {
 		void	addUser(User* user);
 		void	removeUser(int fd);
 		void	broadcast(const std::string& message, User* sender);
-		void	sendToAllExcept(const std::string& message, User* excludedUser);
 
 		// Operators
 		void	addOperator(User* user);
