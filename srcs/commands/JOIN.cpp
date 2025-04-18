@@ -1,41 +1,62 @@
 #include "../../includes/irc.hpp"
 
-// TODO: alterar o retorno para void
-std::string CommandsArgs::join(const std::vector<std::string>& args, Server& server, User* user) {	
-	if (args.empty() ) {
-        return "ERROR: No channel name provided!\r\n";
-    }
+static void	createChannelIfNotExists(const std::string& channelName, Server& server, User* user);
+static void	addUserToChannel(Channel* channel, User* user);
+static void	sendListOfUsers(Channel *channel, User* user);
 
-    std::string channelName = args[0];
-	if (channelName[0] != '#') {
-		std::string error = ":ircserver 403 " + user->getNickName() + " " + channelName + " :No such channel" + END; // mudar essa mensagem
-		send(user->getFd(), error.c_str(), error.length(), 0);
+std::string CommandsArgs::join(const std::vector<std::string>& args, Server& server, User* user) {	
+	if (args.empty()) {
+		return "ERROR: No channel name provided!\r\n";
+	}
+
+	std::string channelName = args[0];
+	if (!isValidChannelName(channelName, user)) {
 		return "ERROR JOIN\r\n";
 	}
 
+	createChannelIfNotExists(channelName, server, user);
+
+	Channel* channel = server.getChannels()[channelName];
+	addUserToChannel(channel, user);
+	sendListOfUsers(channel, user);
+
+	std::string notify = JOIN(user->getNickName(), channelName);
+	channel->broadcast(notify, user);
+
+	return "";
+}
+
+static void	createChannelIfNotExists(const std::string& channelName, Server& server, User* user) {
 	std::map<std::string, Channel*>& channels = server.getChannels();
 
 	if (channels.find(channelName) == channels.end()) {
-		channels.insert(std::make_pair(channelName, new Channel(channelName)));
+		channels[channelName] = new Channel(channelName);
 		channels[channelName]->addOperator(user);
-		std::cout << "Canal " << channelName << " criado!" << std::endl;
 	}
+}
 
-	channels[channelName]->addUser(user);
-	std::cout << "User " << user->getNickName() << " adicionado ao canal " << channelName << std::endl;
-	user->joinChannel(channels[channelName]);
-	
-	std::string response = ":" + user->getNickName() + "JOIN " + channelName + "\r\n";
-	send(user->getFd(), response.c_str(), response.length(), 0);
-	
-	std::vector<User*>& users = channels[channelName]->getUsers();
+static void	addUserToChannel(Channel* channel, User* user) {
+	if (channel->isUserInChannel(user))
+    	return;
+	channel->addUser(user);
+	user->joinChannel(channel);
+
+	std::string response = JOIN(user->getNickName(), channel->getName());
+	sendResponse(user, response);
+}
+
+static void	sendListOfUsers(Channel *channel, User* user) {
+	std::vector<User*>& users = channel->getUsers();
+	std::string names;
 	for (std::vector<User*>::iterator it = users.begin(); it != users.end(); ++it) {
-		User* currentUser = *it;
-		if (currentUser->getFd() != user->getFd()) {
-			std::string notify = ":" + user->getNickName() + " entrou no canal " + channelName + END;
-			send(currentUser->getFd(), notify.c_str(), notify.length(), 0);
-		}
+		names += (*it)->getNickName() + " ";
 	}
-	return "";
-	//channels[channelName].broadcast(response, user);
+	if (!names.empty())
+		names.erase(names.length() - 1);
+
+	std::string nameReply = RPL_NAMREPLY(user->getNickName(), channel->getName(), names);
+	sendResponse(user, nameReply);
+
+	std::string endOfNames = RPL_ENDOFNAMES(user->getNickName(), channel->getName());
+	sendResponse(user, endOfNames);
 }

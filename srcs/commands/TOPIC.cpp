@@ -1,67 +1,65 @@
 #include "../../includes/irc.hpp"
 
-std::string CommandsArgs::topic(const std::vector<std::string>& args, Server& server, User* user) {
+static void sendCurrentTopic(Channel* channel, User* user);
+static void	defineNewTopic(const std::vector<std::string>& args, Channel* channel);
 
+std::string CommandsArgs::topic(const std::vector<std::string>& args, Server& server, User* user) {
 	if (args.empty()) {
-		send(user->getFd(), "Error: No channel name provided.\r\n", 32, 0);
-		return "ERROR: No channel name provided!\r\n";
+		std::string error = ERR_NOSUCHCHANNEL("*");
+		sendError(user, error);
+		return "ERROR TOPIC\r\n";
 	}
 
 	const std::string& channelName = args[0];
+	if (!isValidChannelName(channelName, user) || !channelExists(channelName, server, user)) {
+		return "ERROR TOPIC\r\n";
+	}
+		
+	std::map<std::string, Channel*>& channels = server.getChannels();
+	Channel* channel = channels[channelName];
 
-	if (channelName.empty() || channelName[0] != '#') {
-		send(user->getFd(), "Error: Invalid channel name.\r\n", 31, 0);
-		return "ERROR: Invalid channel name!\r\n";
+	if (!channel->isUserInChannel(user)) {
+		std::string error = ERR_NOTONCHANNEL(channel->getName());
+		sendError(user, error);
+		return error;
+	}
+	
+	if (args.size() == 1) {
+		sendCurrentTopic(channel, user);
+		return "TOPIC check complete" + CRLF;
+	}
+	
+	if (!channel->isOperator(user)) {
+		std::string error = ERR_CHANOPRISNEEDED(user->getNickName(), channelName);
+		sendError(user, error);
+		return error;
 	}
 
-	std::string newTopic;
+	defineNewTopic(args, channel);
+	std::string notify = RPL_TOPIC(user->getNickName(), channelName, channel->getTopic());
+	channel->broadcast(notify, user);
 
+	return "TOPIC updated" + CRLF;
+}
+
+static void sendCurrentTopic(Channel* channel, User* user) {
+
+	if (channel->getTopic().empty()) {
+		std::string response = RPL_NOTOPIC(user->getNickName(), channel->getName());
+		sendResponse(user, response);
+	} else {
+		std::string response = RPL_TOPIC(user->getNickName(), channel->getName(), channel->getTopic());
+		sendResponse(user, response);
+	}
+}
+
+static void	defineNewTopic(const std::vector<std::string>& args, Channel* channel) {
+	std::string newTopic;
 	for (size_t i = 1; i < args.size(); ++i) {
 		newTopic += args[i];
 		if (i != args.size() - 1) {
 			newTopic += " ";
 		}
 	}
-
-	std::map<std::string, Channel*>& channels = server.getChannels();
-	
-	if (channels.find(channelName) == channels.end()) {
-		send(user->getFd(), "Error: channel not found.\r\n", 27, 0);
-		return "";
-	}
-
-	Channel* channel = channels[channelName];
-
-	if (newTopic.empty()) {
-		if (channel->getTopic().empty()) {
-			std::string response = ":ircserver 331 " + user->getNickName() + " " + channelName + " :No topic is set" + END;
-			send(user->getFd(), response.c_str(), response.length(), 0);
-		} else {
-			std::string response = ":ircserver 332 " + user->getNickName() + " " + channelName + " :" + channel->getTopic() + END;
-			send(user->getFd(), response.c_str(), response.length(), 0);
-		}
-		return "TOPIC command executed!\r\n";
-	}
-
-	if (!channel->isUserInChannel(user)) {
-		send(user->getFd(), "Error: You are not in the channel.\r\n", 36, 0);
-		return "ERROR: You are not in the channel!\r\n";
-	}
-
-	if (!channel->isOperator(user)) {
-		std::string error = ":ircserver 482 " + user->getNickName() + " " + channelName + " :You're not channel operator" + END;
-		send(user->getFd(), error.c_str(), error.length(), 0);
-		return "ERROR: You are not a channel operator!\r\n";
-	}
-
 	channel->setTopic(newTopic);
-
-	std::vector<User*>& users = channel->getUsers();
-	for (std::vector<User*>::iterator it = users.begin(); it != users.end(); ++it) {
-		User* currentUser = *it;
-		std::string notify = ":" + user->getNickName() + " TOPIC " + channelName + " :" + newTopic + END;
-		send(currentUser->getFd(), notify.c_str(), notify.length(), 0);
-	}
-	return "TOPIC command executed!\r\n";
-	//channels[channelName].broadcast(response, user);
 }
