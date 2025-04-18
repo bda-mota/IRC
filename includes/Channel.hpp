@@ -8,7 +8,7 @@ class Channel {
 	private:
 		std::string _name;
 		std::string _topic;
-		bool _inviteOnly;
+		bool 		_inviteOnly;
 		std::vector<User*> _channelUsers;
 		std::set<User*> _operators;
 

@@ -3,6 +3,7 @@
 static void	createChannelIfNotExists(const std::string& channelName, Server& server, User* user);
 static void	addUserToChannel(Channel* channel, User* user);
 static void	sendListOfUsers(Channel *channel, User* user);
+static bool canUserJoinChannel(Channel* channel, User* user, const std::string& channelName);
 
 std::string CommandsArgs::join(const std::vector<std::string>& args, Server& server, User* user) {	
 	if (args.empty()) {
@@ -17,7 +18,14 @@ std::string CommandsArgs::join(const std::vector<std::string>& args, Server& ser
 	createChannelIfNotExists(channelName, server, user);
 
 	Channel* channel = server.getChannels()[channelName];
+
+	// verifica a permissão do canal como olny invite e se o user tem um convite
+	if (!canUserJoinChannel(channel, user, channelName)) {
+		return "ERROR JOIN\r\n";
+	}
+
 	addUserToChannel(channel, user);
+	user->removeInvitation(channelName); // remove a solicitação da lista de convites depois que o user entra no canal
 	sendListOfUsers(channel, user);
 
 	std::string notify = JOIN(user->getNickName(), channelName);
@@ -59,4 +67,13 @@ static void	sendListOfUsers(Channel *channel, User* user) {
 
 	std::string endOfNames = RPL_ENDOFNAMES(user->getNickName(), channel->getName());
 	sendResponse(user, endOfNames);
+}
+
+static bool canUserJoinChannel(Channel* channel, User* user, const std::string& channelName) {
+	if (channel->isInviteOnly() && !user->isInvitedTo(channelName)) {
+		std::string error = ":ircserver 473 " + user->getNickName() + " " + channelName + " :Cannot join channel (+i)\r\n";
+		send(user->getFd(), error.c_str(), error.length(), 0);
+		return false;
+	}
+	return true;
 }
