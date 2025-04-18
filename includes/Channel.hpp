@@ -8,6 +8,7 @@ class Channel {
 	private:
 		std::string _name;
 		std::string _topic;
+		bool _inviteOnly;
 		std::vector<User*> _channelUsers;
 		std::set<User*> _operators;
 
@@ -35,6 +36,10 @@ class Channel {
 		void	addOperator(User* user);
 		void	removeOperator(User* user);
 		bool	isOperator(User* user) const;
+
+		// Invite only
+		bool	isInviteOnly() const;
+		void	setInviteOnly(bool inviteOnly);
 };
 
 #endif

@@ -1,6 +1,5 @@
 #include "../../includes/irc.hpp"
 
-// TODO: alterar o retorno para void
 std::string CommandsArgs::join(const std::vector<std::string>& args, Server& server, User* user) {	
 	if (args.empty() ) {
         return "ERROR: No channel name provided!\r\n";

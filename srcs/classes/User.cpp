@@ -72,3 +72,17 @@ void User::removeChannel(Channel* channel) {
 	if (it != _joinedChannels.end())
 		_joinedChannels.erase(it);
 }
+
+// métodos para convite
+
+bool User::isInvitedTo(const std::string& channel) const {
+	return _invitedChannels.find(channel) != _invitedChannels.end();
+}
+
+void User::addInvitation(const std::string& channel) {
+	_invitedChannels.insert(channel);
+}
+
+void User::removeInvitation(const std::string& channel) {
+	_invitedChannels.erase(channel);
+}

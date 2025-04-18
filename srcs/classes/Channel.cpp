@@ -1,6 +1,6 @@
 #include "../../includes/Channel.hpp"
 
-Channel::Channel() : _name(""), _topic(""), _channelUsers(std::vector<User*>()) {}
+Channel::Channel() : _name(""), _topic(""), _inviteOnly("false"), _channelUsers(std::vector<User*>()) {}
 
 Channel::Channel(std::string _name) : _name(_name), _topic(""), _channelUsers(std::vector<User*>()) {}
 
@@ -101,3 +101,7 @@ void Channel::sendToAllExcept(const std::string& message, User *excludedUser) {
 	}
 }
 
+// Invite only
+
+bool Channel::isInviteOnly() const { return _inviteOnly; }
+void Channel::setInviteOnly(bool inviteOnly) { _inviteOnly = inviteOnly; }
