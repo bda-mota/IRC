@@ -34,6 +34,7 @@
 
 // 400s
 # define ERR_NOSUCHCHANNEL(channel)                      (FTIRC + " 403 * " + channel + " :Invalid channel name!" + CRLF)
+# define ERR_CANNOTSENDTOCHAN(nick, chan)				 (FTIRC + " 404 " + nick + " " + chan + " :Cannot send to channel" + CRLF)
 # define ERR_NOSUCHNICK(recipient)                       (FTIRC + " 406 " + recipient + " :No such nick" + CRLF)
 # define ERR_NORECIPIENT(user)                           (FTIRC + " 411 " + user + " :No recipient to message" + CRLF)
 # define ERR_NOTEXTTOSEND(user)                          (FTIRC + " 412 " + user + " :No message to send" + CRLF)
