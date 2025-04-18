@@ -6,6 +6,8 @@ User::User(int fd, std::string ip, std::string userName, std::string nickName) :
 
 User::~User() {}
 
+// GETTERS
+
 int User::getFd() const { return _fd; }
 
 const std::string& User::getIP() const { return _IP; }
@@ -26,11 +28,15 @@ bool User::getHasNickCommand() const { return _hasNickCommand; }
 
 bool User::getRegistered() const { return _hasRegistered; }
 
+bool User::getHasPassCommand() const { return _hasPassCommand; }
+
 bool User::isAuth() const { return _auth; }
 
 const std::vector<Channel*>& User::getJoinedChannels() const { return _joinedChannels; }
 
 std::vector<Channel*>& User::getJoinedChannels() { return _joinedChannels; }
+
+// SETTERS
 
 void User::setFd(int fd) { _fd = fd; }
 
@@ -47,10 +53,16 @@ void User::setHostName(std::string const& hostname) { _hostName = hostname; }
 void User::setServerName(std::string const& servername) { _serverName = servername; }
 
 void User::setHasUserCommand(bool hasUserCommand) { _hasUserCommand = hasUserCommand; }
+
 void User::setHasNickCommand(bool hasNickCommand) { _hasNickCommand = hasNickCommand; }
+
 void User::setRegistered(bool registered) { _hasRegistered = registered; }
 
+void User::setHasPassCommand(bool hasPassCommand) { _hasPassCommand = hasPassCommand; }
+
 void User::setAuth(bool auth) { _auth = auth; }
+
+// METHODS
 
 void User::joinChannel(Channel* channel) {
 	if (!isInChannel(channel)) {
