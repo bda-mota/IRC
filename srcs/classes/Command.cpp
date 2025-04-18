@@ -30,7 +30,6 @@ std::string Command::processCommand(std::string &input, Server& server, User* us
 
 	while (iss >> param) {
 		args.push_back(param);
-		std::cout << "param: " << param << std::endl;
 	}
 
     return CommandsArgs::executeCommand(command, args, server, user);

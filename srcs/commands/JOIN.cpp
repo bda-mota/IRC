@@ -32,7 +32,6 @@ static void	createChannelIfNotExists(const std::string& channelName, Server& ser
 	if (channels.find(channelName) == channels.end()) {
 		channels[channelName] = new Channel(channelName);
 		channels[channelName]->addOperator(user);
-		std::cout << "canal criado: " << channelName << std::endl;
 	}
 }
 
@@ -41,7 +40,6 @@ static void	addUserToChannel(Channel* channel, User* user) {
     	return;
 	channel->addUser(user);
 	user->joinChannel(channel);
-	std::cout << "User: " << user->getNickName() << " adicionado ao canal: " << channel->getName() << std::endl;
 
 	std::string response = JOIN(user->getNickName(), channel->getName());
 	sendResponse(user, response);
