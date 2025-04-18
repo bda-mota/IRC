@@ -144,7 +144,7 @@ void Server::acceptNewUser() {
 	newUser->setRegistered(false);
 	newUser->setHasNickCommand(false);
 	newUser->setHasUserCommand(false);
-  newUser-> setAuth(false);
+	newUser-> setAuth(false);
 	_serverUsers.push_back(newUser);
 
 	newPoll.fd = incomingFd;
