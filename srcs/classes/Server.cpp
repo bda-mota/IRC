@@ -205,6 +205,7 @@ void Server::receiveNewData(int fd) {
 		return;
 
   std::string rawMessage(buff, bytes);
+  std::cout << "Received message from client " << fd << ": " << rawMessage << std::endl;
   parseReceiveNewData(rawMessage, fd, user);
 }
 
