@@ -27,8 +27,7 @@ std::string CommandsArgs::mode(const std::vector<std::string>& args, Server& ser
 		return "";
 	}
 
-	// A partir daqui, você pode começar a interpretar o modeString
-	// Por enquanto, só imprime os argumentos pra teste
+	// Só imprime os argumentos pra teste
 	std::cout << "| MODE | Canal: " << channelName << " | Modo: " << modeString << std::endl;
 
 	// Variáveis para controlar o sinal (+ ou -) -> ativar os desativar modos
@@ -45,7 +44,7 @@ std::string CommandsArgs::mode(const std::vector<std::string>& args, Server& ser
 
 		(void) sign; // Para evitar warnings de variável não utilizada -> retirar quando começar a implementar os modos
 
-		// Interpretando os modos básicos
+		// A partir daqui, você pode começar a implementar a lógica para adicionar ou remover os modos
 		switch (modeChar) {
 			case 'i': // invite-only
 				std::cout << "Modo 'i' (Invite Only) detectado!" << std::endl;
