@@ -34,6 +34,18 @@ bool	channelExists(const std::string& channelName, Server& server, User* user) {
 	}
 	return true;
 }
+
+Channel* findChannelInServer(Server& server, User* sender, const std::string& channelName) {
+    std::map<std::string, Channel*>& channels = server.getChannels();
+
+    if (channels.find(channelName) != channels.end()) {
+        return channels[channelName];
+    }
+
+    sendError(sender, ERR_NOSUCHCHANNEL(channelName));
+    return NULL;
+}
+
 // USER
 
 bool	isNickInUse(const std::string& nick, const std::vector<User*>& users) {
@@ -43,6 +55,19 @@ bool	isNickInUse(const std::string& nick, const std::vector<User*>& users) {
 		}
 	}
 	return false;
+}
+
+User* findUserInServer(Server& server, User* sender, const std::string& targetNick) {
+    std::vector<User*>& users = server.getUsers();
+    
+    for (size_t i = 0; i < users.size(); ++i) {
+        if (users[i]->getNickName() == targetNick) {
+            return users[i];
+        }
+    }
+
+    sendError(sender, ERR_NOSUCHNICK(targetNick));
+    return NULL;
 }
 
 // SEND

@@ -1,7 +1,5 @@
 #include "../../includes/irc.hpp"
 
-static User* findUserInServer(Server& server, User* sender, const std::string& targetNick);
-static Channel* findChannelInServer(Server& server, User* sender, const std::string& channelName);
 static void sendInviteMessages(User* from, User* to, const std::string& channelName);
 
 std::string CommandsArgs::invite(const std::vector<std::string>& args, Server& server, User* user) {
@@ -33,30 +31,6 @@ std::string CommandsArgs::invite(const std::vector<std::string>& args, Server& s
     sendInviteMessages(user, targetUser, channelName);
 
     return "";
-}
-
-static User* findUserInServer(Server& server, User* sender, const std::string& targetNick) {
-    std::vector<User*>& users = server.getUsers();
-    
-    for (size_t i = 0; i < users.size(); ++i) {
-        if (users[i]->getNickName() == targetNick) {
-            return users[i];
-        }
-    }
-
-    sendError(sender, ERR_NOSUCHNICK(targetNick));
-    return NULL;
-}
-
-static Channel* findChannelInServer(Server& server, User* sender, const std::string& channelName) {
-    std::map<std::string, Channel*>& channels = server.getChannels();
-
-    if (channels.find(channelName) != channels.end()) {
-        return channels[channelName];
-    }
-
-    sendError(sender, ERR_NOSUCHCHANNEL(channelName));
-    return NULL;
 }
 
 static void sendInviteMessages(User* from, User* to, const std::string& channelName) {
