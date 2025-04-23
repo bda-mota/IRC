@@ -18,4 +18,13 @@ void	sendResponse(User* user, const std::string& responseMsg);
 Channel* findChannelInServer(Server& server, User* sender, const std::string& channelName);
 User* findUserInServer(Server& server, User* sender, const std::string& targetNick);
 
+
+// AUXILIARIES MODE COMMAND
+
+void inviteOnlyConfig(Channel* channel, char sign);
+void topicCmdConfig(Channel* channel, char modeSign);
+std::string userLimitConfig(Channel* channel, char modeSign, const std::string& extraArg);
+void channelKeyConfig(Channel* channel, char modeSign, const std::string& extraArg);
+void channelOpConfig(Channel* channel, char modeSign, const std::string& extraArg);
+
 #endif

@@ -1,115 +1,7 @@
 #include "../../includes/irc.hpp"
 
-void showChannelModes( Server& server, User* user, std::string channelName) {
-  Channel* channel = findChannelInServer(server, user, channelName);
-  if (!channel) {
-      sendError(user, ERR_NOSUCHCHANNEL(channelName));
-  }
-
-  if (!channel->isUserInChannel(user)) {
-      sendError(user, ERR_NOTONCHANNEL(channelName));
-  }
-
-  std::string modes = channel->getName() + " " + channel->getTopic() + " " + channel->getChannelKey();
-  std::string modeParams = "";
-  if (channel->isInviteOnly()) {
-      modeParams += "i ";
-  }
-  if (channel->isTopicRestricted()) {
-      modeParams += "t ";
-  }
-  if (channel->getUserLimit() > 0) {
-      modeParams += "l ";
-  }
-  if (channel->hasKey()) {
-      modeParams += "k ";
-  }
-  if (channel->isOperator(user)) {
-      modeParams += "o ";
-  }
-  if (modeParams.empty()) {
-      modeParams = "No modes set";
-  }
-  std::string response = RPL_CHANNELMODEIS(user->getNickName(), channel->getName(), modeParams);
-  send(user->getFd(), response.c_str(), response.length(), 0);
-}
-
-std::string validateExtraArgs(char sign, char mode, const std::vector<std::string>& args) {
-	if (args.size() <= 2) {
-		if ((mode == 'k' || mode == 'l' || mode == 'o') && sign == '+') {
-			return ERR_NEEDMOREPARAMS("MODE", "Missing argument for mode '+" + std::string(1, mode) + "'");
-		}
-		if (mode == 'o' && sign == '-') {
-			return ERR_NEEDMOREPARAMS("MODE", "Missing argument for mode '-" + std::string(1, mode) + "'");
-		}
-		return "";
-	}
-
-	if ((mode == 'k' || mode == 'l' || mode == 'o') && sign == '+') {
-		return args[2];
-	}
-
-	if (mode == 'o' && sign == '-') {
-		return args[2];
-  }
-	return "";
-}
-
-void inviteOnlyConfig(Channel* channel, char sign) {
-	if (sign == '+')
-		channel->setInviteOnly(true);
-	else
-		channel->setInviteOnly(false);
-}
-
-void topicCmdConfig(Channel* channel, char modeSign) {
-	if (modeSign == '+') {
-		channel->setTopicRestricted(true);
-	} else if (modeSign == '-') {
-		channel->setTopicRestricted(false);
-	}
-}
-
-std::string userLimitConfig(Channel* channel, char modeSign, const std::string& extraArg) {
-  try {
-      if (modeSign == '+') {
-          int limit = std::stoi(extraArg);
-
-          if (limit < 0) {
-              return ERR_CHANNELISFULL("*");
-          }
-
-          channel->setUserLimit(limit);
-      } else if (modeSign == '-') {
-          channel->setUserLimit(0);
-      }
-  } catch (const std::invalid_argument& e) {
-      return ERR_NEEDMOREPARAMS("LIMIT", "Invalid argument for user limit.");
-  }
-  return "";
-}
-
-void channelKeyConfig(Channel* channel, char modeSign, const std::string& extraArg) {
-	if (modeSign == '+') {
-		channel->setChannelKey(extraArg);
-	} else if (modeSign == '-') {
-		channel->setChannelKey("");
-	}
-}
-
-void channelOpConfig(Channel* channel, char modeSign, const std::string& extraArg) {
-	if (modeSign == '+') {
-		User* user = channel->getUserByNick(extraArg);
-		if (user) {
-			channel->addOperator(user);
-		}
-	} else if (modeSign == '-') {
-		User* user = channel->getUserByNick(extraArg);
-		if (user) {
-			channel->removeOperator(user);
-		}
-	}
-}
+static void showChannelModes( Server& server, User* user, std::string channelName);
+static std::string validateExtraArgs(char sign, char mode, const std::vector<std::string>& args);
 
 std::string CommandsArgs::mode(const std::vector<std::string>& args, Server& server, User* user) {
   if (args.size() == 1) {
@@ -160,7 +52,6 @@ std::string CommandsArgs::mode(const std::vector<std::string>& args, Server& ser
       return "";
   }
 
-	// Verifica se o usuário é operador, pois só operadores podem alterar modos
 	if (!channel->isOperator(user)) {
     std::cout << "User " << user->getNickName() << " is not an operator in channel " << channelName << std::endl;
 		sendError(user, ERR_CHANOPRISNEEDED(user->getNickName(), channelName));
@@ -170,67 +61,160 @@ std::string CommandsArgs::mode(const std::vector<std::string>& args, Server& ser
 	// Só imprime os argumentos pra teste
 	std::cout << "| MODE | Canal: " << channelName << " | Modo: " << modeSign << modeChar << std::endl;
 
-	// Variáveis para controlar o sinal (+ ou -) -> ativar os desativar modos
-	// char sign = '+';
-
-	// Interpretar a string de modos
-	// for (size_t i = 0; i < modeString.length(); ++i) {
-	// 	char modeChar = modeString[i];
-
-	// 	if (modeChar == '+' || modeChar == '-') {
-	// 		sign = modeChar;
-	// 		continue;
-	// 	}
-
-		// (void) sign; // Para evitar warnings de variável não utilizada -> retirar quando começar a implementar os modos
-
-		// A partir daqui, você pode começar a implementar a lógica para adicionar ou remover os modos
     std::string error = "";
 		switch (modeChar) {
-			case 'i': // invite-only
+			case 'i':
 				std::cout << "Modo 'i' (Invite Only) detectado!" << std::endl;
-				// adicionar a lógica para adicionar/remover o modo de convite
-        inviteOnlyConfig(channel, modeSign);
-        channel->broadcast(":" + user->getNickName() + " MODE " + channel->getName() + " " + modeSign + "i\r\n", user);
+
+				inviteOnlyConfig(channel, modeSign);
+				channel->broadcast(":" + user->getNickName() + " MODE " + channel->getName() + " " + modeSign + "i\r\n", user);
 				break;
 
-			case 't': // tópico restrito
+			case 't':
 				std::cout << "Modo 't' (Tópico restrito) detectado!" << std::endl;
-				// adicionar a lógica para adicionar/remover o modo de tópico restrito
-        topicCmdConfig(channel, modeSign);
-        channel->broadcast(":" + user->getNickName() + " MODE " + channel->getName() + " " + modeSign + "t\r\n", user);
+				topicCmdConfig(channel, modeSign);
+				channel->broadcast(":" + user->getNickName() + " MODE " + channel->getName() + " " + modeSign + "t\r\n", user);
 				break;
 
-			case 'l': // limite de membros
+			case 'l':
 				std::cout << "Modo 'l' (Limite de membros) detectado!" << std::endl;
-				// adicionar a lógica para adicionar/remover o limite de membros
-        error = userLimitConfig(channel, modeSign, extraArg);
-				if (error != "")
-          sendError(user, error);
-        else
-          channel->broadcast(":" + user->getNickName()+ " MODE " + channel->getName() + " " + modeSign + "l " + extraArg + "\r\n", user);
-        break;
+				
+				error = userLimitConfig(channel, modeSign, extraArg);
+						if (error != "")
+				sendError(user, error);
+				else
+				channel->broadcast(":" + user->getNickName()+ " MODE " + channel->getName() + " " + modeSign + "l " + extraArg + "\r\n", user);
+				break;
 
-			case 'k': // chave de acesso
+			case 'k':
 				std::cout << "Modo 'k' (Chave de acesso) detectado!" << std::endl;
-				// adicionar a lógica para adicionar/remover a chave de acesso
-        channelKeyConfig(channel, modeSign, extraArg);
-        channel->broadcast(":" + user->getNickName() + " MODE " + channel->getName() + " " + modeSign + "k " + extraArg + "\r\n", user);
-        break;
+				channelKeyConfig(channel, modeSign, extraArg);
+				channel->broadcast(":" + user->getNickName() + " MODE " + channel->getName() + " " + modeSign + "k " + extraArg + "\r\n", user);
+				break;
 
-			case 'o': // tornar operador
+			case 'o':
 				std::cout << "Modo 'o' (Tornar operador) detectado!" << std::endl;
-				// adicionar a lógica para adicionar/remover o operador
-        channelOpConfig(channel, modeSign, extraArg);
-        channel->broadcast(":" + user->getNickName() + " MODE " + channel->getName() + " " + modeSign + "o " + extraArg + "\r\n", user);
+				channelOpConfig(channel, modeSign, extraArg);
+				channel->broadcast(":" + user->getNickName() + " MODE " + channel->getName() + " " + modeSign + "o " + extraArg + "\r\n", user);
 				break;
 
 			default:
 				std::cout << "Modo desconhecido: " << modeChar << std::endl;
-        sendError(user, ERR_UNKNOWNMODE(user->getNickName(), std::string(1, modeChar)));
+        		sendError(user, ERR_UNKNOWNMODE(user->getNickName(), std::string(1, modeChar)));
 				break;
 		}
-	// }
 
     return "";
 }
+
+static void showChannelModes( Server& server, User* user, std::string channelName) {
+  Channel* channel = findChannelInServer(server, user, channelName);
+  if (!channel) {
+      sendError(user, ERR_NOSUCHCHANNEL(channelName));
+  }
+
+  if (!channel->isUserInChannel(user)) {
+      sendError(user, ERR_NOTONCHANNEL(channelName));
+  }
+
+  std::string modes = channel->getName() + " " + channel->getTopic() + " " + channel->getChannelKey();
+  std::string modeParams = "";
+  if (channel->isInviteOnly()) {
+      modeParams += "i ";
+  }
+  if (channel->isTopicRestricted()) {
+      modeParams += "t ";
+  }
+  if (channel->getUserLimit() > 0) {
+      modeParams += "l ";
+  }
+  if (channel->hasKey()) {
+      modeParams += "k ";
+  }
+  if (channel->isOperator(user)) {
+      modeParams += "o ";
+  }
+  if (modeParams.empty()) {
+      modeParams = "No modes set";
+  }
+  std::string response = RPL_CHANNELMODEIS(user->getNickName(), channel->getName(), modeParams);
+  send(user->getFd(), response.c_str(), response.length(), 0);
+}
+
+static std::string validateExtraArgs(char sign, char mode, const std::vector<std::string>& args) {
+	if (args.size() <= 2) {
+		if ((mode == 'k' || mode == 'l' || mode == 'o') && sign == '+') {
+			return ERR_NEEDMOREPARAMS("MODE", "Missing argument for mode '+" + std::string(1, mode) + "'");
+		}
+		if (mode == 'o' && sign == '-') {
+			return ERR_NEEDMOREPARAMS("MODE", "Missing argument for mode '-" + std::string(1, mode) + "'");
+		}
+		return "";
+	}
+
+	if ((mode == 'k' || mode == 'l' || mode == 'o') && sign == '+') {
+		return args[2];
+	}
+
+	if (mode == 'o' && sign == '-') {
+		return args[2];
+  }
+	return "";
+}
+
+// static void inviteOnlyConfig(Channel* channel, char sign) {
+// 	if (sign == '+')
+// 		channel->setInviteOnly(true);
+// 	else
+// 		channel->setInviteOnly(false);
+// }
+
+// static void topicCmdConfig(Channel* channel, char modeSign) {
+// 	if (modeSign == '+') {
+// 		channel->setTopicRestricted(true);
+// 	} else if (modeSign == '-') {
+// 		channel->setTopicRestricted(false);
+// 	}
+// }
+
+// static std::string userLimitConfig(Channel* channel, char modeSign, const std::string& extraArg) {
+//   try {
+//       if (modeSign == '+') {
+//           int limit = std::stoi(extraArg);
+
+//           if (limit < 0) {
+//               return ERR_CHANNELISFULL("*");
+//           }
+
+//           channel->setUserLimit(limit);
+//       } else if (modeSign == '-') {
+//           channel->setUserLimit(0);
+//       }
+//   } catch (const std::invalid_argument& e) {
+//       return ERR_NEEDMOREPARAMS("LIMIT", "Invalid argument for user limit.");
+//   }
+//   return "";
+// }
+
+// static void channelKeyConfig(Channel* channel, char modeSign, const std::string& extraArg) {
+// 	if (modeSign == '+') {
+// 		channel->setChannelKey(extraArg);
+// 	} else if (modeSign == '-') {
+// 		channel->setChannelKey("");
+// 	}
+// }
+
+// static void channelOpConfig(Channel* channel, char modeSign, const std::string& extraArg) {
+// 	if (modeSign == '+') {
+// 		User* user = channel->getUserByNick(extraArg);
+// 		if (user) {
+// 			channel->addOperator(user);
+// 		}
+// 	} else if (modeSign == '-') {
+// 		User* user = channel->getUserByNick(extraArg);
+// 		if (user) {
+// 			channel->removeOperator(user);
+// 		}
+// 	}
+// }
+
