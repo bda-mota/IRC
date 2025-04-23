@@ -3,7 +3,6 @@
 static void	createChannelIfNotExists(const std::string& channelName, Server& server, User* user);
 static void	addUserToChannel(Channel* channel, User* user);
 static void	sendListOfUsers(Channel *channel, User* user);
-static bool canUserJoinChannel(Channel* channel, User* user, const std::string& channelName);
 
 std::string CommandsArgs::join(const std::vector<std::string>& args, Server& server, User* user) {
 	if (args.empty()) {
@@ -82,13 +81,4 @@ static void	sendListOfUsers(Channel *channel, User* user) {
 
 	std::string endOfNames = RPL_ENDOFNAMES(user->getNickName(), channel->getName());
 	sendResponse(user, endOfNames);
-}
-
-static bool canUserJoinChannel(Channel* channel, User* user, const std::string& channelName) {
-	if (channel->isInviteOnly() && !user->isInvitedTo(channelName)) {
-		std::string error = ":ircserver 473 " + user->getNickName() + " " + channelName + " :Cannot join channel (+i)\r\n";
-		send(user->getFd(), error.c_str(), error.length(), 0);
-		return false;
-	}
-	return true;
 }
