@@ -1,7 +1,7 @@
 #include "../../includes/irc.hpp"
 
 static void sendCurrentTopic(Channel* channel, User* user);
-static void	defineNewTopic(const std::vector<std::string>& args, Channel* channel);
+static void	defineNewTopic(const std::vector<std::string>& args, Channel* channel, User* user);
 
 std::string CommandsArgs::topic(const std::vector<std::string>& args, Server& server, User* user) {
 	if (args.empty()) {
@@ -14,7 +14,7 @@ std::string CommandsArgs::topic(const std::vector<std::string>& args, Server& se
 	if (!isValidChannelName(channelName, user) || !channelExists(channelName, server, user)) {
 		return "ERROR TOPIC\r\n";
 	}
-		
+
 	std::map<std::string, Channel*>& channels = server.getChannels();
 	Channel* channel = channels[channelName];
 
@@ -23,19 +23,19 @@ std::string CommandsArgs::topic(const std::vector<std::string>& args, Server& se
 		sendError(user, error);
 		return error;
 	}
-	
+
 	if (args.size() == 1) {
 		sendCurrentTopic(channel, user);
 		return "TOPIC check complete" + CRLF;
 	}
-	
-	if (!channel->isOperator(user)) {
+
+	if (!channel->isOperator(user) && channel->isTopicRestricted() == true) {
 		std::string error = ERR_CHANOPRISNEEDED(user->getNickName(), channelName);
 		sendError(user, error);
 		return error;
 	}
 
-	defineNewTopic(args, channel);
+	defineNewTopic(args, channel, user);
 	std::string notify = RPL_TOPIC(user->getNickName(), channelName, channel->getTopic());
 	channel->broadcast(notify, user);
 
@@ -53,7 +53,7 @@ static void sendCurrentTopic(Channel* channel, User* user) {
 	}
 }
 
-static void	defineNewTopic(const std::vector<std::string>& args, Channel* channel) {
+static void	defineNewTopic(const std::vector<std::string>& args, Channel* channel, User* user) {
 	std::string newTopic;
 	for (size_t i = 1; i < args.size(); ++i) {
 		newTopic += args[i];
@@ -61,5 +61,5 @@ static void	defineNewTopic(const std::vector<std::string>& args, Channel* channe
 			newTopic += " ";
 		}
 	}
-	channel->setTopic(newTopic);
+	channel->setTopic(newTopic, user);
 }

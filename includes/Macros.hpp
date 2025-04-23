@@ -34,7 +34,7 @@
 
 // 400s
 # define ERR_NOSUCHCHANNEL(channel)                      (FTIRC + " 403 * " + channel + " :Invalid channel name!" + CRLF)
-# define ERR_CANNOTSENDTOCHAN(nick, chan)				 (FTIRC + " 404 " + nick + " " + chan + " :Cannot send to channel" + CRLF)
+# define ERR_CANNOTSENDTOCHAN(nick, chan)				         (FTIRC + " 404 " + nick + " " + chan + " :Cannot send to channel" + CRLF)
 # define ERR_NOSUCHNICK(recipient)                       (FTIRC + " 406 " + recipient + " :No such nick" + CRLF)
 # define ERR_NORECIPIENT(user)                           (FTIRC + " 411 " + user + " :No recipient to message" + CRLF)
 # define ERR_NOTEXTTOSEND(user)                          (FTIRC + " 412 " + user + " :No message to send" + CRLF)
@@ -48,9 +48,11 @@
 # define ERR_ALREADYREGISTERED(user)                     (FTIRC + " 462 " + user + " :User already registered" + CRLF)
 # define ERR_PASSWDMISMATCH()                            (FTIRC + " 464 * :Password was either not given or was incorrect" + CRLF)
 # define ERR_CHANNELISFULL(channel)                      (FTIRC + " 471 * " + channel + " :Channel is full!" + CRLF)
-# define ERR_INVITEONLYCHAN(channel)                      (FTIRC + " 473 * " + channel + " :Channel is invite-only!" + CRLF)
+# define ERR_UNKNOWNMODE(nick, modechar)                 (FTIRC + " 472 " + nick + " " + modechar + " :is unknown mode char to me" + CRLF)
+# define ERR_INVITEONLYCHAN(channel)                     (FTIRC + " 473 * " + channel + " :Channel is invite-only!" + CRLF)
 # define ERR_BADCHANNELKEY(user, channel)                (FTIRC + " 475 " + user + " " + channel + " :Password for channel was either not given or incorrect" + CRLF)
 # define ERR_CHANOPRISNEEDED(user, channel)              (FTIRC + " 482 " + user + " " + channel + " :You're not a channel operator!" + CRLF)
+# define ERR_UMODEUNKNOWNFLAG(nick)                      (FTIRC + " 501 " + nick + " :Unknown MODE flag" + CRLF)
 
 // Miscellaneous
 # define JOIN(user, channel)                                         (COLON + user + " JOIN " + channel + CRLF)
