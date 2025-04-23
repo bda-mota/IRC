@@ -12,8 +12,10 @@ std::string CommandsArgs::topic(const std::vector<std::string>& args, Server& se
 
 	const std::string& channelName = args[0];
 	if (!isValidChannelName(channelName, user) || !channelExists(channelName, server, user)) {
-		return "ERROR TOPIC\r\n";
-	}
+    std::string error = ERR_NOSUCHCHANNEL(channelName);
+    sendError(user, error);
+    return error;
+  }
 
 	std::map<std::string, Channel*>& channels = server.getChannels();
 	Channel* channel = channels[channelName];

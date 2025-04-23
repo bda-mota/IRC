@@ -15,25 +15,24 @@ std::string CommandsArgs::user(const std::vector<std::string>& args, Server& ser
 		return "";
 	}
 
-    if (user->getRegistered())
-    {
-        sendError(user, ERR_ALREADYREGISTERED(user->getNickName()));
-		return "";
-    }
+  if (user->getRegistered()) {
+    sendError(user, ERR_ALREADYREGISTERED(user->getNickName()));
+    return "";
+  }
 
 	user->setUserName(args[0]);
 	std::string realname;
 
 	if (args[3][0] != ':') {
-        sendError(user, ERR_NEEDMOREPARAMS("USER", "Missing realname"));
-        return "";
+    sendError(user, ERR_NEEDMOREPARAMS("USER", "Missing realname"));
+    return "";
 	}
 	auxBuildRealname(realname, args, 3);
 
 	if (!user->getRegistered())
 		sendWelcomeMessage(user);
 
-    user->setRealName(realname);
+  user->setRealName(realname);
 
 	return "";
 }

@@ -23,6 +23,7 @@
 #define RPL_WELCOME(nick, user) (FTIRC + " 001 " + user + " :Welcome to the Internet Relay Chat " + nick + "!" + user + "@*" + CRLF)
 
 // 300s
+# define RPL_QUIT(nick, user, host, reason)                  (FTIRC + " 001 " + nick + "!" + user + "@" + host + " QUIT :" + reason + CRLF)
 # define RPL_ENDOFWHO(channel)                               (FTIRC + " 315 " + channel + " :End of /WHO list." + CRLF)
 # define RPL_LISTSTART(nick)                                 (FTIRC + " 321 " + nick + " Channel    |   Users   |   Topic" + CRLF)
 # define RPL_LIST(nick, channel, users, topic)               (FTIRC + " 322 " + nick + " " + channel + " " + users + " :" + topic + CRLF)
