@@ -24,7 +24,7 @@ PATH_OBJS	  =	./objs/
 
 INCLUDES = -I./includes
 FILES_SRC = main.cpp utils.cpp
-FILES_COMMANDS = USER.cpp NICK.cpp PASS.cpp CAP.cpp QUIT.cpp JOIN.cpp \
+FILES_COMMANDS = USER.cpp NICK.cpp PASS.cpp QUIT.cpp JOIN.cpp \
 				LISTC.cpp PRIVMSG.cpp KICK.cpp PART.cpp WHO.cpp MODE.cpp mode_aux.cpp TOPIC.cpp INVITE.cpp auxiliaries.cpp
 
 FILES_CLASSES = Server.cpp User.cpp Channel.cpp Command.cpp CommandsArgs.cpp
