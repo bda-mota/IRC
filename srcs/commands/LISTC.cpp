@@ -5,13 +5,12 @@ std::string CommandsArgs::listc(const std::vector<std::string>& args, Server& se
 
 	std::ostringstream response;
 
-	response << FTIRC << " 321 " << user->getNickName() << " Channel    |   Users   |   Topics" << CRLF;
+	response << RPL_LISTSTART(user->getNickName());
 
 	const std::map<std::string, Channel*>& channels = server.getChannels();
 
-    if (channels.empty())
-	{
-		sendError(user, FTIRC + " 323 " + user->getNickName() + " :No channels available" + CRLF);
+  if (channels.empty()) {
+		sendError(user, RPL_LISTEND(user->getNickName()));
 		return "";
 	}
 
@@ -21,11 +20,10 @@ std::string CommandsArgs::listc(const std::vector<std::string>& args, Server& se
 		Channel* channel = it->second;
 		size_t numUsers = channel->getUsers().size();
 
-		response << FTIRC << " 322 " << user->getNickName() << SPACE
-				 << channelName << SPACE << numUsers << " :" << channel->getTopic() << CRLF;
+		response << RPL_LIST(user->getNickName(), channelName, std::to_string(numUsers), channel->getTopic());
 	}
-    
-	response << FTIRC << " 323 " << user->getNickName() << " :End of /LISTC" << CRLF;
+
+	response << RPL_LISTEND(user->getNickName());
 
 	send(user->getFd(), response.str().c_str(), response.str().length(), 0);
 	return "";

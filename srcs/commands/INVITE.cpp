@@ -13,18 +13,30 @@ std::string CommandsArgs::invite(const std::vector<std::string>& args, Server& s
     std::string channelName = args[1];
 
     User* targetUser = findUserInServer(server, user, targetNick);
-    if (!targetUser)
+    if (!targetUser) {
+        sendError(user, ERR_NOSUCHNICK(targetNick));
         return "";
+    }
 
     Channel* channel = findChannelInServer(server, user, channelName);
-    if (!channel)
+    if (!channel) {
+        sendError(user, ERR_NOSUCHCHANNEL(channelName));
         return "";
-
-    // TODO: verificar se o usuário é operador do canal e se é um canal privado após a implementação do MODE
+    }
 
     if (!channel->isUserInChannel(user)) {
         sendError(user, ERR_NOTONCHANNEL(channelName));
         return "";
+    }
+
+    if (channel->isInviteOnly() && !channel->isOperator(user)) {
+      sendError(user, ERR_CHANOPRISNEEDED(user->getNickName(), channelName));
+      return "";
+    }
+
+    if (channel->isUserInChannel(targetUser)) {
+      sendError(user, ERR_USERONCHANNEL(targetNick, channelName));
+      return "";
     }
 
     targetUser->addInvitation(channelName);

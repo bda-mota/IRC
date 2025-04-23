@@ -12,7 +12,7 @@ std::string CommandsArgs::privmsg(const std::vector<std::string>& args, Server& 
 	const std::string& target = args[0];
 
 	std::string message = buildMessageToSend(args);
-	
+
 	if (target[0] == '#') {
 		privmsgToChannel(server, sender, target, message);
 		return "PRIVMSG on channel command executed!\r\n";
@@ -65,6 +65,12 @@ static bool	privmsgToChannel(Server& server, User* sender, const std::string& ta
 		send(sender->getFd(), error.c_str(), error.length(), 0);
 		return false;
 	}
+
+  if (channel->isInviteOnly() && !channel->isUserInChannel(sender)) {
+    std::string error = ERR_CANNOTSENDTOCHAN(sender->getNickName(), target);
+    send(sender->getFd(), error.c_str(), error.length(), 0);
+    return false;
+}
 
 	std::string response = RPL_PRIVMSG(sender->getNickName(), target, message);
 	channel->broadcast(response, sender);

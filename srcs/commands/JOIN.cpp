@@ -7,43 +7,37 @@ static bool canUserJoinChannel(Channel* channel, User* user, const std::string& 
 
 std::string CommandsArgs::join(const std::vector<std::string>& args, Server& server, User* user) {
 	if (args.empty()) {
-		return "ERROR: No channel name provided!\r\n";
+		sendResponse(user, ERR_NEEDMOREPARAMS("JOIN", ""));
+		return "";
 	}
 
 	std::string channelName = args[0];
 	if (!isValidChannelName(channelName, user)) {
-		return "ERROR JOIN\r\n";
+		sendResponse(user, ERR_NOSUCHCHANNEL(channelName));
+		return "";
 	}
 
 	createChannelIfNotExists(channelName, server, user);
-
 	Channel* channel = server.getChannels()[channelName];
 
-	createChannelIfNotExists(channelName, server, user);
 
-	/* TODO: ---- APENAS TESTE SEM MODO MODE EXLCUIR APÓS TESTE ------- */
-	// Aqui setamos como invite-only manualmente APENAS no primeiro JOIN para usuário dar join sem convite em channel invite-only
-	// if (channel->getUsers().size() == 1) {
-	// 	channel->setInviteOnly(true);
-	// }
-
-  // Verifica se o usuário forneceu a senha correta
-  if (channel->hasKey()) {
-    // Verifica se o usuário forneceu a senha correta
-    if (args.size() < 2 || args[1] != channel->getChannelKey()) {
-        // Se a senha não for fornecida ou for incorreta, envia erro
-        return ERR_BADCHANNELKEY(user->getNickName(), channel->getName());
-    }
-  }
-
-	// verifica a permissão do canal como olny invite e se o user tem um convite
-	if (!canUserJoinChannel(channel, user, channelName)) {
-		return "ERROR JOIN\r\n";
+  // Verifica se canal tem senha e se ela foi fornecida corretamente
+	if (channel->hasKey() && (args.size() < 2 || args[1] != channel->getChannelKey())) {
+		sendResponse(user, ERR_BADCHANNELKEY(user->getNickName(), channelName));
+		return "";
 	}
 
-  if (channel->isFull()) {
-      return ERR_CHANNELISFULL(channelName);
-  }
+	// Verifica se é invite-only e se o user tem convite
+	if (channel->isInviteOnly() && !user->isInvitedTo(channelName)) {
+		sendResponse(user, ERR_INVITEONLYCHAN(channelName));
+		return "";
+	}
+
+  // Verifica se canal está cheio
+	if (channel->isFull()) {
+		sendResponse(user, ERR_CHANNELISFULL(channelName));
+		return "";
+	}
 
 	addUserToChannel(channel, user);
 	user->removeInvitation(channelName); // remove a solicitação da lista de convites depois que o user entra no canal

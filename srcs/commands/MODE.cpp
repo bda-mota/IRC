@@ -4,7 +4,7 @@ static std::string showChannelModes( Server& server, User* user, std::string cha
 static std::string validateExtraArgs(char sign, char mode, const std::vector<std::string>& args);
 
 std::string CommandsArgs::mode(const std::vector<std::string>& args, Server& server, User* user) {
-  
+
 	if (args.size() == 1) {
 		std::string error = showChannelModes(server, user, args[0]);
 		if (!error.empty())
@@ -54,7 +54,6 @@ std::string CommandsArgs::mode(const std::vector<std::string>& args, Server& ser
   }
 
 	if (!channel->isOperator(user)) {
-    std::cout << "User " << user->getNickName() << " is not an operator in channel " << channelName << std::endl;
 		sendError(user, ERR_CHANOPRISNEEDED(user->getNickName(), channelName));
 		return "";
 	}
@@ -62,21 +61,16 @@ std::string CommandsArgs::mode(const std::vector<std::string>& args, Server& ser
     std::string error = "";
 		switch (modeChar) {
 			case 'i':
-				std::cout << "Modo 'i' (Invite Only) detectado!" << std::endl;
-
 				inviteOnlyConfig(channel, modeSign);
 				channel->broadcast(":" + user->getNickName() + " MODE " + channel->getName() + " " + modeSign + "i\r\n", user);
 				break;
 
 			case 't':
-				std::cout << "Modo 't' (Tópico restrito) detectado!" << std::endl;
 				topicCmdConfig(channel, modeSign);
 				channel->broadcast(":" + user->getNickName() + " MODE " + channel->getName() + " " + modeSign + "t\r\n", user);
 				break;
 
 			case 'l':
-				std::cout << "Modo 'l' (Limite de membros) detectado!" << std::endl;
-				
 				error = userLimitConfig(channel, modeSign, extraArg);
 						if (error != "")
 				sendError(user, error);
@@ -85,20 +79,17 @@ std::string CommandsArgs::mode(const std::vector<std::string>& args, Server& ser
 				break;
 
 			case 'k':
-				std::cout << "Modo 'k' (Chave de acesso) detectado!" << std::endl;
 				channelKeyConfig(channel, modeSign, extraArg);
 				channel->broadcast(":" + user->getNickName() + " MODE " + channel->getName() + " " + modeSign + "k " + extraArg + "\r\n", user);
 				break;
 
 			case 'o':
-				std::cout << "Modo 'o' (Tornar operador) detectado!" << std::endl;
 				channelOpConfig(channel, modeSign, extraArg);
 				channel->broadcast(":" + user->getNickName() + " MODE " + channel->getName() + " " + modeSign + "o " + extraArg + "\r\n", user);
 				break;
 
 			default:
-				std::cout << "Modo desconhecido: " << modeChar << std::endl;
-        		sendError(user, ERR_UNKNOWNMODE(user->getNickName(), std::string(1, modeChar)));
+        sendError(user, ERR_UNKNOWNMODE(user->getNickName(), std::string(1, modeChar)));
 				break;
 		}
 

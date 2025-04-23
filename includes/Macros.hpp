@@ -24,6 +24,9 @@
 
 // 300s
 # define RPL_ENDOFWHO(channel)                               (FTIRC + " 315 " + channel + " :End of /WHO list." + CRLF)
+# define RPL_LISTSTART(nick)                                 (FTIRC + " 321 " + nick + " Channel    |   Users   |   Topic" + CRLF)
+# define RPL_LIST(nick, channel, users, topic)               (FTIRC + " 322 " + nick + " " + channel + " " + users + " :" + topic + CRLF)
+# define RPL_LISTEND(nick)                                   (FTIRC + " 323 " + nick + " :End of /LIST" + CRLF)
 # define RPL_CHANNELMODEIS(channel, mode, modeParams)        (FTIRC + " 324 * " + channel + " " + mode + " " + modeParams + CRLF)
 # define RPL_NOTOPIC(nick, channel)                          (FTIRC + " 331 " + nick + " " + channel + " :No topic is set" + CRLF)
 # define RPL_TOPIC(nick, channel, topic)                     (FTIRC + " 332 " + nick + " " + channel + " :" + topic + CRLF)

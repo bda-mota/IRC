@@ -22,7 +22,6 @@ void CommandsArgs::populateMap() {
     _messageFunctions["USER"] = user;
     _messageFunctions["NICK"] = nick;
     _messageFunctions["PASS"] = pass;
-    _messageFunctions["CAP"] = cap;
     _messageFunctions["QUIT"] = quit;
     _messageFunctions["JOIN"] = join;
     _messageFunctions["LISTC"] = listc;

@@ -3,8 +3,6 @@
 std::string CommandsArgs::pass(const std::vector<std::string>& args, Server& server, User* user) {
 	user->setHasPassCommand(true);
 
-	std::cout << "Received PASS command from fd " << user->getFd() << std::endl;
-
 	if (user->isAuth()) {
 		std::cout << "Client " << user->getFd() << " attempted to resend PASS after registration." << std::endl;
 		return ERR_ALREADYREGISTERED(user->getNickName());
@@ -26,10 +24,10 @@ std::string CommandsArgs::pass(const std::vector<std::string>& args, Server& ser
 	std::cout << "Client " << user->getFd() << " authenticated successfully with PASS." << std::endl;
 	std::string msg = GREEN + std::string("You've been authenticated!\n") + RESET;
 	send(user->getFd(), msg.c_str(), msg.length(), 0);
-	
+
 	if (!user->getRegistered()) {
 		sendWelcomeMessage(user);
 	}
-	
+
 	return "";
 }

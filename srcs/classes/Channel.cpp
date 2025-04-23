@@ -6,7 +6,7 @@ Channel::Channel()
       _topic(""),
       _inviteOnly(false),
       _topicRestricted(true),
-      _userLimit(100),
+      _userLimit(0),
       _channelKey(""),
       _channelUsers(std::vector<User*>()),
       _operators(std::set<User*>()) {}
@@ -16,7 +16,7 @@ Channel::Channel(std::string _name)
       _topic(""),
       _inviteOnly(false),
       _topicRestricted(true),
-      _userLimit(100),
+      _userLimit(0),
       _channelKey(""),
       _channelUsers(std::vector<User*>()),
       _operators(std::set<User*>()) {}
