@@ -1,13 +1,16 @@
 #include "../../includes/irc.hpp"
 
-static void showChannelModes( Server& server, User* user, std::string channelName);
+static std::string showChannelModes( Server& server, User* user, std::string channelName);
 static std::string validateExtraArgs(char sign, char mode, const std::vector<std::string>& args);
 
 std::string CommandsArgs::mode(const std::vector<std::string>& args, Server& server, User* user) {
-  if (args.size() == 1) {
-    showChannelModes(server, user, args[0]);
-    return "";
-  }
+  
+	if (args.size() == 1) {
+		std::string error = showChannelModes(server, user, args[0]);
+		if (!error.empty())
+			sendError(user, error);
+		return "";
+	}
 
 	if (args.size() < 2) {
 		sendError(user, ERR_NEEDMOREPARAMS(user->getNickName(), "MODE"));
@@ -33,8 +36,6 @@ std::string CommandsArgs::mode(const std::vector<std::string>& args, Server& ser
 		return "";
 	}
 
-	// os argumentos adicionais começam no args[2] -> alguns modos precisam obrigatoriamente de argumentos adicionais
-  // validação dos argumentos adicionais
 	std::string extraArg = validateExtraArgs(modeSign, modeChar, args);
   if (extraArg.rfind(FTIRC, 0) == 0) {
     sendError(user, extraArg);
@@ -57,9 +58,6 @@ std::string CommandsArgs::mode(const std::vector<std::string>& args, Server& ser
 		sendError(user, ERR_CHANOPRISNEEDED(user->getNickName(), channelName));
 		return "";
 	}
-
-	// Só imprime os argumentos pra teste
-	std::cout << "| MODE | Canal: " << channelName << " | Modo: " << modeSign << modeChar << std::endl;
 
     std::string error = "";
 		switch (modeChar) {
@@ -107,14 +105,16 @@ std::string CommandsArgs::mode(const std::vector<std::string>& args, Server& ser
     return "";
 }
 
-static void showChannelModes( Server& server, User* user, std::string channelName) {
+static std::string showChannelModes( Server& server, User* user, std::string channelName) {
   Channel* channel = findChannelInServer(server, user, channelName);
   if (!channel) {
       sendError(user, ERR_NOSUCHCHANNEL(channelName));
+	  return "";
   }
 
   if (!channel->isUserInChannel(user)) {
       sendError(user, ERR_NOTONCHANNEL(channelName));
+	  return "";
   }
 
   std::string modes = channel->getName() + " " + channel->getTopic() + " " + channel->getChannelKey();
@@ -139,6 +139,7 @@ static void showChannelModes( Server& server, User* user, std::string channelNam
   }
   std::string response = RPL_CHANNELMODEIS(user->getNickName(), channel->getName(), modeParams);
   send(user->getFd(), response.c_str(), response.length(), 0);
+  return "";
 }
 
 static std::string validateExtraArgs(char sign, char mode, const std::vector<std::string>& args) {
