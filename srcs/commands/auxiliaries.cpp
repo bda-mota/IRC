@@ -88,3 +88,11 @@ void	sendError(User* user, const std::string& errorMsg) {
 void	sendResponse(User* user, const std::string& responseMsg) {
     send(user->getFd(), responseMsg.c_str(), responseMsg.length(), 0);
 }
+
+void buildTrailingMessage(std::string& message, const std::vector<std::string>& args, size_t start) {
+	std::ostringstream oss;
+	oss << args[start].substr(1);
+	for (size_t i = start + 1; i < args.size(); ++i)
+		oss << ' ' << args[i];
+	message = oss.str();
+}

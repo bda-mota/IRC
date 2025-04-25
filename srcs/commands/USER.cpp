@@ -1,6 +1,5 @@
 #include "../../includes/irc.hpp"
 
-static void auxBuildRealname(std::string& realname, const std::vector<std::string>& args, size_t start);
 static std::string getClientHostname(int fd);
 
 std::string CommandsArgs::user(const std::vector<std::string>& args, Server& server, User* user) {
@@ -28,7 +27,7 @@ std::string CommandsArgs::user(const std::vector<std::string>& args, Server& ser
         sendError(user, ERR_NEEDMOREPARAMS("USER", "Missing realname"));
         return "";
 	}
-	auxBuildRealname(realname, args, 3);
+	buildTrailingMessage(realname, args, 3);
 
 	if (!user->getRegistered())
 		sendWelcomeMessage(user);
@@ -36,14 +35,6 @@ std::string CommandsArgs::user(const std::vector<std::string>& args, Server& ser
     user->setRealName(realname);
 
 	return "";
-}
-
-static void auxBuildRealname(std::string& realname, const std::vector<std::string>& args, size_t start) {
-	std::ostringstream oss;
-	oss << args[start].substr(1);
-	for (size_t i = start + 1; i < args.size(); ++i)
-		oss << ' ' << args[i];
-	realname = oss.str();
 }
 
 static std::string getClientHostname(int fd) {
