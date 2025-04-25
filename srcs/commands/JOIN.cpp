@@ -5,7 +5,7 @@ static void	addUserToChannel(Channel* channel, User* user);
 static void	sendListOfUsers(Channel *channel, User* user);
 static bool canUserJoinChannel(Channel* channel, User* user, const std::string& channelName);
 
-std::string CommandsArgs::join(const std::vector<std::string>& args, Server& server, User* user) {	
+std::string CommandsArgs::join(const std::vector<std::string>& args, Server& server, User* user) {
 	if (args.empty()) {
 		return "ERROR: No channel name provided!\r\n";
 	}
@@ -27,10 +27,23 @@ std::string CommandsArgs::join(const std::vector<std::string>& args, Server& ser
 	// 	channel->setInviteOnly(true);
 	// }
 
+  // Verifica se o usuário forneceu a senha correta
+  if (channel->hasKey()) {
+    // Verifica se o usuário forneceu a senha correta
+    if (args.size() < 2 || args[1] != channel->getChannelKey()) {
+        // Se a senha não for fornecida ou for incorreta, envia erro
+        return ERR_BADCHANNELKEY(user->getNickName(), channel->getName());
+    }
+  }
+
 	// verifica a permissão do canal como olny invite e se o user tem um convite
 	if (!canUserJoinChannel(channel, user, channelName)) {
 		return "ERROR JOIN\r\n";
 	}
+
+  if (channel->isFull()) {
+      return ERR_CHANNELISFULL(channelName);
+  }
 
 	addUserToChannel(channel, user);
 	user->removeInvitation(channelName); // remove a solicitação da lista de convites depois que o user entra no canal

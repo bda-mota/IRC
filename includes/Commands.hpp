@@ -19,4 +19,13 @@ Channel* findChannelInServer(Server& server, User* sender, const std::string& ch
 User*    findUserInServer(Server& server, User* sender, const std::string& targetNick);
 void     buildTrailingMessage(std::string& message, const std::vector<std::string>& args, size_t start);
 
+
+// AUXILIARIES MODE COMMAND
+
+void inviteOnlyConfig(Channel* channel, char sign);
+void topicCmdConfig(Channel* channel, char modeSign);
+std::string userLimitConfig(Channel* channel, char modeSign, const std::string& extraArg);
+void channelKeyConfig(Channel* channel, char modeSign, const std::string& extraArg);
+void channelOpConfig(Channel* channel, char modeSign, const std::string& extraArg);
+
 #endif

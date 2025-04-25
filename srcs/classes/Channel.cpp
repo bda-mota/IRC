@@ -1,8 +1,25 @@
 #include "../../includes/Channel.hpp"
+#include "../../includes/irc.hpp"
 
-Channel::Channel() : _name(""), _topic(""), _inviteOnly(false), _channelUsers(std::vector<User*>()) {}
+Channel::Channel()
+    : _name(""),
+      _topic(""),
+      _inviteOnly(false),
+      _topicRestricted(true),
+      _userLimit(100),
+      _channelKey(""),
+      _channelUsers(std::vector<User*>()),
+      _operators(std::set<User*>()) {}
 
-Channel::Channel(std::string _name) : _name(_name), _topic(""), _inviteOnly(false), _channelUsers(std::vector<User*>()) {}
+Channel::Channel(std::string _name)
+    : _name(_name),
+      _topic(""),
+      _inviteOnly(false),
+      _topicRestricted(true),
+      _userLimit(100),
+      _channelKey(""),
+      _channelUsers(std::vector<User*>()),
+      _operators(std::set<User*>()) {}
 
 Channel::~Channel() {
 	_channelUsers.clear();
@@ -11,25 +28,37 @@ Channel::~Channel() {
 Channel::Channel(Channel const& other) { *this = other; }
 
 Channel &Channel::operator=(Channel const &other) {
-	if (this != &other) {
-		this->_name = other._name;
-		this->_topic = other._topic;
+  if (this != &other) {
+      this->_name = other._name;
+      this->_topic = other._topic;
+      this->_inviteOnly = other._inviteOnly;
+      this->_topicRestricted = other._topicRestricted;
+      this->_userLimit = other._userLimit;
+      this->_channelKey = other._channelKey;
+      this->_operators = other._operators;
 
-		for (size_t i = 0; i < _channelUsers.size(); i++) {
-			delete _channelUsers[i];
-		}
-		_channelUsers.clear();
-		
-		for (size_t i = 0; i < other._channelUsers.size(); i++) {
-			this->_channelUsers.push_back(new User(*other._channelUsers[i]));  
-		}
-	}
-	return *this;
+      for (size_t i = 0; i < _channelUsers.size(); i++) {
+          delete _channelUsers[i];
+      }
+      _channelUsers.clear();
+
+      for (size_t i = 0; i < other._channelUsers.size(); i++) {
+          this->_channelUsers.push_back(new User(*other._channelUsers[i]));
+      }
+  }
+  return *this;
 }
 
 void Channel::setName(std::string name) { _name = name; }
 
-void Channel::setTopic(std::string topic) { _topic = topic; }
+std::string Channel::setTopic(std::string topic, User* user) {
+  if (this->isTopicRestricted() && !this->isOperator(user)) {
+      return ERR_CHANOPRISNEEDED(user->getNickName(), this->getName());
+  }
+
+  _topic = topic;
+  return "";
+}
 
 const std::string& Channel::getName() const { return _name; }
 
@@ -41,11 +70,20 @@ bool Channel::isUserInChannel(User* user) const {
 	return std::find(_channelUsers.begin(), _channelUsers.end(), user) != _channelUsers.end();
 }
 
-void Channel::addUser(User* user) { 
-	if (!isUserInChannel(user)) {
-		_channelUsers.push_back(user);
-		std::cout << "User " << user->getNickName() << " added to channel " << _name << std::endl;
-	}
+std::string Channel::addUser(User* user, const std::string& key) {
+  if (_userLimit > 0 && _channelUsers.size() >= static_cast<size_t>(_userLimit)) {
+      return ERR_CHANNELISFULL(_name);
+  }
+
+  if (hasKey() && key != _channelKey) {
+      return ERR_BADCHANNELKEY(user->getNickName(), _name);
+  }
+
+  if (!isUserInChannel(user)) {
+      _channelUsers.push_back(user);
+  }
+
+  return "";
 }
 
 void Channel::removeUser(int fd) {
@@ -75,6 +113,7 @@ bool Channel::isOperator(User* user) const {
 }
 
 void Channel::addOperator(User* user) {
+  std::cout << "Adding operator: " << user->getNickName() << std::endl;
 	if (user) {
 		_operators.insert(user); // como o set nao permite duplicatas só isso já é o suficinete
 	}
@@ -88,3 +127,39 @@ void Channel::removeOperator(User* user) {
 
 bool Channel::isInviteOnly() const { return _inviteOnly; }
 void Channel::setInviteOnly(bool inviteOnly) { _inviteOnly = inviteOnly; }
+
+
+// Topic Restricted
+bool Channel::isTopicRestricted() const { return _topicRestricted; }
+void Channel::setTopicRestricted(bool topicRestricted) { _topicRestricted = topicRestricted; }
+
+// User Limit
+int Channel::getUserLimit() const { return _userLimit; }
+
+std::string Channel::setUserLimit(int newLimit) {
+  std::cout << "Setting user limit: " << newLimit << std::endl;
+  _userLimit = newLimit;
+  return "";
+}
+
+bool Channel::isFull() const {
+  std::cout << "User limit: " << _userLimit << std::endl;
+  return _userLimit > 0 && _channelUsers.size() >= static_cast<size_t>(_userLimit);
+}
+
+// Channel Key
+std::string Channel::getChannelKey() const { return _channelKey; }
+void Channel::setChannelKey(const std::string& key) { _channelKey = key; }
+bool Channel::hasKey() const { return !_channelKey.empty(); }
+
+
+// User by Nick
+User* Channel::getUserByNick(const std::string& nickname) const {
+  for (std::vector<User*>::const_iterator it = _channelUsers.begin(); it != _channelUsers.end(); ++it) {
+    if ((*it)->getNickName() == nickname) {
+      return *it;
+    }
+  }
+
+  return NULL;
+}
