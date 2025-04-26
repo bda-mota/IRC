@@ -22,7 +22,6 @@ void CommandsArgs::populateMap() {
     _messageFunctions["USER"] = user;
     _messageFunctions["NICK"] = nick;
     _messageFunctions["PASS"] = pass;
-    _messageFunctions["CAP"] = cap;
     _messageFunctions["QUIT"] = quit;
     _messageFunctions["JOIN"] = join;
     _messageFunctions["LISTC"] = listc;
@@ -33,13 +32,14 @@ void CommandsArgs::populateMap() {
     _messageFunctions["MODE"] = mode;
     _messageFunctions["TOPIC"] = topic;
     _messageFunctions["INVITE"] = invite;
+    _messageFunctions["CAP"] = cap;
 }
 
 std::string CommandsArgs::executeCommand(const std::string& command, const std::vector<std::string>& args, Server& server, User* user) {
   if (command != "PASS" && command != "CAP" && user->isAuth() == false) {
-    return "Please, enter a password first.\r\n"; // TODO:melhorar mensagem de erro
-
+    return "ERROR: You must authenticate with the PASS command first.\r\n"; // TODO:melhorar mensagem de erro
   }
+
   std::map<std::string, funcPtr>::iterator it = _messageFunctions.find(command);
     if (it != _messageFunctions.end()) {
         return (it->second)(args, server, user);

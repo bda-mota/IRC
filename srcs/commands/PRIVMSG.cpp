@@ -7,44 +7,40 @@ static bool sendToUser(Server& server, User* sender, const std::string& target, 
 
 std::string CommandsArgs::privmsg(const std::vector<std::string>& args, Server& server, User* sender) {
 	if (!checkArgs(args, sender)) {
-		return "ERROR: Invalid arguments\r\n";
+		return "";
 	}
 	const std::string& target = args[0];
 
 	std::string message = buildMessageToSend(args);
-	
+
 	if (target[0] == '#') {
 		privmsgToChannel(server, sender, target, message);
-		return "PRIVMSG on channel command executed!\r\n";
+		return "";
 	}
 
 	if (sendToUser(server, sender, target, message)) {
-		return "PRIVMSG to user command executed!\r\n";
+		return "";
 	}
 
-	std::string error = ERR_NOSUCHNICK(sender->getNickName());
-	sendError(sender, error);
-	return "ERROR: No such nick\r\n";
+	sendErrorAndLog(sender, ERR_NOSUCHNICK(sender->getNickName()));
+	return "";
 }
 
 static bool checkArgs(const std::vector<std::string>& args, User* sender) {
 	if (args.size() < 2) {
-		std::string error = ERR_NOTEXTTOSEND(sender->getNickName());
-		sendError(sender, error);
+		sendErrorAndLog(sender, ERR_NOTEXTTOSEND(sender->getNickName()));
 		return false;
 	}
 
 	const std::string& target = args[0];
 
 	if (args[1][0] != ':') {
-		std::string error = ERR_NOTEXTTOSEND(sender->getNickName());
-		sendError(sender, error);
+		sendErrorAndLog(sender, ERR_NOTEXTTOSEND(sender->getNickName()));
 		return false;
 	}
 
 	if (target.empty()) {
-		std::string error = ERR_NORECIPIENT(sender->getNickName());
-		sendError(sender, error);
+		sendErrorAndLog(sender, ERR_NORECIPIENT(sender->getNickName()));
 		return false;
 	}
 
@@ -54,20 +50,24 @@ static bool checkArgs(const std::vector<std::string>& args, User* sender) {
 static bool	privmsgToChannel(Server& server, User* sender, const std::string& target, const std::string& message) {
 	std::map<std::string, Channel*>& channels = server.getChannels();
 	if (channels.find(target) == channels.end()) {
-		std::string error = ERR_NOSUCHCHANNEL(target);
-		sendError(sender, error);
+		sendErrorAndLog(sender, ERR_NOSUCHCHANNEL(target));
 		return false;
 	}
 
 	Channel* channel = channels[target];
 	if (!isUserInChannel(*sender, *channel)) {
-		std::string error =  ERR_CANNOTSENDTOCHAN(sender->getNickName(), target);
-		send(sender->getFd(), error.c_str(), error.length(), 0);
+		sendErrorAndLog(sender, ERR_CANNOTSENDTOCHAN(sender->getNickName(), target));
+		return false;
+	}
+
+	if (channel->isInviteOnly() && !channel->isUserInChannel(sender)) {
+		sendErrorAndLog(sender, ERR_CANNOTSENDTOCHAN(sender->getNickName(), target));
 		return false;
 	}
 
 	std::string response = RPL_PRIVMSG(sender->getNickName(), target, message);
 	channel->broadcast(response, sender);
+	logger(INFO, sender->getNickName() + " sent a message to channel " + target + ": " + message);
 	return true;
 }
 
@@ -91,6 +91,7 @@ static bool sendToUser(Server& server, User* sender, const std::string& target, 
 		if (targetUser->getNickName() == target) {
 			std::string response = RPL_PRIVMSG(sender->getNickName(), target, message);
 			sendResponse(targetUser, response);
+			logger(INFO, sender->getNickName() + " sent a message to user " + target + ": " + message);
 			return true;
 		}
 	}

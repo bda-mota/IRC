@@ -33,6 +33,7 @@ class Channel {
 		std::string	addUser(User* user, const std::string& key = "");
 		void	      removeUser(User *user);
 		void	      broadcast(const std::string& message, User* sender);
+		void	      broadcastToAll(const std::string& message);
 
 		// Operators
 		void	addOperator(User* user);

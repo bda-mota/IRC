@@ -6,7 +6,7 @@ Channel::Channel()
       _topic(""),
       _inviteOnly(false),
       _topicRestricted(true),
-      _userLimit(100),
+      _userLimit(0),
       _channelKey(""),
       _channelUsers(std::vector<User*>()),
       _operators(std::set<User*>()) {}
@@ -16,7 +16,7 @@ Channel::Channel(std::string _name)
       _topic(""),
       _inviteOnly(false),
       _topicRestricted(true),
-      _userLimit(100),
+      _userLimit(0),
       _channelKey(""),
       _channelUsers(std::vector<User*>()),
       _operators(std::set<User*>()) {}
@@ -109,6 +109,15 @@ void Channel::broadcast(const std::string& message, User* sender) {
 	}
 }
 
+void Channel::broadcastToAll(const std::string& message) {
+  for (std::vector<User*>::iterator it = _channelUsers.begin(); it != _channelUsers.end(); ++it) {
+      User* target = *it;
+      if (target && target->getFd() > 0) {
+          send(target->getFd(), message.c_str(), message.length(), 0);
+      }
+  }
+}
+
 bool Channel::isOperator(User* user) const {
 	return _operators.find(user) != _operators.end();
 }
@@ -138,13 +147,11 @@ void Channel::setTopicRestricted(bool topicRestricted) { _topicRestricted = topi
 int Channel::getUserLimit() const { return _userLimit; }
 
 std::string Channel::setUserLimit(int newLimit) {
-  std::cout << "Setting user limit: " << newLimit << std::endl;
   _userLimit = newLimit;
   return "";
 }
 
 bool Channel::isFull() const {
-  std::cout << "User limit: " << _userLimit << std::endl;
   return _userLimit > 0 && _channelUsers.size() >= static_cast<size_t>(_userLimit);
 }
 

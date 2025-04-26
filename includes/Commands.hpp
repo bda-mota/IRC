@@ -6,6 +6,13 @@
 class User;
 class Server;
 
+// LogLevel enum to categorize log messages
+enum LogLevel {
+    INFO,
+    WARNING,
+    ERROR
+};
+
 // AUXILIARIES
 
 bool	 isValidChannelName(const std::string& channelName, User* user);
@@ -18,7 +25,8 @@ void	 sendResponse(User* user, const std::string& responseMsg);
 Channel* findChannelInServer(Server& server, User* sender, const std::string& channelName);
 User*    findUserInServer(Server& server, User* sender, const std::string& targetNick);
 void     buildTrailingMessage(std::string& message, const std::vector<std::string>& args, size_t start);
-
+void     sendErrorAndLog(User* user, const std::string& errorMessage);
+void     logger(LogLevel level, const std::string& message);
 
 // AUXILIARIES MODE COMMAND
 

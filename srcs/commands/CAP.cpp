@@ -4,5 +4,7 @@ std::string CommandsArgs::cap(const std::vector<std::string>& args, Server& serv
     (void)server;
     (void)user;
 	(void)args;
+    logger(INFO, "CAP command received by user: " + user->getNickName());
+
     return "";
 }

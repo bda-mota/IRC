@@ -8,7 +8,8 @@ static bool canUserJoinChannel(Channel* channel, User* user, const std::string& 
 std::string CommandsArgs::join(const std::vector<std::string>& args, Server& server, User* user) {
 
 	if (args.empty()) {
-		return "ERROR: No channel name provided!\r\n";
+		sendErrorAndLog(user, ERR_NEEDMOREPARAMS("JOIN", ""));
+		return "";
 	}
 
 	for (size_t i = 0; i < args.size(); ++i) {
@@ -16,7 +17,8 @@ std::string CommandsArgs::join(const std::vector<std::string>& args, Server& ser
 		std::string channelName = args[i];
 	
 		if (!isValidChannelName(channelName, user)) {
-			return "ERROR JOIN\r\n";
+			sendErrorAndLog(user, ERR_NOSUCHCHANNEL(channelName));
+		return "";
 		}
 
 		createChannelIfNotExists(channelName, server, user);
@@ -33,11 +35,14 @@ std::string CommandsArgs::join(const std::vector<std::string>& args, Server& ser
 
 		// verifica a permissão do canal como olny invite e se o user tem um convite
 		if (!canUserJoinChannel(channel, user, channelName)) {
-			return "ERROR JOIN\r\n";
+			sendErrorAndLog(user, ERR_INVITEONLYCHAN(channelName));
+			return "";
 		}
 
+		// Verifica se canal está cheio
 		if (channel->isFull()) {
-			return ERR_CHANNELISFULL(channelName);
+			sendErrorAndLog(user, ERR_CHANNELISFULL(channelName));
+			return "";
 		}
 
 		addUserToChannel(channel, user);
@@ -70,6 +75,7 @@ static void	addUserToChannel(Channel* channel, User* user) {
 
 	std::string response = JOIN(user->getNickName(), channel->getName());
 	sendResponse(user, response);
+	logger(INFO, user->getNickName() + " joined channel " + channel->getName());
 }
 
 static void	sendListOfUsers(Channel *channel, User* user) {
@@ -81,6 +87,9 @@ static void	sendListOfUsers(Channel *channel, User* user) {
 	if (!names.empty())
 		names.erase(names.length() - 1);
 
+    logger(INFO, user->getNickName() + " requested user list for channel " + channel->getName());
+    logger(INFO, "User list for channel " + channel->getName() + ": " + names);
+    
 	std::string nameReply = RPL_NAMREPLY(user->getNickName(), channel->getName(), names);
 	sendResponse(user, nameReply);
 
@@ -90,8 +99,6 @@ static void	sendListOfUsers(Channel *channel, User* user) {
 
 static bool canUserJoinChannel(Channel* channel, User* user, const std::string& channelName) {
 	if (channel->isInviteOnly() && !user->isInvitedTo(channelName)) {
-		std::string error = ":ircserver 473 " + user->getNickName() + " " + channelName + " :Cannot join channel (+i)\r\n";
-		send(user->getFd(), error.c_str(), error.length(), 0);
 		return false;
 	}
 	return true;
