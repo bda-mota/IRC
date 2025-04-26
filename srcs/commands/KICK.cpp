@@ -7,13 +7,13 @@
 std::string CommandsArgs::kick(const std::vector<std::string>& args, Server& server, User* user) {
 
 	if (args.size() < 4 || args[3][0] != ':') {
-		sendError(user, ERR_NEEDMOREPARAMS(user->getNickName(), "KICK"));
+		sendErrorAndLog(user, ERR_NEEDMOREPARAMS(user->getNickName(), "KICK"));
 		return "";
 	}
 
 	std::string channelName = args[1];
 	if (channelName[0] != '#') {
-		sendError(user, ERR_NEEDMOREPARAMS(user->getNickName(), "KICK"));
+		sendErrorAndLog(user, ERR_NEEDMOREPARAMS(user->getNickName(), "KICK"));
 		return "";
 	}
 
@@ -37,18 +37,20 @@ std::string CommandsArgs::kick(const std::vector<std::string>& args, Server& ser
 	    return "";
 
     if (!isUserInChannel(*user, *channel)) {
-        sendError(user, ERR_NOTONCHANNEL(channelName));
+        sendErrorAndLog(user, ERR_NOTONCHANNEL(channelName));
         return "";
     }
 
     // TODO : verificar se o usuário que mandou KICK é um operador do canal
 
     User* target = findUserInServer(server, user, targetNick);
-	if (!target)
+	if (!target) {
+		sendErrorAndLog(user, ERR_NOSUCHNICK(targetNick));
 		return "";
+	}
 
     if (!isUserInChannel(*user, *channel)) {
-        sendError(user, ERR_USERNOTINCHANNEL(user->getNickName(), targetNick, channelName));
+        sendErrorAndLog(user, ERR_USERNOTINCHANNEL(user->getNickName(), targetNick, channelName));
 		return "";
 	}
 
@@ -62,6 +64,7 @@ std::string CommandsArgs::kick(const std::vector<std::string>& args, Server& ser
 
     channel->broadcast(kickMsg, target);
     channel->removeUser(target->getFd());
+	logger(INFO, user->getNickName() + " kicked " + target->getNickName() + " from " + channelName + " for reason: " + reason);
 
     return "";
 }

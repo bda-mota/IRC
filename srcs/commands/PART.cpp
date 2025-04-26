@@ -6,7 +6,7 @@ static void removeUserFromChannel(User* user, Channel* channel);
 std::string CommandsArgs::part(const std::vector<std::string>& args, Server& server, User* user) {
 
 	if (args.empty()) {
-		sendError(user, ERR_NEEDMOREPARAMS("PART", "Not enough parameters"));
+		sendErrorAndLog(user, ERR_NEEDMOREPARAMS("PART", "Not enough parameters"));
 		return "";
 	}
 
@@ -21,14 +21,14 @@ std::string CommandsArgs::part(const std::vector<std::string>& args, Server& ser
     std::map<std::string, Channel*>& channels = server.getChannels();
 
 	if (channels.find(channelName) == channels.end()) {
-		sendError(user, ERR_NOSUCHCHANNEL(channelName));
+		sendErrorAndLog(user, ERR_NOSUCHCHANNEL(channelName));
 		return "";
 	}
 
 	Channel* channel = channels[channelName];
 
     if (!channel->isUserInChannel(user)) {
-		sendError(user, ERR_USERNOTINCHANNEL(user->getNickName(), user->getNickName(), channelName));
+		sendErrorAndLog(user, ERR_USERNOTINCHANNEL(user->getNickName(), user->getNickName(), channelName));
 		return "";
 	}
 
@@ -42,6 +42,8 @@ std::string CommandsArgs::part(const std::vector<std::string>& args, Server& ser
 	    delete channel;
 	    channels.erase(channelName); 
     }
+
+	logger(INFO, user->getNickName() + " left channel " + channelName + " with reason: " + reason);
 
 	return "";
 }

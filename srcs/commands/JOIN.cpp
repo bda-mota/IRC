@@ -7,43 +7,37 @@ static bool canUserJoinChannel(Channel* channel, User* user, const std::string& 
 
 std::string CommandsArgs::join(const std::vector<std::string>& args, Server& server, User* user) {
 	if (args.empty()) {
-		return "ERROR: No channel name provided!\r\n";
+		sendErrorAndLog(user, ERR_NEEDMOREPARAMS("JOIN", ""));
+		return "";
 	}
 
 	std::string channelName = args[0];
 	if (!isValidChannelName(channelName, user)) {
-		return "ERROR JOIN\r\n";
+		sendErrorAndLog(user, ERR_NOSUCHCHANNEL(channelName));
+		return "";
 	}
 
 	createChannelIfNotExists(channelName, server, user);
-
 	Channel* channel = server.getChannels()[channelName];
-
 	createChannelIfNotExists(channelName, server, user);
 
-	/* TODO: ---- APENAS TESTE SEM MODO MODE EXLCUIR APÓS TESTE ------- */
-	// Aqui setamos como invite-only manualmente APENAS no primeiro JOIN para usuário dar join sem convite em channel invite-only
-	// if (channel->getUsers().size() == 1) {
-	// 	channel->setInviteOnly(true);
-	// }
-
-  // Verifica se o usuário forneceu a senha correta
-  if (channel->hasKey()) {
-    // Verifica se o usuário forneceu a senha correta
-    if (args.size() < 2 || args[1] != channel->getChannelKey()) {
-        // Se a senha não for fornecida ou for incorreta, envia erro
-        return ERR_BADCHANNELKEY(user->getNickName(), channel->getName());
+    // Verifica se canal tem senha e se ela foi fornecida corretamente
+    if (channel->hasKey() && (args.size() < 2 || args[1] != channel->getChannelKey())) {
+        sendErrorAndLog(user, ERR_BADCHANNELKEY(user->getNickName(), channelName));
+        return "";
     }
-  }
 
 	// verifica a permissão do canal como olny invite e se o user tem um convite
 	if (!canUserJoinChannel(channel, user, channelName)) {
-		return "ERROR JOIN\r\n";
+		sendErrorAndLog(user, ERR_INVITEONLYCHAN(channelName));
+		return "";
 	}
 
-  if (channel->isFull()) {
-      return ERR_CHANNELISFULL(channelName);
-  }
+    // Verifica se canal está cheio
+    if (channel->isFull()) {
+        sendErrorAndLog(user, ERR_CHANNELISFULL(channelName));
+        return "";
+    }
 
 	addUserToChannel(channel, user);
 	user->removeInvitation(channelName); // remove a solicitação da lista de convites depois que o user entra no canal
@@ -72,6 +66,7 @@ static void	addUserToChannel(Channel* channel, User* user) {
 
 	std::string response = JOIN(user->getNickName(), channel->getName());
 	sendResponse(user, response);
+	logger(INFO, user->getNickName() + " joined channel " + channel->getName());
 }
 
 static void	sendListOfUsers(Channel *channel, User* user) {
@@ -83,6 +78,9 @@ static void	sendListOfUsers(Channel *channel, User* user) {
 	if (!names.empty())
 		names.erase(names.length() - 1);
 
+    logger(INFO, user->getNickName() + " requested user list for channel " + channel->getName());
+    logger(INFO, "User list for channel " + channel->getName() + ": " + names);
+    
 	std::string nameReply = RPL_NAMREPLY(user->getNickName(), channel->getName(), names);
 	sendResponse(user, nameReply);
 
@@ -92,8 +90,6 @@ static void	sendListOfUsers(Channel *channel, User* user) {
 
 static bool canUserJoinChannel(Channel* channel, User* user, const std::string& channelName) {
 	if (channel->isInviteOnly() && !user->isInvitedTo(channelName)) {
-		std::string error = ":ircserver 473 " + user->getNickName() + " " + channelName + " :Cannot join channel (+i)\r\n";
-		send(user->getFd(), error.c_str(), error.length(), 0);
 		return false;
 	}
 	return true;

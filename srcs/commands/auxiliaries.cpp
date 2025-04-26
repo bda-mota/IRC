@@ -5,7 +5,7 @@
 bool	isValidChannelName(const std::string& channelName, User* user) {
 	if (channelName.empty() || channelName[0] != '#') {
 		std::string error = ERR_NOSUCHCHANNEL(channelName);
-		sendError(user, error);
+		sendErrorAndLog(user, error);
 		return false;
 	}
 	return true;
@@ -29,7 +29,7 @@ bool	channelExists(const std::string& channelName, Server& server, User* user) {
 	std::map<std::string, Channel*>& channels = server.getChannels();
 	if (channels.find(channelName) == channels.end()) {
 		std::string error = ERR_NOSUCHCHANNEL(channelName);
-		sendError(user, error);
+		sendErrorAndLog(user, error);
 		return false;
 	}
 	return true;
@@ -42,7 +42,7 @@ Channel* findChannelInServer(Server& server, User* sender, const std::string& ch
         return channels[channelName];
     }
 
-    sendError(sender, ERR_NOSUCHCHANNEL(channelName));
+    sendErrorAndLog(sender, ERR_NOSUCHCHANNEL(channelName));
     return NULL;
 }
 
@@ -66,7 +66,7 @@ User* findUserInServer(Server& server, User* sender, const std::string& targetNi
         }
     }
 
-    sendError(sender, ERR_NOSUCHNICK(targetNick));
+    sendErrorAndLog(sender, ERR_NOSUCHNICK(targetNick));
     return NULL;
 }
 
@@ -95,4 +95,40 @@ void buildTrailingMessage(std::string& message, const std::vector<std::string>& 
 	for (size_t i = start + 1; i < args.size(); ++i)
 		oss << ' ' << args[i];
 	message = oss.str();
+}
+
+
+// Logger
+void logger(LogLevel level, const std::string& message) {
+    // Pega a hora atual
+    std::time_t now = std::time(NULL);
+    std::tm *ltm = std::localtime(&now);
+
+    // Escreve o timestamp
+    std::cout << "[" << std::setfill('0') << std::setw(2) << ltm->tm_hour
+              << ":" << std::setfill('0') << std::setw(2) << ltm->tm_min
+              << ":" << std::setfill('0') << std::setw(2) << ltm->tm_sec
+              << "] ";
+
+    // Escreve o tipo de log
+    switch (level) {
+        case INFO:
+            std::cout << "[INFO] ";
+            break;
+        case WARNING:
+            std::cout << "[WARNING] ";
+            break;
+        case ERROR:
+            std::cout << "[ERROR] ";
+            break;
+    }
+
+    // Escreve a mensagem
+    std::cout << message;
+}
+
+// Error
+void sendErrorAndLog(User* user, const std::string& errorMessage) {
+    sendError(user, errorMessage);
+	logger(ERROR, "Error sent to user " + user->getNickName() + ": " + errorMessage);
 }

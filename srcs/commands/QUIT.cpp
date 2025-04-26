@@ -17,25 +17,19 @@ std::string CommandsArgs::quit(const std::vector<std::string>& args, Server& ser
 		reason = "Client Quit";
 	}
 
-	std::vector<Channel*> joinedChannels = user->getJoinedChannels();
-
 	std::string quitMsg = createQuitMessage(user, reason);
 	handleQuitFromChannels(user, server, quitMsg);
 
 	server.clearUsers(user->getFd());
 	close(user->getFd());
 
+	logger(INFO, user->getNickName() + " disconnected from the server.");
 	return "";
 }
 
 static std::string createQuitMessage(User* user, const std::string& reason) {
-	std::ostringstream quitMsg;
-	std::string host = user->getHostName().empty() ? "localhost" : user->getHostName();
-
-	quitMsg << ":" << user->getNickName() << "!" << user->getUserName()
-	        << "@" << host << " QUIT :" << reason << CRLF;
-
-	return quitMsg.str();
+	std::string quitMessage = RPL_QUIT(user->getNickName(), user->getUserName(), user->getHostName(), reason);
+	return quitMessage;
 }
 
 static void handleQuitFromChannels(User* user, Server& server, const std::string& quitMessage) {

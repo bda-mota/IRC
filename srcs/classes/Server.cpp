@@ -98,7 +98,7 @@ void Server::serverInit(int port, std::string password) {
 	serverSocket();
 
 	std::cout << "Server started on port " << this->_port << std::endl;
-	std::cout << GREEN << "Server connected." << RESET << std::endl;
+	std::cout << "Server connected." << std::endl;
 	std::cout << "Waiting for clients..." << std::endl;
 
 	while (Server::_signal == false) {
@@ -154,7 +154,7 @@ void Server::acceptNewUser() {
 
 	_fds.push_back(newPoll);
 
-	std::cout << GREEN << "Client connected: " << newUser->getIP() << RESET << std::endl;
+	std::cout << "Client connected: " << newUser->getIP() << std::endl;
 }
 
 void Server::parseReceiveNewData(std::string rawMessage, int fd, User *user) {

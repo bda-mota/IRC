@@ -3,33 +3,29 @@
 std::string CommandsArgs::pass(const std::vector<std::string>& args, Server& server, User* user) {
 	user->setHasPassCommand(true);
 
-	std::cout << "Received PASS command from fd " << user->getFd() << std::endl;
-
+	std::string errorMsg;
 	if (user->isAuth()) {
-		std::cout << "Client " << user->getFd() << " attempted to resend PASS after registration." << std::endl;
-		return ERR_ALREADYREGISTERED(user->getNickName());
+		sendErrorAndLog(user, ERR_ALREADYREGISTERED(user->getNickName()));
+		return "";
 	}
 
 	if (args.size() < 1) {
-		std::cout << "Client " << user->getFd() << " sent PASS with missing parameter." << std::endl;
-		return ERR_NEEDMOREPARAMS("PASS", "Not enough parameters");
+		sendErrorAndLog(user, ERR_NEEDMOREPARAMS("PASS", "Not enough parameters"));
+		return "";
 	}
 
 	if (args[0] != server.getPassword()) {
-		std::cout << "Client " << user->getFd() << " provided wrong password." << std::endl;
-		std::string msg = RED + std::string("Wrong password! Could not authenticate client.\n") + RESET;
-		send(user->getFd(), msg.c_str(), msg.length(), 0);
-		return ERR_PASSWDMISMATCH();
+		sendErrorAndLog(user, ERR_PASSWDMISMATCH());
+		return "";
 	}
 
 	user->setAuth(true);
-	std::cout << "Client " << user->getFd() << " authenticated successfully with PASS." << std::endl;
-	std::string msg = GREEN + std::string("You've been authenticated!\n") + RESET;
-	send(user->getFd(), msg.c_str(), msg.length(), 0);
-	
+	sendResponse(user, RPL_WELCOME(user->getNickName(), user->getUserName()));
+	logger(INFO, user->getNickName() + " authenticated successfully with PASS.");
+
 	if (!user->getRegistered()) {
 		sendWelcomeMessage(user);
 	}
-	
+
 	return "";
 }
