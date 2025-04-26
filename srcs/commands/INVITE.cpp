@@ -27,6 +27,11 @@ std::string CommandsArgs::invite(const std::vector<std::string>& args, Server& s
         return "";
     }
 
+    if (channel->isUserInChannel(targetUser)) {
+        sendError(user, ERR_USERONCHANNEL(targetUser->getNickName(), channelName));
+        return "";
+    }
+
     targetUser->addInvitation(channelName);
     sendInviteMessages(user, targetUser, channelName);
 

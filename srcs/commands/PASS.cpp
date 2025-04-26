@@ -17,14 +17,14 @@ std::string CommandsArgs::pass(const std::vector<std::string>& args, Server& ser
 
 	if (args[0] != server.getPassword()) {
 		std::cout << "Client " << user->getFd() << " provided wrong password." << std::endl;
-		std::string msg = RED + std::string("Wrong password! Could not authenticate client.\n") + RESET;
+		std::string msg = std::string("Wrong password! Could not authenticate client.\n");
 		send(user->getFd(), msg.c_str(), msg.length(), 0);
 		return ERR_PASSWDMISMATCH();
 	}
 
 	user->setAuth(true);
 	std::cout << "Client " << user->getFd() << " authenticated successfully with PASS." << std::endl;
-	std::string msg = GREEN + std::string("You've been authenticated!\n") + RESET;
+	std::string msg = std::string("You've been authenticated!\n");
 	send(user->getFd(), msg.c_str(), msg.length(), 0);
 	
 	if (!user->getRegistered()) {

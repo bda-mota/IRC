@@ -26,7 +26,7 @@ std::string CommandsArgs::nick(const std::vector<std::string>& args, Server& ser
 		sendWelcomeMessage(user);
 	}
 
-	return "NICK command executed!" + CRLF;
+	return "";
 }
 
 static bool isInvalidNick(const std::string& newNick, Server& server, User* user) {

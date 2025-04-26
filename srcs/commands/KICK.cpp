@@ -1,19 +1,15 @@
 #include "../../includes/irc.hpp"
 
-/*
-    KICK <#channel> <user> [:reason]
-*/
-
 std::string CommandsArgs::kick(const std::vector<std::string>& args, Server& server, User* user) {
 
 	if (args.size() < 4 || args[3][0] != ':') {
-		sendError(user, ERR_NEEDMOREPARAMS(user->getNickName(), "KICK"));
+		sendError(user, ERR_NEEDMOREPARAMS("KICK", "Not enough parameters"));
 		return "";
 	}
 
 	std::string channelName = args[1];
 	if (channelName[0] != '#') {
-		sendError(user, ERR_NEEDMOREPARAMS(user->getNickName(), "KICK"));
+		sendError(user, ERR_NEEDMOREPARAMS("KICK", "Invalid channel name"));
 		return "";
 	}
 
@@ -41,7 +37,10 @@ std::string CommandsArgs::kick(const std::vector<std::string>& args, Server& ser
         return "";
     }
 
-    // TODO : verificar se o usuário que mandou KICK é um operador do canal
+	if (!channel->isOperator(user)) {
+		sendError(user, ERR_CHANOPRISNEEDED(user->getNickName(), channelName));
+		return "";
+	}
 
     User* target = findUserInServer(server, user, targetNick);
 	if (!target)
