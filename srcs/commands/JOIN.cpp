@@ -3,6 +3,7 @@
 static void	createChannelIfNotExists(const std::string& channelName, Server& server, User* user);
 static void	addUserToChannel(Channel* channel, User* user);
 static void	sendListOfUsers(Channel *channel, User* user);
+static bool canUserJoinChannel(Channel* channel, User* user, const std::string& channelName);
 
 std::string CommandsArgs::join(const std::vector<std::string>& args, Server& server, User* user) {
 	if (args.empty()) {
@@ -18,25 +19,25 @@ std::string CommandsArgs::join(const std::vector<std::string>& args, Server& ser
 
 	createChannelIfNotExists(channelName, server, user);
 	Channel* channel = server.getChannels()[channelName];
+	createChannelIfNotExists(channelName, server, user);
 
+    // Verifica se canal tem senha e se ela foi fornecida corretamente
+    if (channel->hasKey() && (args.size() < 2 || args[1] != channel->getChannelKey())) {
+        sendErrorAndLog(user, ERR_BADCHANNELKEY(user->getNickName(), channelName));
+        return "";
+    }
 
-  // Verifica se canal tem senha e se ela foi fornecida corretamente
-	if (channel->hasKey() && (args.size() < 2 || args[1] != channel->getChannelKey())) {
-		sendErrorAndLog(user, ERR_BADCHANNELKEY(user->getNickName(), channelName));
-		return "";
-	}
-
-	// Verifica se é invite-only e se o user tem convite
-	if (channel->isInviteOnly() && !user->isInvitedTo(channelName)) {
+	// verifica a permissão do canal como olny invite e se o user tem um convite
+	if (!canUserJoinChannel(channel, user, channelName)) {
 		sendErrorAndLog(user, ERR_INVITEONLYCHAN(channelName));
 		return "";
 	}
 
-  // Verifica se canal está cheio
-	if (channel->isFull()) {
-		sendErrorAndLog(user, ERR_CHANNELISFULL(channelName));
-		return "";
-	}
+    // Verifica se canal está cheio
+    if (channel->isFull()) {
+        sendErrorAndLog(user, ERR_CHANNELISFULL(channelName));
+        return "";
+    }
 
 	addUserToChannel(channel, user);
 	user->removeInvitation(channelName); // remove a solicitação da lista de convites depois que o user entra no canal
@@ -77,12 +78,19 @@ static void	sendListOfUsers(Channel *channel, User* user) {
 	if (!names.empty())
 		names.erase(names.length() - 1);
 
-	logger(INFO, user->getNickName() + " requested user list for channel " + channel->getName());
-	logger(INFO, "User list for channel " + channel->getName() + ": " + names);
-
+    logger(INFO, user->getNickName() + " requested user list for channel " + channel->getName());
+    logger(INFO, "User list for channel " + channel->getName() + ": " + names);
+    
 	std::string nameReply = RPL_NAMREPLY(user->getNickName(), channel->getName(), names);
 	sendResponse(user, nameReply);
 
 	std::string endOfNames = RPL_ENDOFNAMES(user->getNickName(), channel->getName());
 	sendResponse(user, endOfNames);
+}
+
+static bool canUserJoinChannel(Channel* channel, User* user, const std::string& channelName) {
+	if (channel->isInviteOnly() && !user->isInvitedTo(channelName)) {
+		return false;
+	}
+	return true;
 }

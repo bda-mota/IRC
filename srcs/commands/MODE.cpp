@@ -19,7 +19,7 @@ std::string CommandsArgs::mode(const std::vector<std::string>& args, Server& ser
 
 	std::string channelName = args[0];
 
-  // checar se o parametro é um modo válido. Sinal + ou - seguido de um char
+  	// checar se o parametro é um modo válido. Sinal + ou - seguido de um char
 	if (args[1].size() != 2 || (args[1][0] != '+' && args[1][0] != '-')) {
 		sendErrorAndLog(user, ERR_UMODEUNKNOWNFLAG(user->getNickName()));
 		return "";
@@ -62,12 +62,12 @@ std::string CommandsArgs::mode(const std::vector<std::string>& args, Server& ser
 		switch (modeChar) {
 			case 'i':
 				inviteOnlyConfig(channel, modeSign);
-				channel->broadcast(":" + user->getNickName() + " MODE " + channel->getName() + " " + modeSign + "i\r\n", user);
+				channel->broadcastToAll(":" + user->getNickName() + " MODE " + channel->getName() + " " + modeSign + "i\r\n");
 				break;
 
 			case 't':
 				topicCmdConfig(channel, modeSign);
-				channel->broadcast(":" + user->getNickName() + " MODE " + channel->getName() + " " + modeSign + "t\r\n", user);
+				channel->broadcastToAll(":" + user->getNickName() + " MODE " + channel->getName() + " " + modeSign + "t\r\n");
 				break;
 
 			case 'l':
@@ -75,17 +75,17 @@ std::string CommandsArgs::mode(const std::vector<std::string>& args, Server& ser
 				if (error != "")
 					sendErrorAndLog(user, error);
 				else
-					channel->broadcast(":" + user->getNickName()+ " MODE " + channel->getName() + " " + modeSign + "l " + extraArg + "\r\n", user);
+					channel->broadcastToAll(":" + user->getNickName()+ " MODE " + channel->getName() + " " + modeSign + "l " + extraArg + "\r\n");
 				break;
 
 			case 'k':
 				channelKeyConfig(channel, modeSign, extraArg);
-				channel->broadcast(":" + user->getNickName() + " MODE " + channel->getName() + " " + modeSign + "k " + extraArg + "\r\n", user);
+				channel->broadcastToAll(":" + user->getNickName() + " MODE " + channel->getName() + " " + modeSign + "k ***" + "\r\n");
 				break;
 
 			case 'o':
 				channelOpConfig(channel, modeSign, extraArg);
-				channel->broadcast(":" + user->getNickName() + " MODE " + channel->getName() + " " + modeSign + "o " + extraArg + "\r\n", user);
+				channel->broadcastToAll(":" + user->getNickName() + " MODE " + channel->getName() + " " + modeSign + "o " + extraArg + "\r\n");
 				break;
 
 			default:

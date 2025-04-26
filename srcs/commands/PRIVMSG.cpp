@@ -15,7 +15,6 @@ std::string CommandsArgs::privmsg(const std::vector<std::string>& args, Server& 
 
 	if (target[0] == '#') {
 		privmsgToChannel(server, sender, target, message);
-		logger(INFO, sender->getNickName() + " sent a message to channel " + target + ": " + message);
 		return "";
 	}
 
@@ -61,10 +60,10 @@ static bool	privmsgToChannel(Server& server, User* sender, const std::string& ta
 		return false;
 	}
 
-  if (channel->isInviteOnly() && !channel->isUserInChannel(sender)) {
-    sendErrorAndLog(sender, ERR_CANNOTSENDTOCHAN(sender->getNickName(), target));
-    return false;
-}
+	if (channel->isInviteOnly() && !channel->isUserInChannel(sender)) {
+		sendErrorAndLog(sender, ERR_CANNOTSENDTOCHAN(sender->getNickName(), target));
+		return false;
+	}
 
 	std::string response = RPL_PRIVMSG(sender->getNickName(), target, message);
 	channel->broadcast(response, sender);
