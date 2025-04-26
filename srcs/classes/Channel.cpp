@@ -86,16 +86,17 @@ std::string Channel::addUser(User* user, const std::string& key) {
   return "";
 }
 
-void Channel::removeUser(int fd) {
-	for (std::vector<User*>::iterator it = _channelUsers.begin(); it != _channelUsers.end(); ) {
-		if ((*it)->getFd() == fd) {
-			it = _channelUsers.erase(it);
-			break;
-		} else {
-			++it;
-		}
-	}
+void Channel::removeUser(User* user) {
+    for (std::vector<User*>::iterator it = _channelUsers.begin(); it != _channelUsers.end(); ) {
+        if (*it == user) {
+            it = _channelUsers.erase(it);
+            break;
+        } else {
+            ++it;
+        }
+    }
 }
+
 
 void Channel::broadcast(const std::string& message, User* sender) {
 	if (!sender) return;

@@ -46,7 +46,7 @@ std::string CommandsArgs::kick(const std::vector<std::string>& args, Server& ser
 	if (!target)
 		return "";
 
-    if (!isUserInChannel(*user, *channel)) {
+    if (!isUserInChannel(*target, *channel)) {
         sendError(user, ERR_USERNOTINCHANNEL(user->getNickName(), targetNick, channelName));
 		return "";
 	}
@@ -60,7 +60,7 @@ std::string CommandsArgs::kick(const std::vector<std::string>& args, Server& ser
     }
 
     channel->broadcast(kickMsg, target);
-    channel->removeUser(target->getFd());
-
+    channel->removeUser(target);
+	target->removeChannel(channel);
     return "";
 }

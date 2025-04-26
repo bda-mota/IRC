@@ -45,7 +45,7 @@ static void handleQuitFromChannels(User* user, Server& server, const std::string
 		Channel* channel = joinedChannels[i];
 
 		channel->broadcast(quitMessage, user);
-		channel->removeUser(user->getFd());
+		channel->removeUser(user);
 
 		if (channel->getUsers().empty()) {
 			server.getChannels().erase(channel->getName());

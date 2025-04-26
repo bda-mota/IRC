@@ -6,51 +6,48 @@ static void	sendListOfUsers(Channel *channel, User* user);
 static bool canUserJoinChannel(Channel* channel, User* user, const std::string& channelName);
 
 std::string CommandsArgs::join(const std::vector<std::string>& args, Server& server, User* user) {
+
 	if (args.empty()) {
 		return "ERROR: No channel name provided!\r\n";
 	}
 
-	std::string channelName = args[0];
-	if (!isValidChannelName(channelName, user)) {
-		return "ERROR JOIN\r\n";
+	for (size_t i = 0; i < args.size(); ++i) {
+		std::cout << args[i] << std::endl;
+		std::string channelName = args[i];
+	
+		if (!isValidChannelName(channelName, user)) {
+			return "ERROR JOIN\r\n";
+		}
+
+		createChannelIfNotExists(channelName, server, user);
+		Channel* channel = server.getChannels()[channelName];
+
+		// Verifica se o usuário forneceu a senha correta
+		if (channel->hasKey()) {
+		// Verifica se o usuário forneceu a senha correta
+		if (args.size() < 2 || args[1] != channel->getChannelKey()) {
+			// Se a senha não for fornecida ou for incorreta, envia erro
+			return ERR_BADCHANNELKEY(user->getNickName(), channel->getName());
+			}
+		}
+
+		// verifica a permissão do canal como olny invite e se o user tem um convite
+		if (!canUserJoinChannel(channel, user, channelName)) {
+			return "ERROR JOIN\r\n";
+		}
+
+		if (channel->isFull()) {
+			return ERR_CHANNELISFULL(channelName);
+		}
+
+		addUserToChannel(channel, user);
+		user->removeInvitation(channelName);
+		sendListOfUsers(channel, user);
+
+		std::string notify = JOIN(user->getNickName(), channelName);
+		channel->broadcast(notify, user);
+
 	}
-
-	createChannelIfNotExists(channelName, server, user);
-
-	Channel* channel = server.getChannels()[channelName];
-
-	createChannelIfNotExists(channelName, server, user);
-
-	/* TODO: ---- APENAS TESTE SEM MODO MODE EXLCUIR APÓS TESTE ------- */
-	// Aqui setamos como invite-only manualmente APENAS no primeiro JOIN para usuário dar join sem convite em channel invite-only
-	// if (channel->getUsers().size() == 1) {
-	// 	channel->setInviteOnly(true);
-	// }
-
-  // Verifica se o usuário forneceu a senha correta
-  if (channel->hasKey()) {
-    // Verifica se o usuário forneceu a senha correta
-    if (args.size() < 2 || args[1] != channel->getChannelKey()) {
-        // Se a senha não for fornecida ou for incorreta, envia erro
-        return ERR_BADCHANNELKEY(user->getNickName(), channel->getName());
-    }
-  }
-
-	// verifica a permissão do canal como olny invite e se o user tem um convite
-	if (!canUserJoinChannel(channel, user, channelName)) {
-		return "ERROR JOIN\r\n";
-	}
-
-  if (channel->isFull()) {
-      return ERR_CHANNELISFULL(channelName);
-  }
-
-	addUserToChannel(channel, user);
-	user->removeInvitation(channelName); // remove a solicitação da lista de convites depois que o user entra no canal
-	sendListOfUsers(channel, user);
-
-	std::string notify = JOIN(user->getNickName(), channelName);
-	channel->broadcast(notify, user);
 
 	return "";
 }
@@ -67,6 +64,7 @@ static void	createChannelIfNotExists(const std::string& channelName, Server& ser
 static void	addUserToChannel(Channel* channel, User* user) {
 	if (channel->isUserInChannel(user))
     	return;
+
 	channel->addUser(user);
 	user->joinChannel(channel);
 
