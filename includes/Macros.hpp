@@ -56,7 +56,7 @@
 # define ERR_INVITEONLYCHAN(channel)                     (FTIRC + " 473 * " + channel + " :Channel is invite-only!" + CRLF)
 # define ERR_BADCHANNELKEY(user, channel)                (FTIRC + " 475 " + user + " " + channel + " :Password for channel was either not given or incorrect" + CRLF)
 # define ERR_CHANOPRISNEEDED(user, channel)              (FTIRC + " 482 " + user + " " + channel + " :You're not a channel operator!" + CRLF)
-# define ERR_UMODEUNKNOWNFLAG(nick)                      (FTIRC + " 501 " + nick + " :Unknown MODE flag" + CRLF)
+# define ERR_UMODEUNKNOWNFLAG(nick)                      (FTIRC + " 501 " + nick + " MODE :Unknown MODE flag" + CRLF)
 
 // Miscellaneous
 # define JOIN(user, channel)                                         (COLON + user + " JOIN " + channel + CRLF)
