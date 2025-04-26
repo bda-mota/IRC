@@ -10,7 +10,7 @@ std::string CommandsArgs::listc(const std::vector<std::string>& args, Server& se
 	const std::map<std::string, Channel*>& channels = server.getChannels();
 
   if (channels.empty()) {
-		sendError(user, RPL_LISTEND(user->getNickName()));
+		sendErrorAndLog(user, RPL_LISTEND(user->getNickName()));
 		return "";
 	}
 

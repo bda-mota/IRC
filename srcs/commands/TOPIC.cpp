@@ -29,7 +29,7 @@ std::string CommandsArgs::topic(const std::vector<std::string>& args, Server& se
 	}
 
 	if (!channel->isOperator(user) && channel->isTopicRestricted() == true) {
-		sendError(user, ERR_CHANOPRISNEEDED(user->getNickName(), channelName));
+		sendErrorAndLog(user, ERR_CHANOPRISNEEDED(user->getNickName(), channelName));
 		return "";
 	}
 
