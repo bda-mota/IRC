@@ -39,6 +39,7 @@ class CommandsArgs {
     static std::string mode(const std::vector<std::string>& args, Server& server, User* user);
     static std::string topic(const std::vector<std::string>& args, Server& server, User* user);
     static std::string invite(const std::vector<std::string>& args, Server& server, User* user);
+    static std::string cap(const std::vector<std::string>& args, Server& server, User* user);
 
     private:
 

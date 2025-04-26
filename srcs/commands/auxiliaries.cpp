@@ -96,3 +96,39 @@ void buildTrailingMessage(std::string& message, const std::vector<std::string>& 
 		oss << ' ' << args[i];
 	message = oss.str();
 }
+
+
+// Logger
+void logger(LogLevel level, const std::string& message) {
+    // Pega a hora atual
+    std::time_t now = std::time(NULL);
+    std::tm *ltm = std::localtime(&now);
+
+    // Escreve o timestamp
+    std::cout << "[" << std::setfill('0') << std::setw(2) << ltm->tm_hour
+              << ":" << std::setfill('0') << std::setw(2) << ltm->tm_min
+              << ":" << std::setfill('0') << std::setw(2) << ltm->tm_sec
+              << "] ";
+
+    // Escreve o tipo de log
+    switch (level) {
+        case INFO:
+            std::cout << "[INFO] ";
+            break;
+        case WARNING:
+            std::cout << "[WARNING] ";
+            break;
+        case ERROR:
+            std::cout << "[ERROR] ";
+            break;
+    }
+
+    // Escreve a mensagem
+    std::cout << message << std::endl;
+}
+
+// Error
+void sendErrorAndLog(User* user, const std::string& errorMessage) {
+    sendError(user, errorMessage);
+	logger(ERROR, "Error sent to user " + user->getNickName() + ": " + errorMessage);
+}

@@ -6,13 +6,13 @@ static void	sendListOfUsers(Channel *channel, User* user);
 
 std::string CommandsArgs::join(const std::vector<std::string>& args, Server& server, User* user) {
 	if (args.empty()) {
-		sendResponse(user, ERR_NEEDMOREPARAMS("JOIN", ""));
+		sendErrorAndLog(user, ERR_NEEDMOREPARAMS("JOIN", ""));
 		return "";
 	}
 
 	std::string channelName = args[0];
 	if (!isValidChannelName(channelName, user)) {
-		sendResponse(user, ERR_NOSUCHCHANNEL(channelName));
+		sendErrorAndLog(user, ERR_NOSUCHCHANNEL(channelName));
 		return "";
 	}
 
@@ -22,19 +22,19 @@ std::string CommandsArgs::join(const std::vector<std::string>& args, Server& ser
 
   // Verifica se canal tem senha e se ela foi fornecida corretamente
 	if (channel->hasKey() && (args.size() < 2 || args[1] != channel->getChannelKey())) {
-		sendResponse(user, ERR_BADCHANNELKEY(user->getNickName(), channelName));
+		sendErrorAndLog(user, ERR_BADCHANNELKEY(user->getNickName(), channelName));
 		return "";
 	}
 
 	// Verifica se é invite-only e se o user tem convite
 	if (channel->isInviteOnly() && !user->isInvitedTo(channelName)) {
-		sendResponse(user, ERR_INVITEONLYCHAN(channelName));
+		sendErrorAndLog(user, ERR_INVITEONLYCHAN(channelName));
 		return "";
 	}
 
   // Verifica se canal está cheio
 	if (channel->isFull()) {
-		sendResponse(user, ERR_CHANNELISFULL(channelName));
+		sendErrorAndLog(user, ERR_CHANNELISFULL(channelName));
 		return "";
 	}
 
@@ -65,6 +65,7 @@ static void	addUserToChannel(Channel* channel, User* user) {
 
 	std::string response = JOIN(user->getNickName(), channel->getName());
 	sendResponse(user, response);
+	logger(INFO, user->getNickName() + " joined channel " + channel->getName());
 }
 
 static void	sendListOfUsers(Channel *channel, User* user) {
@@ -75,6 +76,9 @@ static void	sendListOfUsers(Channel *channel, User* user) {
 	}
 	if (!names.empty())
 		names.erase(names.length() - 1);
+
+	logger(INFO, user->getNickName() + " requested user list for channel " + channel->getName());
+	logger(INFO, "User list for channel " + channel->getName() + ": " + names);
 
 	std::string nameReply = RPL_NAMREPLY(user->getNickName(), channel->getName(), names);
 	sendResponse(user, nameReply);

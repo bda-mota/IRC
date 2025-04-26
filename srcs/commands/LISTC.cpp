@@ -20,7 +20,11 @@ std::string CommandsArgs::listc(const std::vector<std::string>& args, Server& se
 		Channel* channel = it->second;
 		size_t numUsers = channel->getUsers().size();
 
-		response << RPL_LIST(user->getNickName(), channelName, std::to_string(numUsers), channel->getTopic());
+		std::ostringstream oss;
+		oss << numUsers;
+		std::string numUsersStr = oss.str();
+
+		response << RPL_LIST(user->getNickName(), channelName, numUsersStr, channel->getTopic());
 	}
 
 	response << RPL_LISTEND(user->getNickName());

@@ -19,6 +19,8 @@
 # include <signal.h>
 # include <stdexcept>
 # include <arpa/inet.h>
+# include <ctime>    // para std::time, std::time_t, std::localtime
+# include <iomanip>  // para std::setw, std::setfill
 
 // files includes 
 # include "./User.hpp"

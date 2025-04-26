@@ -8,12 +8,12 @@ std::string CommandsArgs::mode(const std::vector<std::string>& args, Server& ser
 	if (args.size() == 1) {
 		std::string error = showChannelModes(server, user, args[0]);
 		if (!error.empty())
-			sendError(user, error);
+			sendErrorAndLog(user, error);
 		return "";
 	}
 
 	if (args.size() < 2) {
-		sendError(user, ERR_NEEDMOREPARAMS(user->getNickName(), "MODE"));
+		sendErrorAndLog(user, ERR_NEEDMOREPARAMS(user->getNickName(), "MODE"));
 		return "";
 	}
 
@@ -21,40 +21,40 @@ std::string CommandsArgs::mode(const std::vector<std::string>& args, Server& ser
 
   // checar se o parametro é um modo válido. Sinal + ou - seguido de um char
 	if (args[1].size() != 2 || (args[1][0] != '+' && args[1][0] != '-')) {
-		sendError(user, ERR_UMODEUNKNOWNFLAG(user->getNickName()));
+		sendErrorAndLog(user, ERR_UMODEUNKNOWNFLAG(user->getNickName()));
 		return "";
 	}
 
-  std::string modeString = args[1];
+  	std::string modeString = args[1];
 	char modeSign = args[1][0];
 	char modeChar = args[1][1];
 
-  // Verifica se o modo é válido. Os modos válidos são: i, t, k, o e l
+  	// Verifica se o modo é válido. Os modos válidos são: i, t, k, o e l
 	std::string validModes = "itkol";
 	if (validModes.find(modeChar) == std::string::npos) {
-		sendError(user, ERR_UMODEUNKNOWNFLAG(user->getNickName()));
+		sendErrorAndLog(user, ERR_UMODEUNKNOWNFLAG(user->getNickName()));
 		return "";
 	}
 
 	std::string extraArg = validateExtraArgs(modeSign, modeChar, args);
-  if (extraArg.rfind(FTIRC, 0) == 0) {
-    sendError(user, extraArg);
-    return "";
-  }
+  	if (extraArg.rfind(FTIRC, 0) == 0) {
+		sendErrorAndLog(user, extraArg);
+		return "";
+	}
 
-  Channel* channel = findChannelInServer(server, user, channelName);
-  if (!channel) {
-      sendError(user, ERR_NOSUCHCHANNEL(channelName));
-      return "";
-  }
+	Channel* channel = findChannelInServer(server, user, channelName);
+	if (!channel) {
+		sendErrorAndLog(user, ERR_NOSUCHCHANNEL(channelName));
+		return "";
+	}
 
-  if (!channel->isUserInChannel(user)) {
-      sendError(user, ERR_NOTONCHANNEL(channelName));
-      return "";
-  }
+	if (!channel->isUserInChannel(user)) {
+		sendErrorAndLog(user, ERR_NOTONCHANNEL(channelName));
+		return "";
+	}
 
 	if (!channel->isOperator(user)) {
-		sendError(user, ERR_CHANOPRISNEEDED(user->getNickName(), channelName));
+		sendErrorAndLog(user, ERR_CHANOPRISNEEDED(user->getNickName(), channelName));
 		return "";
 	}
 
@@ -72,10 +72,10 @@ std::string CommandsArgs::mode(const std::vector<std::string>& args, Server& ser
 
 			case 'l':
 				error = userLimitConfig(channel, modeSign, extraArg);
-						if (error != "")
-				sendError(user, error);
+				if (error != "")
+					sendErrorAndLog(user, error);
 				else
-				channel->broadcast(":" + user->getNickName()+ " MODE " + channel->getName() + " " + modeSign + "l " + extraArg + "\r\n", user);
+					channel->broadcast(":" + user->getNickName()+ " MODE " + channel->getName() + " " + modeSign + "l " + extraArg + "\r\n", user);
 				break;
 
 			case 'k':
@@ -89,7 +89,7 @@ std::string CommandsArgs::mode(const std::vector<std::string>& args, Server& ser
 				break;
 
 			default:
-        sendError(user, ERR_UNKNOWNMODE(user->getNickName(), std::string(1, modeChar)));
+        		sendErrorAndLog(user, ERR_UNKNOWNMODE(user->getNickName(), std::string(1, modeChar)));
 				break;
 		}
 
@@ -97,40 +97,41 @@ std::string CommandsArgs::mode(const std::vector<std::string>& args, Server& ser
 }
 
 static std::string showChannelModes( Server& server, User* user, std::string channelName) {
-  Channel* channel = findChannelInServer(server, user, channelName);
-  if (!channel) {
-      sendError(user, ERR_NOSUCHCHANNEL(channelName));
-	  return "";
-  }
+	Channel* channel = findChannelInServer(server, user, channelName);
+	if (!channel) {
+		sendErrorAndLog(user, ERR_NOSUCHCHANNEL(channelName));
+		return "";
+	}
 
-  if (!channel->isUserInChannel(user)) {
-      sendError(user, ERR_NOTONCHANNEL(channelName));
-	  return "";
-  }
+	if (!channel->isUserInChannel(user)) {
+		sendErrorAndLog(user, ERR_NOTONCHANNEL(channelName));
+		return "";
+	}
 
-  std::string modes = channel->getName() + " " + channel->getTopic() + " " + channel->getChannelKey();
-  std::string modeParams = "";
-  if (channel->isInviteOnly()) {
-      modeParams += "i ";
-  }
-  if (channel->isTopicRestricted()) {
-      modeParams += "t ";
-  }
-  if (channel->getUserLimit() > 0) {
-      modeParams += "l ";
-  }
-  if (channel->hasKey()) {
-      modeParams += "k ";
-  }
-  if (channel->isOperator(user)) {
-      modeParams += "o ";
-  }
-  if (modeParams.empty()) {
-      modeParams = "No modes set";
-  }
-  std::string response = RPL_CHANNELMODEIS(user->getNickName(), channel->getName(), modeParams);
-  send(user->getFd(), response.c_str(), response.length(), 0);
-  return "";
+	std::string modes = channel->getName() + " " + channel->getTopic() + " " + channel->getChannelKey();
+	std::string modeParams = "";
+	if (channel->isInviteOnly()) {
+		modeParams += "i ";
+	}
+	if (channel->isTopicRestricted()) {
+		modeParams += "t ";
+	}
+	if (channel->getUserLimit() > 0) {
+		modeParams += "l ";
+	}
+	if (channel->hasKey()) {
+		modeParams += "k ";
+	}
+	if (channel->isOperator(user)) {
+		modeParams += "o ";
+	}
+	if (modeParams.empty()) {
+		modeParams = "No modes set";
+	}
+	std::string response = RPL_CHANNELMODEIS(user->getNickName(), channel->getName(), modeParams);
+	sendResponse(user, response);
+	logger(INFO, user->getNickName() + " requested channel modes for " + channel->getName());
+	return "";
 }
 
 static std::string validateExtraArgs(char sign, char mode, const std::vector<std::string>& args) {
@@ -150,6 +151,6 @@ static std::string validateExtraArgs(char sign, char mode, const std::vector<std
 
 	if (mode == 'o' && sign == '-') {
 		return args[2];
-  }
+	}
 	return "";
 }

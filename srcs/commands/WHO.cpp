@@ -51,12 +51,13 @@ static void sendAllChannelsWho(Server& server, User* user) {
 	}
 	std::string response = RPL_ENDOFWHO(user->getNickName());
 	sendResponse(user, response);
+	logger(INFO, user->getNickName() + " requested WHO for all channels.");
 }
 
 static void handleChannelWho(const std::string& channelName, Server& server, User* user) {
 	std::map<std::string, Channel*>& channels = server.getChannels();
 	if (channels.find(channelName) == channels.end()) {
-		sendError(user, ERR_NOSUCHCHANNEL(channelName));
+		sendErrorAndLog(user, ERR_NOSUCHCHANNEL(channelName));
 		return;
 	}
 
@@ -67,6 +68,7 @@ static void handleChannelWho(const std::string& channelName, Server& server, Use
 	}
 	std::string response = RPL_ENDOFWHO(channelName);
 	sendResponse(user, response);
+	logger(INFO, user->getNickName() + " requested WHO for channel " + channelName);
 }
 
 static void handleUserWho(const std::string& target, Server& server, User* user) {
@@ -77,4 +79,5 @@ static void handleUserWho(const std::string& target, Server& server, User* user)
 	}
 	std::string response = RPL_ENDOFWHO(target);
 	sendResponse(user, response);
+	logger(INFO, user->getNickName() + " requested WHO for user " + target);
 }

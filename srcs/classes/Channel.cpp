@@ -143,7 +143,6 @@ std::string Channel::setUserLimit(int newLimit) {
 }
 
 bool Channel::isFull() const {
-  std::cout << "User limit: " << _userLimit << std::endl;
   return _userLimit > 0 && _channelUsers.size() >= static_cast<size_t>(_userLimit);
 }
 

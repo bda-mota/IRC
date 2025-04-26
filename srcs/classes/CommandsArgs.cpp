@@ -32,6 +32,7 @@ void CommandsArgs::populateMap() {
     _messageFunctions["MODE"] = mode;
     _messageFunctions["TOPIC"] = topic;
     _messageFunctions["INVITE"] = invite;
+    _messageFunctions["CAP"] = cap;
 }
 
 std::string CommandsArgs::executeCommand(const std::string& command, const std::vector<std::string>& args, Server& server, User* user) {

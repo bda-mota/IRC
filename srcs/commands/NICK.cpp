@@ -7,14 +7,14 @@ std::string CommandsArgs::nick(const std::vector<std::string>& args, Server& ser
 	user->setHasNickCommand(true);
 
 	if (args.empty()) {
-		std::string error = ERR_NONICKNAMEGIVEN();
-		sendError(user, error);
-		return "ERROR NICK" + CRLF;
+		sendErrorAndLog(user, ERR_NONICKNAMEGIVEN());
+		return "";
 	}
 
 	std::string newNick = args[0];
 	if (isInvalidNick(newNick, server, user)) {
-		return "ERROR NICK" + CRLF;
+		sendErrorAndLog(user, ERR_ERRONEUSNICKNAME(newNick));
+		return "";
 	}
 
 	std::string oldNick = user->getNickName();
@@ -26,13 +26,13 @@ std::string CommandsArgs::nick(const std::vector<std::string>& args, Server& ser
 		sendWelcomeMessage(user);
 	}
 
-	return "NICK command executed!" + CRLF;
+	logger(INFO, user->getNickName() + " changed nickname to " + newNick);
+	return "";
 }
 
 static bool isInvalidNick(const std::string& newNick, Server& server, User* user) {
 	if (isNickInUse(newNick, server.getUsers())) {
-		std::string error = ERR_NICKNAMEINUSE(user->getNickName());
-		sendError(user, error);
+		sendErrorAndLog(user, ERR_NICKNAMEINUSE(user->getNickName()));
 		return true;
 	}
 	return false;
