@@ -1,97 +1,77 @@
 #include "../../includes/irc.hpp"
 
-static std::string showChannelModes( Server& server, User* user, std::string channelName);
+//MODE <canal> <+/-modes> [parâmetros...]MODE <canal> <+/-modes> [parâmetros...]
+
+static std::string showChannelModes(Server& server, User* user, std::string channelName);
 static std::string validateExtraArgs(char sign, char mode, const std::vector<std::string>& args);
+static void executeMode(Channel* channel, char modeChar, char modeSign, const std::string& extraArg, User* user);
 
 std::string CommandsArgs::mode(const std::vector<std::string>& args, Server& server, User* user) {
+    if (args.size() == 1) {
+        std::string error = showChannelModes(server, user, args[0]);
+        if (!error.empty())
+            sendErrorAndLog(user, error);
+        return "";
+    }
 
-	if (args.size() == 1) {
-		std::string error = showChannelModes(server, user, args[0]);
-		if (!error.empty())
-			sendErrorAndLog(user, error);
-		return "";
-	}
+    if (args.size() < 2) {
+        sendErrorAndLog(user, ERR_NEEDMOREPARAMS(user->getNickName(), "MODE"));
+        return "";
+    }
 
-	if (args.size() < 2) {
-		sendErrorAndLog(user, ERR_NEEDMOREPARAMS(user->getNickName(), "MODE"));
-		return "";
-	}
+    std::string channelName = args[0];
+    Channel* channel = findChannelInServer(server, user, channelName);
+    if (!channel) {
+        sendErrorAndLog(user, ERR_NOSUCHCHANNEL(channelName));
+        return "";
+    }
 
-	std::string channelName = args[0];
+    if (!channel->isUserInChannel(user)) {
+        sendErrorAndLog(user, ERR_NOTONCHANNEL(channelName));
+        return "";
+    }
 
-  	// checar se o parametro é um modo válido. Sinal + ou - seguido de um char
-	if (args[1].size() != 2 || (args[1][0] != '+' && args[1][0] != '-')) {
-		sendErrorAndLog(user, ERR_UMODEUNKNOWNFLAG(user->getNickName()));
-		return "";
-	}
+    if (!channel->isOperator(user)) {
+        sendErrorAndLog(user, ERR_CHANOPRISNEEDED(user->getNickName(), channelName));
+        return "";
+    }
 
-  	std::string modeString = args[1];
-	char modeSign = args[1][0];
-	char modeChar = args[1][1];
+    // Processar todos os modos na linha de comando
+    std::string modeCommands = args[1];
+    std::vector<std::string> modes;
+    size_t pos = 0;
+    while (pos < modeCommands.size()) {
+        // Se o próximo caractere for '+' ou '-', começamos um novo comando de modo
+        char sign = modeCommands[pos];
+        pos++;
+        std::string modeSet = "";
+        
+        // Coletar todos os modos contínuos (+ ou - seguidos de letras válidas)
+        while (pos < modeCommands.size() && (modeCommands[pos] == 'i' || modeCommands[pos] == 't' || modeCommands[pos] == 'k' || modeCommands[pos] == 'l' || modeCommands[pos] == 'o')) {
+            modeSet += modeCommands[pos];
+            pos++;
+        }
 
-  	// Verifica se o modo é válido. Os modos válidos são: i, t, k, o e l
-	std::string validModes = "itkol";
-	if (validModes.find(modeChar) == std::string::npos) {
-		sendErrorAndLog(user, ERR_UMODEUNKNOWNFLAG(user->getNickName()));
-		return "";
-	}
+        // Verifique se a string de modos não está vazia
+        if (!modeSet.empty()) {
+            modes.push_back(std::string(1, sign) + modeSet); // adiciona o sinal e o conjunto de modos
+        }
+    }
 
-	std::string extraArg = validateExtraArgs(modeSign, modeChar, args);
-  	if (extraArg.rfind(FTIRC, 0) == 0) {
-		sendErrorAndLog(user, extraArg);
-		return "";
-	}
-
-	Channel* channel = findChannelInServer(server, user, channelName);
-	if (!channel) {
-		sendErrorAndLog(user, ERR_NOSUCHCHANNEL(channelName));
-		return "";
-	}
-
-	if (!channel->isUserInChannel(user)) {
-		sendErrorAndLog(user, ERR_NOTONCHANNEL(channelName));
-		return "";
-	}
-
-	if (!channel->isOperator(user)) {
-		sendErrorAndLog(user, ERR_CHANOPRISNEEDED(user->getNickName(), channelName));
-		return "";
-	}
-
-    std::string error = "";
-		switch (modeChar) {
-			case 'i':
-				inviteOnlyConfig(channel, modeSign);
-				channel->broadcastToAll(":" + user->getNickName() + " MODE " + channel->getName() + " " + modeSign + "i\r\n");
-				break;
-
-			case 't':
-				topicCmdConfig(channel, modeSign);
-				channel->broadcastToAll(":" + user->getNickName() + " MODE " + channel->getName() + " " + modeSign + "t\r\n");
-				break;
-
-			case 'l':
-				error = userLimitConfig(channel, modeSign, extraArg);
-				if (error != "")
-					sendErrorAndLog(user, error);
-				else
-					channel->broadcastToAll(":" + user->getNickName()+ " MODE " + channel->getName() + " " + modeSign + "l " + extraArg + "\r\n");
-				break;
-
-			case 'k':
-				channelKeyConfig(channel, modeSign, extraArg);
-				channel->broadcastToAll(":" + user->getNickName() + " MODE " + channel->getName() + " " + modeSign + "k ***" + "\r\n");
-				break;
-
-			case 'o':
-				channelOpConfig(channel, modeSign, extraArg);
-				channel->broadcastToAll(":" + user->getNickName() + " MODE " + channel->getName() + " " + modeSign + "o " + extraArg + "\r\n");
-				break;
-
-			default:
-        		sendErrorAndLog(user, ERR_UNKNOWNMODE(user->getNickName(), std::string(1, modeChar)));
-				break;
-		}
+    // Agora, processar cada modo de maneira separada
+    for (std::vector<std::string>::iterator it = modes.begin(); it != modes.end(); ++it) {
+        std::string modeSet = *it;
+        char modeSign = modeSet[0]; // '+' ou '-'
+        for (size_t i = 1; i < modeSet.size(); ++i) {
+            char modeChar = modeSet[i];
+            std::string extraArg = validateExtraArgs(modeSign, modeChar, args);
+            if (extraArg.rfind(FTIRC, 0) == 0) {
+                sendErrorAndLog(user, extraArg);
+                return "";
+            }
+            executeMode(channel, modeChar, modeSign, extraArg, user);
+        }
+    }
 
     return "";
 }
@@ -135,22 +115,63 @@ static std::string showChannelModes( Server& server, User* user, std::string cha
 }
 
 static std::string validateExtraArgs(char sign, char mode, const std::vector<std::string>& args) {
-	if (args.size() <= 2) {
-		if ((mode == 'k' || mode == 'l' || mode == 'o') && sign == '+') {
-			return ERR_NEEDMOREPARAMS("MODE", "Missing argument for mode '+" + std::string(1, mode) + "'");
-		}
-		if (mode == 'o' && sign == '-') {
-			return ERR_NEEDMOREPARAMS("MODE", "Missing argument for mode '-" + std::string(1, mode) + "'");
-		}
-		return "";
-	}
+    if (args.size() <= 2) {
+        if ((mode == 'k' || mode == 'l' || mode == 'o') && sign == '+') {
+            return ERR_NEEDMOREPARAMS("MODE", "Missing argument for mode '+" + std::string(1, mode) + "'");
+        }
+        if (mode == 'o' && sign == '-') {
+            return ERR_NEEDMOREPARAMS("MODE", "Missing argument for mode '-" + std::string(1, mode) + "'");
+        }
+        return "";
+    }
 
-	if ((mode == 'k' || mode == 'l' || mode == 'o') && sign == '+') {
-		return args[2];
-	}
+    if ((mode == 'k' || mode == 'l' || mode == 'o') && sign == '+') {
+        if (args.size() > 2) {
+            return args[2];
+        } else {
+            return ERR_NEEDMOREPARAMS("MODE", "Missing argument for mode '+" + std::string(1, mode) + "'");
+        }
+    }
 
-	if (mode == 'o' && sign == '-') {
-		return args[2];
+    if (mode == 'o' && sign == '-') {
+        return args[2];
+    }
+    return "";
+}
+
+static void executeMode(Channel* channel, char modeChar, char modeSign, const std::string& extraArg, User* user) {
+	std::string error = "";
+	switch (modeChar) {
+		case 'i':
+			inviteOnlyConfig(channel, modeSign);
+			channel->broadcastToAll(":" + user->getNickName() + " MODE " + channel->getName() + " " + modeSign + "i\r\n");
+			break;
+
+		case 't':
+			topicCmdConfig(channel, modeSign);
+			channel->broadcastToAll(":" + user->getNickName() + " MODE " + channel->getName() + " " + modeSign + "t\r\n");
+			break;
+
+		case 'l':
+			error = userLimitConfig(channel, modeSign, extraArg);
+			if (error != "")
+				sendErrorAndLog(user, error);
+			else
+				channel->broadcastToAll(":" + user->getNickName()+ " MODE " + channel->getName() + " " + modeSign + "l " + extraArg + "\r\n");
+			break;
+
+		case 'k':
+			channelKeyConfig(channel, modeSign, extraArg);
+			channel->broadcastToAll(":" + user->getNickName() + " MODE " + channel->getName() + " " + modeSign + "k ***" + "\r\n");
+			break;
+
+		case 'o':
+			channelOpConfig(channel, modeSign, extraArg);
+			channel->broadcastToAll(":" + user->getNickName() + " MODE " + channel->getName() + " " + modeSign + "o " + extraArg + "\r\n");
+			break;
+
+		default:
+			sendErrorAndLog(user, ERR_UNKNOWNMODE(user->getNickName(), std::string(1, modeChar)));
+			break;
 	}
-	return "";
 }

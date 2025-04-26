@@ -124,7 +124,7 @@ void logger(LogLevel level, const std::string& message) {
     }
 
     // Escreve a mensagem
-    std::cout << message << std::endl;
+    std::cout << message;
 }
 
 // Error
