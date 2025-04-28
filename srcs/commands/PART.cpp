@@ -58,6 +58,6 @@ static void auxBuildReason(std::string& reason, const std::vector<std::string>& 
 }
 
 static void removeUserFromChannel(User* user, Channel* channel) {
-    channel->removeUser(user->getFd());
+    channel->removeUser(user);
     user->removeChannel(channel);
 }
