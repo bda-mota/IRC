@@ -31,7 +31,7 @@ class Channel {
 		// Users
 		bool	      isUserInChannel(User* user) const;
 		std::string	addUser(User* user, const std::string& key = "");
-		void	      removeUser(int fd);
+		void	      removeUser(User *user);
 		void	      broadcast(const std::string& message, User* sender);
 		void	      broadcastToAll(const std::string& message);
 
