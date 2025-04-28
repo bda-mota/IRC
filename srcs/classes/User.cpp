@@ -98,3 +98,7 @@ void User::addInvitation(const std::string& channel) {
 void User::removeInvitation(const std::string& channel) {
 	_invitedChannels.erase(channel);
 }
+
+void User::clearJoinedChannels() {
+	_joinedChannels.clear();
+}

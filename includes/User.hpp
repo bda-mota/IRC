@@ -63,6 +63,7 @@ class User {
 		bool	isInChannel(Channel* channel) const;
 		void	removeChannel(Channel* channel);
 		void	joinChannel(Channel* channel);
+		void	clearJoinedChannels();
 
 		// métodos para convite
 		bool isInvitedTo(const std::string& channel) const;

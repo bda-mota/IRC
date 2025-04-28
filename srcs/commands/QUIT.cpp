@@ -19,11 +19,11 @@ std::string CommandsArgs::quit(const std::vector<std::string>& args, Server& ser
 
 	std::string quitMsg = createQuitMessage(user, reason);
 	handleQuitFromChannels(user, server, quitMsg);
-
-	server.clearUsers(user->getFd());
-	close(user->getFd());
-
+	
 	logger(INFO, user->getNickName() + " disconnected from the server.");
+	close(user->getFd());
+	server.clearUsers(user->getFd());
+
 	return "";
 }
 
@@ -46,4 +46,6 @@ static void handleQuitFromChannels(User* user, Server& server, const std::string
 			delete channel;
 		}
 	}
+
+	user->clearJoinedChannels();
 }
