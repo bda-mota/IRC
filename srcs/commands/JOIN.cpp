@@ -12,46 +12,56 @@ std::string CommandsArgs::join(const std::vector<std::string>& args, Server& ser
 		return "";
 	}
 
-	for (size_t i = 0; i < args.size(); ++i) {
-		std::cout << args[i] << std::endl;
-		std::string channelName = args[i];
-	
+	std::vector<std::string> channelNames;
+	std::stringstream ss(args[0]);
+	std::string channelName;
+	while (std::getline(ss, channelName, ',')) {
+		if (!channelName.empty())
+			channelNames.push_back(channelName);
+	}
+
+	std::vector<std::string> keys;
+	if (args.size() > 1) {
+		std::stringstream ss_keys(args[1]);
+		std::string key;
+		while (std::getline(ss_keys, key, ',')) {
+			keys.push_back(key);
+		}
+	}
+
+	std::map<std::string, Channel*>& channels = server.getChannels();
+
+	for (size_t i = 0; i < channelNames.size(); ++i) {
+		const std::string& channelName = channelNames[i];
+
 		if (!isValidChannelName(channelName, user)) {
 			sendErrorAndLog(user, ERR_NOSUCHCHANNEL(channelName));
-		return "";
+			continue;
 		}
 
 		createChannelIfNotExists(channelName, server, user);
-		Channel* channel = server.getChannels()[channelName];
+		Channel* channel = channels[channelName];
 
-		// Verifica se o usuário forneceu a senha correta
 		if (channel->hasKey()) {
-		// Verifica se o usuário forneceu a senha correta
-		if (args.size() < 2 || args[1] != channel->getChannelKey()) {
-			// Se a senha não for fornecida ou for incorreta, envia erro
-			return ERR_BADCHANNELKEY(user->getNickName(), channel->getName());
+			if (i >= keys.size() || keys[i] != channel->getChannelKey()) {
+				sendErrorAndLog(user, ERR_BADCHANNELKEY(user->getNickName(), channelName));
+				continue;
 			}
 		}
 
-		// verifica a permissão do canal como olny invite e se o user tem um convite
 		if (!canUserJoinChannel(channel, user, channelName)) {
 			sendErrorAndLog(user, ERR_INVITEONLYCHAN(channelName));
-			return "";
+			continue;
 		}
 
-		// Verifica se canal está cheio
 		if (channel->isFull()) {
 			sendErrorAndLog(user, ERR_CHANNELISFULL(channelName));
-			return "";
+			continue;
 		}
 
 		addUserToChannel(channel, user);
 		user->removeInvitation(channelName);
 		sendListOfUsers(channel, user);
-
-		std::string notify = JOIN(user->getNickName(), channelName);
-		channel->broadcast(notify, user);
-
 	}
 
 	return "";

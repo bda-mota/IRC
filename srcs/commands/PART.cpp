@@ -4,60 +4,67 @@ static void auxBuildReason(std::string& reason, const std::vector<std::string>& 
 static void removeUserFromChannel(User* user, Channel* channel);
 
 std::string CommandsArgs::part(const std::vector<std::string>& args, Server& server, User* user) {
-
 	if (args.empty()) {
 		sendErrorAndLog(user, ERR_NEEDMOREPARAMS("PART", "Not enough parameters"));
 		return "";
 	}
 
-	std::string channelName = args[0];
 	std::string reason;
+	if (args.size() > 1)
+		auxBuildReason(reason, args, 1);
+	else
+		reason = "Leaving";
 
-    if (args.size() > 1)
-	    auxBuildReason(reason, args, 1);
-    else
-	    reason = "Leaving";
-
-    std::map<std::string, Channel*>& channels = server.getChannels();
-
-	if (channels.find(channelName) == channels.end()) {
-		sendErrorAndLog(user, ERR_NOSUCHCHANNEL(channelName));
-		return "";
+	std::vector<std::string> channelNames;
+	std::stringstream ss(args[0]);
+	std::string channelName;
+	while (std::getline(ss, channelName, ',')) {
+		if (!channelName.empty())
+			channelNames.push_back(channelName);
 	}
 
-	Channel* channel = channels[channelName];
+	std::map<std::string, Channel*>& channels = server.getChannels();
 
-    if (!channel->isUserInChannel(user)) {
-		sendErrorAndLog(user, ERR_USERNOTINCHANNEL(user->getNickName(), user->getNickName(), channelName));
-		return "";
+	for (size_t i = 0; i < channelNames.size(); ++i) {
+		const std::string& name = channelNames[i];
+
+		if (channels.find(name) == channels.end()) {
+			sendErrorAndLog(user, ERR_NOSUCHCHANNEL(name));
+			continue;
+		}
+
+		Channel* channel = channels[name];
+
+		if (!channel->isUserInChannel(user)) {
+			sendErrorAndLog(user, ERR_USERNOTINCHANNEL(user->getNickName(), user->getNickName(), name));
+			continue;
+		}
+
+		removeUserFromChannel(user, channel);
+
+		std::string partMsg = RPL_PARTMSG(user->getNickName(), user->getUserName(), name, reason);
+		channel->broadcast(partMsg, user);
+
+		if (channel->getUsers().empty()) {
+			delete channel;
+			channels.erase(name);
+		}
+
+		logger(INFO, user->getNickName() + " left channel " + name + " with reason: " + reason);
 	}
-
-	removeUserFromChannel(user, channel);
-
-	std::string partMsg = RPL_PARTMSG(user->getNickName(), user->getUserName(), channelName, reason);
-	channel->broadcast(partMsg, user);
-
-
-    if (channel->getUsers().empty()) { 
-	    delete channel;
-	    channels.erase(channelName); 
-    }
-
-	logger(INFO, user->getNickName() + " left channel " + channelName + " with reason: " + reason);
-
 	return "";
 }
 
 static void auxBuildReason(std::string& reason, const std::vector<std::string>& args, size_t start) {
+	reason.clear();
 	for (size_t i = start; i < args.size(); i++) {
-		if (i == start)
-			reason = args[i].substr(0);
-		else
-			reason += " " + args[i];
+		if (i != start)
+			reason += " ";
+		reason += args[i];
 	}
 }
 
 static void removeUserFromChannel(User* user, Channel* channel) {
-    channel->removeUser(user);
-    user->removeChannel(channel);
+	channel->removeUser(user);
+	user->removeChannel(channel);
 }
