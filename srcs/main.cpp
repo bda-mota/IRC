@@ -32,3 +32,21 @@ int main(int argc, char **argv) {
 		ser.closeFds();
 	}
 }
+
+/* 
+
+/INVITE <nick> <#canal> 
+/JOIN <#canal> [senha]
+/KICK <#canal> <nick> [motivo]
+/LIST
+/MODE <#canal> <+/-modo> [args]
+/NICK <novo_nick>
+/PART <#canal> [mensagem]
+/PASS <senha>
+/PRIVMSG <destino> :<mensagem>
+/QUIT [mensagem]
+/TOPIC <#canal> [:novo_tópico]
+/USER <username> 0 * :<realname>
+/WHO [#canal ou nick]
+
+*/
