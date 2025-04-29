@@ -1,7 +1,5 @@
 #include "../../includes/irc.hpp"
 
-//MODE <canal> <+/-modes> [parâmetros...]MODE <canal> <+/-modes> [parâmetros...]
-
 static std::string showChannelModes(Server& server, User* user, std::string channelName);
 static std::string validateExtraArgs(char sign, char mode, const std::vector<std::string>& args);
 static void executeMode(Channel* channel, char modeChar, char modeSign, const std::string& extraArg, User* user);
@@ -36,32 +34,27 @@ std::string CommandsArgs::mode(const std::vector<std::string>& args, Server& ser
         return "";
     }
 
-    // Processar todos os modos na linha de comando
     std::string modeCommands = args[1];
     std::vector<std::string> modes;
     size_t pos = 0;
     while (pos < modeCommands.size()) {
-        // Se o próximo caractere for '+' ou '-', começamos um novo comando de modo
         char sign = modeCommands[pos];
         pos++;
         std::string modeSet = "";
         
-        // Coletar todos os modos contínuos (+ ou - seguidos de letras válidas)
         while (pos < modeCommands.size() && (modeCommands[pos] == 'i' || modeCommands[pos] == 't' || modeCommands[pos] == 'k' || modeCommands[pos] == 'l' || modeCommands[pos] == 'o')) {
             modeSet += modeCommands[pos];
             pos++;
         }
 
-        // Verifique se a string de modos não está vazia
         if (!modeSet.empty()) {
-            modes.push_back(std::string(1, sign) + modeSet); // adiciona o sinal e o conjunto de modos
+            modes.push_back(std::string(1, sign) + modeSet);
         }
     }
 
-    // Agora, processar cada modo de maneira separada
     for (std::vector<std::string>::iterator it = modes.begin(); it != modes.end(); ++it) {
         std::string modeSet = *it;
-        char modeSign = modeSet[0]; // '+' ou '-'
+        char modeSign = modeSet[0]; // '+' or '-'
         for (size_t i = 1; i < modeSet.size(); ++i) {
             char modeChar = modeSet[i];
             std::string extraArg = validateExtraArgs(modeSign, modeChar, args);

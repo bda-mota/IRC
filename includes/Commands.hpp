@@ -30,10 +30,10 @@ void     logger(LogLevel level, const std::string& message);
 
 // AUXILIARIES MODE COMMAND
 
-void inviteOnlyConfig(Channel* channel, char sign);
-void topicCmdConfig(Channel* channel, char modeSign);
+void	inviteOnlyConfig(Channel* channel, char sign);
+void	topicCmdConfig(Channel* channel, char modeSign);
 std::string userLimitConfig(Channel* channel, char modeSign, const std::string& extraArg);
-void channelKeyConfig(Channel* channel, char modeSign, const std::string& extraArg);
-void channelOpConfig(Channel* channel, char modeSign, const std::string& extraArg);
+void	channelKeyConfig(Channel* channel, char modeSign, const std::string& extraArg);
+void	channelOpConfig(Channel* channel, char modeSign, const std::string& extraArg);
 
 #endif

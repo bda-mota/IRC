@@ -24,11 +24,29 @@ int main(int argc, char **argv) {
 	try{
 
 		CommandsArgs::populateMap();
-		signal(SIGINT, Server::signalHandler); // ctrl + c
-		signal(SIGQUIT, Server::signalHandler); // (ctrl + \)
-		ser.serverInit(port, password); //-> initialize the server
+		signal(SIGINT, Server::signalHandler);
+		signal(SIGQUIT, Server::signalHandler);
+		ser.serverInit(port, password);
 	}
 	catch(const std::exception& e){
-		ser.closeFds(); //-> close the file descriptors
+		ser.closeFds();
 	}
 }
+
+/* 
+
+/INVITE <nick> <#canal> 
+/JOIN <#canal> [senha]
+/KICK <#canal> <nick> [motivo]
+/LIST
+/MODE <#canal> <+/-modo> [args]
+/NICK <novo_nick>
+/PART <#canal> [mensagem]
+/PASS <senha>
+/PRIVMSG <destino> :<mensagem>
+/QUIT [mensagem]
+/TOPIC <#canal> [:novo_tópico]
+/USER <username> 0 * :<realname>
+/WHO [#canal ou nick]
+
+*/

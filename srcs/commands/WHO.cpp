@@ -27,7 +27,7 @@ static void sendWhoReply(User* requester, const std::string& channel, User* targ
 		channel,
 		target->getUserName(),
 		target->getNickName(),
-		"H", // Pode ser "G" se for away
+		"H",
 		target->getRealName()
 	);
 	sendResponse(requester, response);

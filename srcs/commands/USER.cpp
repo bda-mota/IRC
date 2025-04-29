@@ -3,7 +3,7 @@
 static std::string getClientHostname(int fd);
 
 std::string CommandsArgs::user(const std::vector<std::string>& args, Server& server, User* user) {
-	(void)server; // Unused parameter
+	(void)server;
 
 	std::string hostname = getClientHostname(user->getFd());
 	if (!hostname.empty())

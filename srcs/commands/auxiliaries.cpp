@@ -1,6 +1,6 @@
 #include "../../includes/irc.hpp"
 
-// CHANNEL
+// Channel 
 
 bool	isValidChannelName(const std::string& channelName, User* user) {
 	if (channelName.empty() || channelName[0] != '#') {
@@ -46,7 +46,7 @@ Channel* findChannelInServer(Server& server, User* sender, const std::string& ch
     return NULL;
 }
 
-// USER
+// User
 
 bool	isNickInUse(const std::string& nick, const std::vector<User*>& users) {
 	for (std::vector<User*>::const_iterator it = users.begin(); it != users.end(); ++it) {
@@ -70,7 +70,7 @@ User* findUserInServer(Server& server, User* sender, const std::string& targetNi
     return NULL;
 }
 
-// SEND
+// Send
 
 void	sendWelcomeMessage(User* user) {
 	if (!user->getRegistered() && user->getHasNickCommand()
@@ -100,17 +100,14 @@ void buildTrailingMessage(std::string& message, const std::vector<std::string>& 
 
 // Logger
 void logger(LogLevel level, const std::string& message) {
-    // Pega a hora atual
     std::time_t now = std::time(NULL);
     std::tm *ltm = std::localtime(&now);
 
-    // Escreve o timestamp
     std::cout << "[" << std::setfill('0') << std::setw(2) << ltm->tm_hour
               << ":" << std::setfill('0') << std::setw(2) << ltm->tm_min
               << ":" << std::setfill('0') << std::setw(2) << ltm->tm_sec
               << "] ";
 
-    // Escreve o tipo de log
     switch (level) {
         case INFO:
             std::cout << "[INFO] ";
@@ -123,7 +120,6 @@ void logger(LogLevel level, const std::string& message) {
             break;
     }
 
-    // Escreve a mensagem
     std::cout << message;
 }
 

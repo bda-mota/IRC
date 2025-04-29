@@ -61,11 +61,11 @@ void Server::clearChannels() {
 }
 
 void Server::serverSocket() {
-	struct sockaddr_in serverAddr; // armazenar informações do endereço ipv4
-	struct pollfd newPoll; // estrutura que armazenará o file descriptor do server
-	serverAddr.sin_family = AF_INET; //ipv4
-	serverAddr.sin_addr.s_addr = INADDR_ANY; // define endereço IP para aceitar qualquer endereço disponível
-	serverAddr.sin_port = htons(this->_port); // define a porta do servidor e converte a porta para ser aceita em qualquer sistema
+	struct sockaddr_in serverAddr;
+	struct pollfd newPoll; 
+	serverAddr.sin_family = AF_INET;
+	serverAddr.sin_addr.s_addr = INADDR_ANY;
+	serverAddr.sin_port = htons(this->_port);
 
 	_serverFd = socket(AF_INET, SOCK_STREAM, 0);
 	if (_serverFd == -1) {
@@ -73,11 +73,11 @@ void Server::serverSocket() {
 	}
 
 	int en = 1;
-	if (setsockopt(_serverFd, SOL_SOCKET, SO_REUSEADDR, &en, sizeof(int)) == -1) { // definindo opções para o socket | essas opções estão permitindo que o socket reutilize o endereço local
+	if (setsockopt(_serverFd, SOL_SOCKET, SO_REUSEADDR, &en, sizeof(int)) == -1) { 
 		throw std::runtime_error("Error: fail to set option SO_REUSEADDR on socket.");
 	}
 	if (fcntl(_serverFd, F_SETFL, O_NONBLOCK) == -1) {
-		throw std::runtime_error("Error: fail to set option O_NONBLOCK on socket."); // alterar flag do fd e deixar ele não bloqueante, ele n vai esperar a resposta do cliente
+		throw std::runtime_error("Error: fail to set option O_NONBLOCK on socket.");
 	}
 	if (bind(_serverFd, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) == -1) {
 		throw std::runtime_error("Error: fail to bind socket.");
@@ -162,7 +162,6 @@ void Server::parseReceiveNewData(std::string rawMessage, int fd, User *user) {
 	std::string line;
 
 	while (std::getline(stream, line)) {
-		// remove extra return
 		if (!line.empty() && line[line.length() - 1] == '\r') {
 			line = line.substr(0, line.length() - 1);
 		}
@@ -170,10 +169,8 @@ void Server::parseReceiveNewData(std::string rawMessage, int fd, User *user) {
 		if (line.empty())
 			continue;
 
-		// process command
 		std::string response = this->_commandParser->processCommand(line, *this, user);
 
-		// send response to user
 		if (!response.empty()) {
 			send(fd, response.c_str(), response.length(), 0);
 		}
