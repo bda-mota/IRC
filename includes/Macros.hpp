@@ -12,17 +12,14 @@
 # define MAGENT	"\033[35;1m"
 # define RESET	"\033[0m"
 
-# define END "\r\n"; // mudar para  crlf
 # define FTIRC std::string(":ft.irc")
 # define CRLF std::string("\r\n")
 # define COMMA std::string(",")
 # define COLON std::string(":")
 # define SPACE std::string(" ")
 
-// 0s
 #define RPL_WELCOME(nick, user) (FTIRC + " 001 " + user + " :Welcome to the Internet Relay Chat " + nick + "!" + user + "@*" + CRLF)
 
-// 300s
 # define RPL_QUIT(nick, user, host, reason)                  (FTIRC + " 001 " + nick + "!" + user + "@" + host + " QUIT :" + reason + CRLF)
 # define RPL_ENDOFWHO(channel)                               (FTIRC + " 315 " + channel + " :End of /WHO list." + CRLF)
 # define RPL_LISTSTART(nick)                                 (FTIRC + " 321 " + nick + " Channel    |   Users   |   Topic" + CRLF)
@@ -36,7 +33,6 @@
 # define RPL_NAMREPLY(nick, channel, names)                  (FTIRC + " 353 " + nick + " = " + channel + " : " + names + CRLF)
 # define RPL_ENDOFNAMES(nick, channel)                       (FTIRC + " 366 " + nick + " " + channel + " : End of names list" + CRLF)
 
-// 400s
 # define ERR_NOSUCHCHANNEL(channel)                      (FTIRC + " 403 * " + channel + " :Invalid channel name!" + CRLF)
 # define ERR_CANNOTSENDTOCHAN(nick, chan)				         (FTIRC + " 404 " + nick + " " + chan + " :Cannot send to channel" + CRLF)
 # define ERR_NOSUCHNICK(recipient)                       (FTIRC + " 406 " + recipient + " :No such nick" + CRLF)
@@ -58,7 +54,6 @@
 # define ERR_CHANOPRISNEEDED(user, channel)              (FTIRC + " 482 " + user + " " + channel + " :You're not a channel operator!" + CRLF)
 # define ERR_UMODEUNKNOWNFLAG(nick)                      (FTIRC + " 501 " + nick + " MODE :Unknown MODE flag" + CRLF)
 
-// Miscellaneous
 # define JOIN(user, channel)                                         (COLON + user + " JOIN " + channel + CRLF)
 # define PRIVMSG_BROADCAST(nick, user, channel, topic)               (COLON + nick + "!~" + user + "@ft.irc TOPIC " + channel + SPACE + topic + CRLF)
 # define RPL_PRIVMSG(user, dest, message)                            (COLON + user + " PRIVMSG " + dest + " :" + message + CRLF)

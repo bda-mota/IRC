@@ -125,7 +125,7 @@ bool Channel::isOperator(User* user) const {
 void Channel::addOperator(User* user) {
   std::cout << "Adding operator: " << user->getNickName() << std::endl;
 	if (user) {
-		_operators.insert(user); // como o set nao permite duplicatas só isso já é o suficinete
+		_operators.insert(user);
 	}
 }
 

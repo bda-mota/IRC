@@ -7,4 +7,4 @@ namespace Utils {
 	int  validateInputs(const std::string& portStr, const std::string& password);
 }
 
-#endif // UTILS_HPP
+#endif

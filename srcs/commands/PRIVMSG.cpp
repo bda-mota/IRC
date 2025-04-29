@@ -47,6 +47,19 @@ static bool checkArgs(const std::vector<std::string>& args, User* sender) {
 	return true;
 }
 
+std::string	buildMessageToSend(const std::vector<std::string>& args) {
+	std::string message;
+	for (size_t i = 1; i < args.size(); ++i) {
+		message += args[i];
+		if (i != args.size() - 1)
+			message += " ";
+	}
+	if (!message.empty() && message[0] == ':')
+		message = message.substr(1);
+
+	return message;
+}
+
 static bool	privmsgToChannel(Server& server, User* sender, const std::string& target, const std::string& message) {
 	std::map<std::string, Channel*>& channels = server.getChannels();
 	if (channels.find(target) == channels.end()) {
@@ -69,19 +82,6 @@ static bool	privmsgToChannel(Server& server, User* sender, const std::string& ta
 	channel->broadcast(response, sender);
 	logger(INFO, sender->getNickName() + " sent a message to channel " + target + ": " + message);
 	return true;
-}
-
-std::string	buildMessageToSend(const std::vector<std::string>& args) {
-	std::string message;
-	for (size_t i = 1; i < args.size(); ++i) {
-		message += args[i];
-		if (i != args.size() - 1)
-			message += " ";
-	}
-	if (!message.empty() && message[0] == ':')
-		message = message.substr(1);
-
-	return message;
 }
 
 static bool sendToUser(Server& server, User* sender, const std::string& target, const std::string& message) {

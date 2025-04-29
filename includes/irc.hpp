@@ -7,19 +7,19 @@
 # include <vector>
 # include <map>
 # include <set>
-# include <sstream> // Para std::istringstream
-# include <algorithm> // Para std::transform
+# include <sstream>
+# include <algorithm>
 # include <cstring>
 # include <unistd.h>
-# include <sys/socket.h>  // Para funções socket(), bind(), listen(), accept()
-# include <netinet/in.h>  // Para struct sockaddr_in e constantes como INADDR_ANY
+# include <sys/socket.h> 
+# include <netinet/in.h>
 # include <poll.h>  
 # include <fcntl.h>
 # include <signal.h>
 # include <stdexcept>
 # include <arpa/inet.h>
-# include <ctime>    // para std::time, std::time_t, std::localtime
-# include <iomanip>  // para std::setw, std::setfill
+# include <ctime>
+# include <iomanip>
 
 // files includes 
 # include "./User.hpp"

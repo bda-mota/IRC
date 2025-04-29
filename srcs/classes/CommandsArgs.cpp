@@ -17,7 +17,6 @@ CommandsArgs& CommandsArgs::operator=(const CommandsArgs& other) {
 
 CommandsArgs::~CommandsArgs() {}
 
-/* Método para popular estrutura de comandos */
 void CommandsArgs::populateMap() {
     _messageFunctions["USER"] = user;
     _messageFunctions["NICK"] = nick;

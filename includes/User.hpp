@@ -65,10 +65,10 @@ class User {
 		void	joinChannel(Channel* channel);
 		void	clearJoinedChannels();
 
-		// métodos para convite
-		bool isInvitedTo(const std::string& channel) const;
-		void addInvitation(const std::string& channel);
-		void removeInvitation(const std::string& channel);
+		// methods for managing invitations
+		bool	isInvitedTo(const std::string& channel) const;
+		void	addInvitation(const std::string& channel);
+		void	removeInvitation(const std::string& channel);
 };
 
 #endif

@@ -13,19 +13,15 @@ class CommandsArgs {
 
     typedef std::string (*funcPtr)(const std::vector<std::string>&, Server&, User*);
 
-    /* Constructors and Destructor */
     CommandsArgs();
     CommandsArgs(const CommandsArgs& other);
     CommandsArgs& operator=(const CommandsArgs& other);
     ~CommandsArgs();
 
-    /* Método para popular estrutura de comandos */
     static void populateMap();
 
-    /* Método para executar o comando */
     static std::string executeCommand(const std::string& command, const std::vector<std::string>& args, Server& server, User* user);
 
-    // Métodos para execução de comandos
     static std::string user(const std::vector<std::string>& args, Server& server, User* user);
     static std::string nick(const std::vector<std::string>& args, Server& server, User* user);
     static std::string pass(const std::vector<std::string>& args, Server& server, User* user);

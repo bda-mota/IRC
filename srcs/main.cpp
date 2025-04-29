@@ -24,11 +24,11 @@ int main(int argc, char **argv) {
 	try{
 
 		CommandsArgs::populateMap();
-		signal(SIGINT, Server::signalHandler); // ctrl + c
-		signal(SIGQUIT, Server::signalHandler); // (ctrl + \)
-		ser.serverInit(port, password); //-> initialize the server
+		signal(SIGINT, Server::signalHandler);
+		signal(SIGQUIT, Server::signalHandler);
+		ser.serverInit(port, password);
 	}
 	catch(const std::exception& e){
-		ser.closeFds(); //-> close the file descriptors
+		ser.closeFds();
 	}
 }
