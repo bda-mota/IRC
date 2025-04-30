@@ -138,9 +138,6 @@ void Server::acceptNewUser() {
 	User *newUser = new User();
 	newUser->setFd(incomingFd);
 	newUser->setIP(inet_ntoa(userAddr.sin_addr));
-	newUser->setUserName("default");
-	newUser->setNickName("default");
-	newUser->setRealName("default");
 	newUser->setRegistered(false);
 	newUser->setHasNickCommand(false);
 	newUser->setHasUserCommand(false);

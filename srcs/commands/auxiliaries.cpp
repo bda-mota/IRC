@@ -73,8 +73,10 @@ User* findUserInServer(Server& server, User* sender, const std::string& targetNi
 // Send
 
 void	sendWelcomeMessage(User* user) {
-	if (!user->getRegistered() && user->getHasNickCommand()
-		&& user->getHasUserCommand() && user->getHasPassCommand()) { 
+	if (!user->getRegistered() &&
+		user->getHasNickCommand() && 
+		user->getHasUserCommand() && 
+		user->getHasPassCommand()) { 
 		std::string welcome = RPL_WELCOME(user->getNickName(), user->getUserName());
 		send(user->getFd(), welcome.c_str(), welcome.length(), 0);
 		user->setRegistered(true);
@@ -110,21 +112,21 @@ void logger(LogLevel level, const std::string& message) {
 
     switch (level) {
         case INFO:
-            std::cout << "[INFO] ";
+            std::cout << BLUE << "[INFO] " << RESET;
             break;
         case WARNING:
-            std::cout << "[WARNING] ";
+            std::cout << YELLOW << "[WARNING] " << RESET;
             break;
         case ERROR:
-            std::cout << "[ERROR] ";
+            std::cout << RED << "[ERROR] " << RESET;
             break;
     }
 
-    std::cout << message;
+    std::cout << message << std::endl;
 }
 
 // Error
 void sendErrorAndLog(User* user, const std::string& errorMessage) {
     sendError(user, errorMessage);
-	logger(ERROR, "Error sent to user " + user->getNickName() + ": " + errorMessage);
+	logger(ERROR, "Error sent to user " + user->getNickName() + ": " + errorMessage + "\n");
 }
