@@ -3,25 +3,28 @@
 static bool isInvalidNick(const std::string& newNick, Server& server, User* user);
 static void notifyNickChange(const std::string& oldNick, const std::string& newNick, User* user);
 
-std::string CommandsArgs::nick(const std::vector<std::string>& args, Server& server, User* user) {
-	user->setHasNickCommand(true);
-
+std::string CommandsArgs::nick(const std::vector<std::string>& args, Server& server, User* user) {	
 	if (args.empty()) {
 		sendErrorAndLog(user, ERR_NONICKNAMEGIVEN());
 		return "";
 	}
-
+	
 	std::string newNick = args[0];
 	if (isInvalidNick(newNick, server, user)) {
 		sendErrorAndLog(user, ERR_ERRONEUSNICKNAME(newNick));
 		return "";
 	}
-
+	
 	std::string oldNick = user->getNickName();
 	user->setNickName(newNick);
+	
+	if (!user->getNickName().empty()) {
+		user->setHasNickCommand(true);
+		logger(INFO, user->getNickName() + " set their nickname.");
+	}
 
 	notifyNickChange(oldNick, newNick, user);
-
+	
 	if (!user->getRegistered()) {
 		sendWelcomeMessage(user);
 	}

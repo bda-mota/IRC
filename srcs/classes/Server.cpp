@@ -138,9 +138,6 @@ void Server::acceptNewUser() {
 	User *newUser = new User();
 	newUser->setFd(incomingFd);
 	newUser->setIP(inet_ntoa(userAddr.sin_addr));
-	newUser->setUserName("default");
-	newUser->setNickName("default");
-	newUser->setRealName("default");
 	newUser->setRegistered(false);
 	newUser->setHasNickCommand(false);
 	newUser->setHasUserCommand(false);
@@ -201,8 +198,8 @@ void Server::receiveNewData(int fd) {
 	if (!user)
 		return;
 
-  std::string rawMessage(buff, bytes);
-  parseReceiveNewData(rawMessage, fd, user);
+	std::string rawMessage(buff, bytes);
+	parseReceiveNewData(rawMessage, fd, user);
 }
 
 void	Server::broadcast(const std::string& message, User* sender) {

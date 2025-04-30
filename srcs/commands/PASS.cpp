@@ -20,7 +20,6 @@ std::string CommandsArgs::pass(const std::vector<std::string>& args, Server& ser
 	}
 
 	user->setAuth(true);
-	sendResponse(user, RPL_WELCOME(user->getNickName(), user->getUserName()));
 	logger(INFO, user->getNickName() + " authenticated successfully with PASS.");
 
 	if (!user->getRegistered()) {
