@@ -1,15 +1,15 @@
 #include "../../includes/irc.hpp"
 
 std::string CommandsArgs::kick(const std::vector<std::string>& args, Server& server, User* user) {
-
-	if (args.size() < 4 || args[3][0] != ':') {
-		sendErrorAndLog(user, ERR_NEEDMOREPARAMS(user->getNickName(), "KICK"));
+	
+	if (args.size() < 3) {
+		sendErrorAndLog(user, ERR_NEEDMOREPARAMS("KICK", "Not enough parameters"));
 		return "";
 	}
 
 	std::string channelName = args[1];
 	if (channelName[0] != '#') {
-		sendErrorAndLog(user, ERR_NEEDMOREPARAMS(user->getNickName(), "KICK"));
+		sendErrorAndLog(user, ERR_NEEDMOREPARAMS(user->getNickName(), "KICK")); // TODO: Change to ERR_NOSUCHCHANNEL
 		return "";
 	}
 
@@ -17,16 +17,7 @@ std::string CommandsArgs::kick(const std::vector<std::string>& args, Server& ser
 	if (targetNick[0] == ':')
 		targetNick = targetNick.substr(1);
 
-	std::string reason;
-	if (args.size() >= 4) {
-		if (args[3][0] == ':') {
-			buildTrailingMessage(reason, args, 3);
-		} else {
-			reason = args[3];
-			for (size_t i = 4; i < args.size(); ++i)
-				reason += ' ' + args[i];
-		}
-	}
+	std::string reason = "Kicked for being a bad influence.";
 
     Channel* channel = findChannelInServer(server, user, channelName);
     if (!channel)
@@ -43,10 +34,8 @@ std::string CommandsArgs::kick(const std::vector<std::string>& args, Server& ser
 	}
 
     User* target = findUserInServer(server, user, targetNick);
-	if (!target) {
-		sendErrorAndLog(user, ERR_NOSUCHNICK(targetNick));
+	if (!target)
 		return "";
-	}
 
     if (!isUserInChannel(*target, *channel)) {
         sendErrorAndLog(user, ERR_USERNOTINCHANNEL(user->getNickName(), targetNick, channelName));
@@ -60,6 +49,8 @@ std::string CommandsArgs::kick(const std::vector<std::string>& args, Server& ser
     } else {
         kickMsg = RPL_KICKREASON(user->getNickName(), user->getUserName(), channelName, target->getNickName(), reason);
     }
+
+	// TODO:entender o porquê de não conseguir entrar em um canal
 
     channel->broadcast(kickMsg, target);
     channel->removeUser(target);
