@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
 
 /INVITE <nick> <#canal> 
 /JOIN <#canal> [senha]
-/KICK <#canal> <nick> [motivo]
+/KICK <#canal> <nick>
 /LIST
 /MODE <#canal> <+/-modo> [args]
 /NICK <novo_nick>
