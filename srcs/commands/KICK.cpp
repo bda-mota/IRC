@@ -1,17 +1,16 @@
 #include "../../includes/irc.hpp"
 
 std::string CommandsArgs::kick(const std::vector<std::string>& args, Server& server, User* user) {
-	
-	if (args.size() < 3) {
+	if (args.size() < 2) {
 		sendErrorAndLog(user, ERR_NEEDMOREPARAMS("KICK", "Not enough parameters"));
 		return "";
 	}
 
-	std::string channelName = args[1];
+	std::string channelName = args[0];
 	if (!isValidChannelName(channelName, user))
 		return "";
 
-	std::string targetNick = args[2];
+	std::string targetNick = args[1];
 	if (targetNick[0] == ':')
 		targetNick = targetNick.substr(1);
 

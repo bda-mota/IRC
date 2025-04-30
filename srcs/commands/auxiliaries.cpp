@@ -1,9 +1,9 @@
 #include "../../includes/irc.hpp"
 
-// Channel 
+// Channel
 
 bool	isValidChannelName(const std::string& channelName, User* user) {
-	if (channelName.empty() || channelName[0] != '#') {
+  if (channelName.empty() || channelName[0] != '#') {
 		std::string error = ERR_NOSUCHCHANNEL(channelName);
 		sendErrorAndLog(user, error);
 		return false;
@@ -59,7 +59,7 @@ bool	isNickInUse(const std::string& nick, const std::vector<User*>& users) {
 
 User* findUserInServer(Server& server, User* sender, const std::string& targetNick) {
     std::vector<User*>& users = server.getUsers();
-    
+
     for (size_t i = 0; i < users.size(); ++i) {
         if (users[i]->getNickName() == targetNick) {
             return users[i];
@@ -74,9 +74,9 @@ User* findUserInServer(Server& server, User* sender, const std::string& targetNi
 
 void	sendWelcomeMessage(User* user) {
 	if (!user->getRegistered() &&
-		user->getHasNickCommand() && 
-		user->getHasUserCommand() && 
-		user->getHasPassCommand()) { 
+		user->getHasNickCommand() &&
+		user->getHasUserCommand() &&
+		user->getHasPassCommand()) {
 		std::string welcome = RPL_WELCOME(user->getNickName(), user->getUserName());
 		send(user->getFd(), welcome.c_str(), welcome.length(), 0);
 		user->setRegistered(true);
@@ -127,6 +127,7 @@ void logger(LogLevel level, const std::string& message) {
 
 // Error
 void sendErrorAndLog(User* user, const std::string& errorMessage) {
-    sendError(user, errorMessage);
-	logger(ERROR, "Error sent to user " + user->getNickName() + ": " + errorMessage + "\n");
+  sendError(user, errorMessage);
+  std::string serverErrorMessage = errorMessage.substr(0, errorMessage.length() - 2);
+	logger(ERROR, "Error sent to user " + user->getNickName() + ": " + serverErrorMessage);
 }

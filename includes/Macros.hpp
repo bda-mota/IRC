@@ -38,6 +38,7 @@
 # define ERR_NOSUCHNICK(recipient)                       (FTIRC + " 406 " + recipient + " :No such nick" + CRLF)
 # define ERR_NORECIPIENT(user)                           (FTIRC + " 411 " + user + " :No recipient to message" + CRLF)
 # define ERR_NOTEXTTOSEND(user)                          (FTIRC + " 412 " + user + " :No message to send" + CRLF)
+# define ERR_UNKNOWNCOMMAND(nick, command)               (FTIRC + " 421 " + nick + " " + command + " :Unknown command" + CRLF)
 # define ERR_NONICKNAMEGIVEN()                           (FTIRC + " 431 :No nickname given" + CRLF)
 # define ERR_ERRONEUSNICKNAME(nick)                      (FTIRC + " 432 * " + nick + " :Nickname is invalid" + CRLF)
 # define ERR_NICKNAMEINUSE(nick)                         (FTIRC + " 433 * " + nick + " :Nickname is already in use" + CRLF)
