@@ -40,20 +40,12 @@ std::string CommandsArgs::kick(const std::vector<std::string>& args, Server& ser
 		return "";
 	}
 
-    std::string kickMsg;
-
-    if (reason.empty()) {
-        kickMsg = RPL_KICKNOREASON(user->getNickName(), user->getUserName(), channelName, target->getNickName());
-    } else {
-        kickMsg = RPL_KICKREASON(user->getNickName(), user->getUserName(), channelName, target->getNickName(), reason);
-    }
-
-	// TODO:entender o porquê de não conseguir entrar em um canal novamente após sair
+	std::string kickMsg =  RPL_KICKREASON(user->getNickName(), user->getUserName(), channelName, target->getNickName(), reason);
 
     channel->broadcast(kickMsg, target);
     channel->removeUser(target);
 	target->removeChannel(channel);
 	logger(INFO, user->getNickName() + " kicked " + target->getNickName() + " from " + channelName + " for reason: " + reason);
-    
+
 	return "";
 }
