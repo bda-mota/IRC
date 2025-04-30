@@ -25,7 +25,6 @@ std::string Command::processCommand(std::string &input, Server& server, User* us
     std::string command;
 
     iss >> command;
-    std::transform(command.begin(), command.end(), command.begin(), ::toupper);
 
 	while (iss >> param) {
 		args.push_back(param);

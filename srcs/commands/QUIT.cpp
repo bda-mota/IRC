@@ -1,35 +1,31 @@
 #include "../../includes/irc.hpp"
 
-static std::string createQuitMessage(User* user, const std::string& reason);
 static void handleQuitFromChannels(User* user, Server& server, const std::string& quitMessage);
 
 std::string CommandsArgs::quit(const std::vector<std::string>& args, Server& server, User* user) {
 	std::string reason;
 
 	if (!args.empty()) {
-		for (size_t i = 0; i < args.size(); i++) {
-			if (i == 0)
-				reason = args[i];
-			else
-				reason += " " + args[i];
-		}
-	} else {
-		reason = "Client Quit";
+		reason = args[0];
+		if (!reason.empty() && reason[0] == ':')
+			reason = reason.substr(1);
+		for (size_t i = 1; i < args.size(); i++)
+			reason += " " + args[i];
 	}
 
-	std::string quitMsg = createQuitMessage(user, reason);
+	std::string nick = user->getNickName();
+	std::string userName = user->getUserName();
+	std::string host = user->getHostName();
+
+	std::string quitMsg = RPL_QUIT(nick, userName, host, reason);
+
 	handleQuitFromChannels(user, server, quitMsg);
 	
-	logger(INFO, user->getNickName() + " disconnected from the server.");
-	close(user->getFd());
+	logger(INFO, nick + " disconnected from the server.");
 	server.clearUsers(user->getFd());
+	close(user->getFd());
 
 	return "";
-}
-
-static std::string createQuitMessage(User* user, const std::string& reason) {
-	std::string quitMessage = RPL_QUIT(user->getNickName(), user->getUserName(), user->getHostName(), reason);
-	return quitMessage;
 }
 
 static void handleQuitFromChannels(User* user, Server& server, const std::string& quitMessage) {
