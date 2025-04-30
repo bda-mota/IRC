@@ -19,7 +19,6 @@ class CommandsArgs {
     ~CommandsArgs();
 
     static void populateMap();
-
     static std::string executeCommand(const std::string& command, const std::vector<std::string>& args, Server& server, User* user);
 
     static std::string user(const std::vector<std::string>& args, Server& server, User* user);
@@ -43,4 +42,4 @@ class CommandsArgs {
 
 };
 
-#endif // COMMANDSARGS_HPP
+#endif 

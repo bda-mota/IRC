@@ -35,11 +35,16 @@ void CommandsArgs::populateMap() {
 }
 
 std::string CommandsArgs::executeCommand(const std::string& command, const std::vector<std::string>& args, Server& server, User* user) {
-  if (command != "PASS" && command != "CAP" && user->isAuth() == false) {
-    return "ERROR: You must authenticate with the PASS command first.\r\n"; // TODO:melhorar mensagem de erro
-  }
+	if ( !user->isAuth() && command != "PASS" && command != "CAP") {
+		return "ERROR: You are not authenticated.\r\n";
+	}
 
-  std::map<std::string, funcPtr>::iterator it = _messageFunctions.find(command);
+	if (!user->getRegistered() &&
+		command != "NICK" && command != "USER" && command != "PASS" && command != "CAP") {
+		return "ERROR: You are not registered.\r\n";
+	}
+
+	std::map<std::string, funcPtr>::iterator it = _messageFunctions.find(command);
     if (it != _messageFunctions.end()) {
         return (it->second)(args, server, user);
     }
