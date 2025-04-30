@@ -102,3 +102,20 @@ void User::removeInvitation(const std::string& channel) {
 void User::clearJoinedChannels() {
 	_joinedChannels.clear();
 }
+
+// buffer 
+const std::string& User::getReceiveBuffer() const {
+	return _receiveBuffer;
+}
+
+std::string& User::getReceiveBuffer() {
+	return _receiveBuffer;
+}
+
+void	User::appendToBuffer(const std::string &data) {
+	_receiveBuffer += data;
+}
+
+void	User::clearBuffers() {
+	_receiveBuffer.clear();
+}

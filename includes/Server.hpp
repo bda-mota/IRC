@@ -43,7 +43,8 @@ class Server {
 		int	getServerFd() const;
     	std::string	getPassword();
 
-    	void	parseReceiveNewData(std::string rawMessage, int fd, User *user);
+    	bool	parseReceiveNewData(std::string rawMessage, int fd, User *user);
+		bool	userExists(int fd) const;
 };
 
 #endif

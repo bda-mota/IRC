@@ -23,8 +23,9 @@ void Server::signalHandler(int signal) {
 void Server::closeFds() {
 	std::cout << "Closing all file descriptors..." << std::endl;
 	for (size_t i = 0; i < _serverUsers.size(); i++) {
+		int fd = _serverUsers[i]->getFd();
 		std::cout << "Client: " << _serverUsers[i]->getFd() << " disconnected." << std::endl;
-		close(_serverUsers[i]->getFd());
+		close(fd);
 		delete _serverUsers[i];
 	}
 	_serverUsers.clear();
@@ -33,8 +34,8 @@ void Server::closeFds() {
 		std::cout << std::endl << "Server disconnected." << std::endl;
 		close(_serverFd);
 	}
-	clearChannels();
 	_fds.clear();
+	clearChannels();
 }
 
 void Server::clearUsers(int fd) {
@@ -45,6 +46,7 @@ void Server::clearUsers(int fd) {
 			break;
 		}
 	}
+
 	for (size_t i = 0; i < _fds.size(); i++) {
 		if (_fds[i].fd == fd) {
 			_fds.erase(_fds.begin() + i);
@@ -154,7 +156,7 @@ void Server::acceptNewUser() {
 	std::cout << "Client connected: " << newUser->getIP() << std::endl;
 }
 
-void Server::parseReceiveNewData(std::string rawMessage, int fd, User *user) {
+bool Server::parseReceiveNewData(std::string rawMessage, int fd, User *user) {
 	std::istringstream stream(rawMessage);
 	std::string line;
 
@@ -171,7 +173,12 @@ void Server::parseReceiveNewData(std::string rawMessage, int fd, User *user) {
 		if (!response.empty()) {
 			send(fd, response.c_str(), response.length(), 0);
 		}
+
+		if (!userExists(fd)) {
+			return false;
+		}
 	}
+	return true;
 }
 
 void Server::receiveNewData(int fd) {
@@ -198,8 +205,19 @@ void Server::receiveNewData(int fd) {
 	if (!user)
 		return;
 
-	std::string rawMessage(buff, bytes);
-	parseReceiveNewData(rawMessage, fd, user);
+	std::string newData(buff, bytes);
+	user->appendToBuffer(newData);
+
+
+    size_t pos;
+	while ((pos = user->getReceiveBuffer().find('\n')) != std::string::npos) {
+		std::string rawMessage = user->getReceiveBuffer().substr(0, pos + 1);
+		user->getReceiveBuffer().erase(0, pos + 1);
+	
+		if (!parseReceiveNewData(rawMessage, fd, user)) {
+			return;
+		}
+	}
 }
 
 void	Server::broadcast(const std::string& message, User* sender) {
@@ -226,3 +244,12 @@ std::map<std::string, Channel*>& Server::getChannels() { return _channels; }
 int Server::getServerFd() const { return _serverFd; }
 
 std::string Server::getPassword() { return _password; }
+
+bool Server::userExists(int fd) const {
+	for (size_t i = 0; i < _serverUsers.size(); i++) {
+		if (_serverUsers[i]->getFd() == fd) {
+			return true;
+		}
+	}
+	return false;
+}
