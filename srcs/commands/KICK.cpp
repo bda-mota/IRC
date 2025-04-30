@@ -8,10 +8,8 @@ std::string CommandsArgs::kick(const std::vector<std::string>& args, Server& ser
 	}
 
 	std::string channelName = args[1];
-	if (channelName[0] != '#') {
-		sendErrorAndLog(user, ERR_NEEDMOREPARAMS(user->getNickName(), "KICK")); // TODO: Change to ERR_NOSUCHCHANNEL
+	if (!isValidChannelName(channelName, user))
 		return "";
-	}
 
 	std::string targetNick = args[2];
 	if (targetNick[0] == ':')
@@ -50,7 +48,7 @@ std::string CommandsArgs::kick(const std::vector<std::string>& args, Server& ser
         kickMsg = RPL_KICKREASON(user->getNickName(), user->getUserName(), channelName, target->getNickName(), reason);
     }
 
-	// TODO:entender o porquê de não conseguir entrar em um canal
+	// TODO:entender o porquê de não conseguir entrar em um canal novamente após sair
 
     channel->broadcast(kickMsg, target);
     channel->removeUser(target);
