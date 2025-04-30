@@ -30,7 +30,7 @@
 # define RPL_TOPIC(nick, channel, topic)                     (FTIRC + " 332 " + nick + " " + channel + " :" + topic + CRLF)
 # define RPL_INVITING(nick, recipient, channel)                         (FTIRC + " 341 " + nick + " " + recipient + " :" + channel + CRLF)
 # define RPL_WHOREPLY(channel, user, nick, flags, realname)  (FTIRC + " 352 " + channel + " " + user + " 42sp.org.br ft.irc " + nick + " " + flags + ":0 " + realname + CRLF)
-# define RPL_NAMREPLY(nick, channel, names)                  (FTIRC + " 353 " + nick + " = " + channel + " : " + names + CRLF)
+# define RPL_NAMREPLY(nick, channel, names)                  (FTIRC + " 353 " + nick + " = " + channel + " :" + names + CRLF)
 # define RPL_ENDOFNAMES(nick, channel)                       (FTIRC + " 366 " + nick + " " + channel + " : End of names list" + CRLF)
 
 # define ERR_NOSUCHCHANNEL(channel)                      (FTIRC + " 403 * " + channel + " :Invalid channel name!" + CRLF)

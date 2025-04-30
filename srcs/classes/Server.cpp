@@ -198,8 +198,8 @@ void Server::receiveNewData(int fd) {
 	if (!user)
 		return;
 
-  std::string rawMessage(buff, bytes);
-  parseReceiveNewData(rawMessage, fd, user);
+	std::string rawMessage(buff, bytes);
+	parseReceiveNewData(rawMessage, fd, user);
 }
 
 void	Server::broadcast(const std::string& message, User* sender) {

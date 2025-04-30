@@ -4,6 +4,7 @@ static void	createChannelIfNotExists(const std::string& channelName, Server& ser
 static void	addUserToChannel(Channel* channel, User* user);
 static void	sendListOfUsers(Channel *channel, User* user);
 static bool canUserJoinChannel(Channel* channel, User* user, const std::string& channelName);
+static void notifyOthersUserJoined(Channel* channel, User* newUser);
 
 std::string CommandsArgs::join(const std::vector<std::string>& args, Server& server, User* user) {
 
@@ -60,6 +61,7 @@ std::string CommandsArgs::join(const std::vector<std::string>& args, Server& ser
 		}
 
 		addUserToChannel(channel, user);
+		notifyOthersUserJoined(channel, user);
 		user->removeInvitation(channelName);
 		sendListOfUsers(channel, user);
 	}
@@ -88,18 +90,22 @@ static void	addUserToChannel(Channel* channel, User* user) {
 	logger(INFO, user->getNickName() + " joined channel " + channel->getName());
 }
 
-static void	sendListOfUsers(Channel *channel, User* user) {
+static void sendListOfUsers(Channel* channel, User* user) {
 	std::vector<User*>& users = channel->getUsers();
 	std::string names;
 	for (std::vector<User*>::iterator it = users.begin(); it != users.end(); ++it) {
-		names += (*it)->getNickName() + " ";
+		if (channel->isOperator(*it))
+			names += "@" + (*it)->getNickName();
+		else
+			names += (*it)->getNickName();
+		names += " ";
 	}
 	if (!names.empty())
 		names.erase(names.length() - 1);
 
-    logger(INFO, user->getNickName() + " requested user list for channel " + channel->getName());
-    logger(INFO, "User list for channel " + channel->getName() + ": " + names);
-    
+	logger(INFO, user->getNickName() + " requested user list for channel " + channel->getName());
+	logger(INFO, "User list for channel " + channel->getName() + ": " + names);
+	
 	std::string nameReply = RPL_NAMREPLY(user->getNickName(), channel->getName(), names);
 	sendResponse(user, nameReply);
 
@@ -112,4 +118,17 @@ static bool canUserJoinChannel(Channel* channel, User* user, const std::string& 
 		return false;
 	}
 	return true;
+}
+
+static void notifyOthersUserJoined(Channel* channel, User* newUser) {
+	std::vector<User*>& users = channel->getUsers();
+	std::string joinMsg = ":" + newUser->getNickName() + "!" + newUser->getUserName() + "@" + newUser->getHostName()
+	                    + " JOIN " + channel->getName() + CRLF;
+
+	for (std::vector<User*>::iterator it = users.begin(); it != users.end(); ++it) {
+		User* otherUser = *it;
+		if (otherUser != newUser) {
+			sendResponse(otherUser, joinMsg);
+		}
+	}
 }
