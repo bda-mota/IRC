@@ -22,8 +22,8 @@ std::string CommandsArgs::quit(const std::vector<std::string>& args, Server& ser
 	handleQuitFromChannels(user, server, quitMsg);
 	
 	logger(INFO, nick + " disconnected from the server.");
-	server.clearUsers(user->getFd());
 	close(user->getFd());
+	server.clearUsers(user->getFd());
 
 	return "";
 }
