@@ -48,5 +48,7 @@ std::string CommandsArgs::executeCommand(const std::string& command, const std::
     if (it != _messageFunctions.end()) {
         return (it->second)(args, server, user);
     }
-    return "Comando inválido!\r\n";
+
+    sendErrorAndLog(user, ERR_UNKNOWNCOMMAND(user->getNickName(), command));
+    return "";
 }
