@@ -44,6 +44,7 @@ std::string CommandsArgs::part(const std::vector<std::string>& args, Server& ser
 
 		std::string partMsg = RPL_PARTMSG(user->getNickName(), user->getUserName(), name, reason);
 		channel->broadcast(partMsg, user);
+		send(user->getFd(), partMsg.c_str(), partMsg.length(), 0);
 
 		if (channel->getUsers().empty()) {
 			delete channel;
