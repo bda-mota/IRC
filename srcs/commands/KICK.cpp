@@ -41,6 +41,7 @@ std::string CommandsArgs::kick(const std::vector<std::string>& args, Server& ser
 	}
 
 	std::string kickMsg =  RPL_KICKREASON(user->getNickName(), user->getUserName(), channelName, target->getNickName(), reason);
+	send(target->getFd(), kickMsg.c_str(), kickMsg.length(), 0);
 
     channel->broadcast(kickMsg, target);
     channel->removeUser(target);
