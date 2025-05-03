@@ -41,6 +41,8 @@ static void handleQuitFromChannels(User* user, Server& server, const std::string
 			server.getChannels().erase(channel->getName());
 			delete channel;
 		}
+
+		promoteOperatorChannel(user, channel, "QUIT");
 	}
 
 	user->clearJoinedChannels();

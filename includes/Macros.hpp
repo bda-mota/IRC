@@ -20,7 +20,7 @@
 
 #define RPL_WELCOME(nick, user) (FTIRC + " 001 " + user + " :Welcome to the Internet Relay Chat " + nick + "!" + user + "@*" + CRLF)
 
-#define RPL_QUIT(nick, userName, host, reason) (":" + (nick) + "!" + (userName) + "@" + (host) + " QUIT :" + (reason) + CRLF)
+#define  RPL_QUIT(nick, userName, host, reason) (":" + (nick) + "!" + (userName) + "@" + (host) + " QUIT :" + (reason) + CRLF)
 # define RPL_ENDOFWHO(channel)                               (FTIRC + " 315 " + channel + " :End of /WHO list." + CRLF)
 # define RPL_LISTSTART(nick)                                 (FTIRC + " 321 " + nick + " Channel    |   Users   |   Topic" + CRLF)
 # define RPL_LIST(nick, channel, users, topic)               (FTIRC + " 322 " + nick + " " + channel + " " + users + " :" + topic + CRLF)
@@ -38,6 +38,7 @@
 # define ERR_NOSUCHNICK(recipient)                       (FTIRC + " 406 " + recipient + " :No such nick" + CRLF)
 # define ERR_NORECIPIENT(user)                           (FTIRC + " 411 " + user + " :No recipient to message" + CRLF)
 # define ERR_NOTEXTTOSEND(user)                          (FTIRC + " 412 " + user + " :No message to send" + CRLF)
+# define ERR_UNKNOWNCOMMAND(nick, command)               (FTIRC + " 421 " + nick + " " + command + " :Unknown command" + CRLF)
 # define ERR_NONICKNAMEGIVEN()                           (FTIRC + " 431 :No nickname given" + CRLF)
 # define ERR_ERRONEUSNICKNAME(nick)                      (FTIRC + " 432 * " + nick + " :Nickname is invalid" + CRLF)
 # define ERR_NICKNAMEINUSE(nick)                         (FTIRC + " 433 * " + nick + " :Nickname is already in use" + CRLF)
@@ -52,6 +53,7 @@
 # define ERR_INVITEONLYCHAN(channel)                     (FTIRC + " 473 * " + channel + " :Channel is invite-only!" + CRLF)
 # define ERR_BADCHANNELKEY(user, channel)                (FTIRC + " 475 " + user + " " + channel + " :Password for channel was either not given or incorrect" + CRLF)
 # define ERR_CHANOPRISNEEDED(user, channel)              (FTIRC + " 482 " + user + " " + channel + " :You're not a channel operator!" + CRLF)
+# define ERR_CANTKICKYOURSELF(user, channel)              (FTIRC + " 482 " + user + " " + channel + " :You can't kick yourself!" + CRLF)
 # define ERR_UMODEUNKNOWNFLAG(nick)                      (FTIRC + " 501 " + nick + " MODE :Unknown MODE flag" + CRLF)
 
 # define JOIN(user, channel)                                         (COLON + user + " JOIN " + channel + CRLF)

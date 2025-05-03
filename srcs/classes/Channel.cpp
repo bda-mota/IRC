@@ -66,6 +66,8 @@ const std::string& Channel::getTopic() const { return _topic; }
 
 std::vector<User*>& Channel::getUsers() { return _channelUsers; }
 
+std::set<User*>& Channel::getOperators() { return _operators; }
+
 bool Channel::isUserInChannel(User* user) const {
 	return std::find(_channelUsers.begin(), _channelUsers.end(), user) != _channelUsers.end();
 }
@@ -97,7 +99,6 @@ void Channel::removeUser(User* user) {
     }
 }
 
-
 void Channel::broadcast(const std::string& message, User* sender) {
 	if (!sender) return;
 
@@ -123,14 +124,14 @@ bool Channel::isOperator(User* user) const {
 }
 
 void Channel::addOperator(User* user) {
-  std::cout << "Adding operator: " << user->getNickName() << std::endl;
 	if (user) {
 		_operators.insert(user);
 	}
 }
 
 void Channel::removeOperator(User* user) {
-	_operators.erase(user);
+  if (!_operators.empty() && isOperator(user))
+	  _operators.erase(user);
 }
 
 // Invite only

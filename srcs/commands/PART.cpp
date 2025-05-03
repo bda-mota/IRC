@@ -49,8 +49,11 @@ std::string CommandsArgs::part(const std::vector<std::string>& args, Server& ser
 		if (channel->getUsers().empty()) {
 			delete channel;
 			channels.erase(name);
+			logger(INFO, user->getNickName() + " left channel " + name + " with reason: " + reason);
+			return "";
 		}
 
+		promoteOperatorChannel(user, channel, "PART");
 		logger(INFO, user->getNickName() + " left channel " + name + " with reason: " + reason);
 	}
 	return "";

@@ -27,6 +27,7 @@ User*    findUserInServer(Server& server, User* sender, const std::string& targe
 void     buildTrailingMessage(std::string& message, const std::vector<std::string>& args, size_t start);
 void     sendErrorAndLog(User* user, const std::string& errorMessage);
 void     logger(LogLevel level, const std::string& message);
+void     promoteOperatorChannel(User *user, Channel *channel, std::string mode);
 
 // AUXILIARIES MODE COMMAND
 

@@ -28,6 +28,7 @@ class Channel {
 		const std::string& getName() const;
 		const std::string& getTopic() const;
 		std::vector<User*>& getUsers();
+		std::set<User*>& getOperators();
 
 		// Users
 		bool		isUserInChannel(User* user) const;
